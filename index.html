@@ -1,960 +1,820 @@
-<!DOCTYPE html>
-<html lang="tr">
+<!doctype html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Z Ξ T R Λ X U S</title>
-  <meta name="description" content="ZETRAXUS is an ultra-modern creative engine: 3D printing & engineering, editorial & video dynamics, library & archive, and a digital shop." />
-  <link rel="icon" type="image/png" sizes="64x64" href="favicon.png?v=5">
-  <link rel="shortcut icon" type="image/png" href="favicon.png?v=5">
-  <link rel="apple-touch-icon" href="favicon.png?v=5">
-  
-  <!-- Font -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-
-  <style>
-    /* ==========================================================================
-       RESET & ROOT VARIABLES (Obsidian Stealth Palette)
-       ========================================================================== */
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    :root {
-      --bg-deep: #030305;
-      --bg-surface: #0a0a0e;
-      --bg-surface-elevated: #111117;
-      --border-subtle: #191924;
-      --border-hover: #2e2e40;
-      --text-white: #f5f5f7;
-      --text-muted: #8b8b9e;
-      --text-subtle: #57576b;
-      --accent-glow: rgba(255, 255, 255, 0.08);
-      --radius-oval: 28px;
-      --radius-pill: 9999px;
-      --radius-sm: 16px;
-      --transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    html {
-      scroll-behavior: smooth;
-      background-color: var(--bg-deep);
-      color: var(--text-white);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    body {
-      background-color: var(--bg-deep);
-      min-height: 100vh;
-      overflow-x: hidden;
-      position: relative;
-    }
-
-    /* Ambient Background Glow */
-    .bg-mesh {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 0;
-      background: 
-        radial-gradient(circle at 50% 15%, rgba(255, 255, 255, 0.035) 0%, transparent 60%),
-        radial-gradient(circle at 85% 60%, rgba(255, 255, 255, 0.015) 0%, transparent 40%),
-        radial-gradient(circle at 15% 80%, rgba(255, 255, 255, 0.015) 0%, transparent 40%);
-    }
-
-    .container {
-      max-width: 1240px;
-      margin: 0 auto;
-      padding: 0 24px;
-      position: relative;
-      z-index: 1;
-    }
-
-    /* ==========================================================================
-       TOP NAVIGATION
-       ========================================================================== */
-    .nav {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 50;
-      width: calc(100% - 48px);
-      max-width: 1080px;
-      padding: 12px 28px;
-      border-radius: var(--radius-pill);
-      background: rgba(10, 10, 14, 0.7);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--border-subtle);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      transition: var(--transition);
-    }
-
-    .nav:hover {
-      border-color: var(--border-hover);
-    }
-
-    .brand-logo {
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700;
-      letter-spacing: 0.25em;
-      font-size: 1.05rem;
-      color: var(--text-white);
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .brand-badge {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #fff;
-      box-shadow: 0 0 12px rgba(255,255,255,0.8);
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 28px;
-    }
-
-    .nav-link {
-      color: var(--text-muted);
-      text-decoration: none;
-      font-size: 0.82rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      font-weight: 500;
-      transition: var(--transition);
-    }
-
-    .nav-link:hover {
-      color: var(--text-white);
-    }
-
-    /* ==========================================================================
-       BUTTONS
-       ========================================================================== */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 14px 32px;
-      border-radius: var(--radius-pill);
-      font-size: 0.85rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      cursor: pointer;
-      text-decoration: none;
-      transition: var(--transition);
-      border: 1px solid transparent;
-      outline: none;
-    }
-
-    .btn-primary {
-      background: #f5f5f7;
-      color: #030305;
-      box-shadow: 0 4px 24px rgba(255, 255, 255, 0.15);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      background: #ffffff;
-      box-shadow: 0 8px 32px rgba(255, 255, 255, 0.25);
-    }
-
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.03);
-      color: var(--text-white);
-      border-color: var(--border-subtle);
-    }
-
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: var(--border-hover);
-      transform: translateY(-2px);
-    }
-
-    .btn-sm {
-      padding: 10px 22px;
-      font-size: 0.78rem;
-    }
-
-    /* ==========================================================================
-       HERO SECTION
-       ========================================================================== */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 160px 20px 80px;
-    }
-
-    .hero-eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 6px 18px;
-      border-radius: var(--radius-pill);
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-subtle);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
-      letter-spacing: 0.18em;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      margin-bottom: 32px;
-    }
-
-    .hero-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(3.2rem, 11vw, 8.5rem);
-      font-weight: 700;
-      letter-spacing: 0.22em;
-      line-height: 0.95;
-      text-transform: uppercase;
-      color: #ffffff;
-      margin-bottom: 24px;
-      text-shadow: 0 0 60px rgba(255, 255, 255, 0.12);
-      margin-left: 0.22em; /* visual center for letter-spacing */
-    }
-
-    .hero-subtitle {
-      max-width: 640px;
-      font-size: clamp(1rem, 2vw, 1.25rem);
-      line-height: 1.6;
-      color: var(--text-muted);
-      font-weight: 300;
-      margin-bottom: 44px;
-    }
-
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 18px;
-      justify-content: center;
-    }
-
-    /* ==========================================================================
-       SECTION TITLES
-       ========================================================================== */
-    .section {
-      padding: 110px 0;
-    }
-
-    .section-header {
-      text-align: center;
-      max-width: 700px;
-      margin: 0 auto 64px;
-    }
-
-    .section-tag {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
-      letter-spacing: 0.2em;
-      color: var(--text-subtle);
-      text-transform: uppercase;
-      margin-bottom: 12px;
-      display: block;
-    }
-
-    .section-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(2rem, 4vw, 3rem);
-      letter-spacing: 0.08em;
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-bottom: 14px;
-    }
-
-    .section-desc {
-      color: var(--text-muted);
-      font-size: 1rem;
-      line-height: 1.6;
-      font-weight: 300;
-    }
-
-    /* ==========================================================================
-       CATEGORIES GRID (28px Border-Radius Smooth Cards)
-       ========================================================================== */
-    .categories-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
-    }
-
-    .category-card {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-oval);
-      padding: 40px 32px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      min-height: 380px;
-      position: relative;
-      overflow: hidden;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-
-    .category-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
-      opacity: 0;
-      transition: var(--transition);
-    }
-
-    .category-card:hover {
-      background: var(--bg-surface-elevated);
-      border-color: var(--border-hover);
-      transform: translateY(-6px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
-    }
-
-    .category-card:hover::before {
-      opacity: 1;
-    }
-
-    .category-number {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.8rem;
-      color: var(--text-subtle);
-      margin-bottom: 32px;
-      letter-spacing: 0.15em;
-    }
-
-    .category-card h3 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.45rem;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      margin-bottom: 14px;
-      line-height: 1.25;
-      text-transform: uppercase;
-    }
-
-    .category-card p {
-      color: var(--text-muted);
-      font-size: 0.92rem;
-      line-height: 1.6;
-      margin-bottom: 32px;
-      font-weight: 300;
-    }
-
-    .category-footer-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      color: #fff;
-      font-size: 0.82rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      font-weight: 600;
-      margin-top: auto;
-    }
-
-    .category-footer-link svg {
-      transition: transform 0.3s ease;
-    }
-
-    .category-card:hover .category-footer-link svg {
-      transform: translateX(4px);
-    }
-
-    /* ==========================================================================
-       STORE / PRODUCT CARDS
-       ========================================================================== */
-    .products-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
-      gap: 24px;
-    }
-
-    .product-card {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-oval);
-      padding: 32px 28px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      transition: var(--transition);
-      position: relative;
-    }
-
-    .product-card:hover {
-      border-color: var(--border-hover);
-      background: var(--bg-surface-elevated);
-      transform: translateY(-4px);
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
-    }
-
-    .product-badge {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.72rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-subtle);
-      margin-bottom: 18px;
-    }
-
-    .product-name {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.25rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      margin-bottom: 10px;
-    }
-
-    .product-desc {
-      color: var(--text-muted);
-      font-size: 0.88rem;
-      line-height: 1.55;
-      margin-bottom: 28px;
-      font-weight: 300;
-    }
-
-    .product-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: 20px;
-      border-top: 1px solid var(--border-subtle);
-      margin-top: auto;
-    }
-
-    .product-price {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.5rem;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-    }
-
-    /* ==========================================================================
-       MODAL (SMOOTH OVERLAY & DRAWER)
-       ========================================================================== */
-    .modal-backdrop {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(3, 3, 5, 0.88);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      z-index: 100;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.35s ease, visibility 0.35s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .modal-backdrop.active {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .modal-window {
-      background: var(--bg-surface-elevated);
-      border: 1px solid var(--border-hover);
-      border-radius: var(--radius-oval);
-      width: 100%;
-      max-width: 680px;
-      padding: 44px;
-      position: relative;
-      transform: scale(0.95) translateY(20px);
-      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9);
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    .modal-backdrop.active .modal-window {
-      transform: scale(1) translateY(0);
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 28px;
-      right: 28px;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-white);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 1.1rem;
-      transition: var(--transition);
-    }
-
-    .modal-close:hover {
-      background: rgba(255, 255, 255, 0.15);
-      transform: rotate(90deg);
-    }
-
-    .modal-tag {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.72rem;
-      letter-spacing: 0.18em;
-      color: var(--text-subtle);
-      text-transform: uppercase;
-      margin-bottom: 12px;
-      display: block;
-    }
-
-    .modal-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.85rem;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      margin-bottom: 16px;
-      text-transform: uppercase;
-    }
-
-    .modal-desc {
-      color: var(--text-muted);
-      line-height: 1.65;
-      font-size: 0.98rem;
-      margin-bottom: 28px;
-      font-weight: 300;
-    }
-
-    .modal-features {
-      list-style: none;
-      margin-bottom: 36px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .modal-features li {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 0.9rem;
-      color: #e1e1e8;
-    }
-
-    .modal-features li svg {
-      color: #fff;
-      flex-shrink: 0;
-    }
-
-    /* ==========================================================================
-       TOAST NOTIFICATION
-       ========================================================================== */
-    .toast {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      z-index: 200;
-      background: #0a0a0e;
-      border: 1px solid var(--border-hover);
-      border-radius: var(--radius-pill);
-      padding: 14px 24px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
-      transform: translateY(100px);
-      opacity: 0;
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: #fff;
-    }
-
-    .toast.show {
-      transform: translateY(0);
-      opacity: 1;
-    }
-
-    .toast-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #fff;
-      box-shadow: 0 0 10px #fff;
-    }
-
-    /* ==========================================================================
-       FOOTER
-       ========================================================================== */
-    .footer {
-      border-top: 1px solid var(--border-subtle);
-      padding: 60px 0;
-      margin-top: 60px;
-    }
-
-    .footer-content {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-    }
-
-    .footer-brand {
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      font-size: 1rem;
-      color: var(--text-white);
-    }
-
-    .footer-copy {
-      font-size: 0.82rem;
-      color: var(--text-subtle);
-      letter-spacing: 0.04em;
-    }
-
-    .footer-socials {
-      display: flex;
-      gap: 18px;
-    }
-
-    .social-link {
-      color: var(--text-muted);
-      text-decoration: none;
-      font-size: 0.82rem;
-      letter-spacing: 0.08em;
-      transition: var(--transition);
-      text-transform: uppercase;
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    .social-link:hover {
-      color: #fff;
-    }
-
-    @media (max-width: 768px) {
-      .nav-links { display: none; }
-      .modal-window { padding: 30px 22px; }
-      .hero-title { letter-spacing: 0.12em; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ZETRAXUS — A space for creation, ideas, worlds and possibilities</title>
+<meta name="description" content="ZETRAXUS is an emerging digital ecosystem — commerce, craft, worlds and community forming into one platform.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root{
+  --bg:        #030305;
+  --bg-soft:   #08080a;
+  --panel:     #0e0e10;
+  --panel-2:   #131315;
+  --ink:       #edeae3;
+  --ink-dim:   #8f8c86;
+  --ink-faint: #55534f;
+  --line:      rgba(237,234,227,0.09);
+  --line-soft: rgba(237,234,227,0.05);
+  --metal:     #bab199;
+  --metal-dim: #8a8370;
+
+  --f-display: "Unbounded", "Arial Narrow", sans-serif;
+  --f-body:    "Inter", -apple-system, sans-serif;
+
+  --ease: cubic-bezier(.16,.84,.32,1);
+  --ease-soft: cubic-bezier(.4,0,.2,1);
+
+  --edge: clamp(20px, 5vw, 64px);
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+html{
+  background:var(--bg);
+  scroll-behavior:smooth;
+}
+
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-size:16px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  cursor:default;
+}
+
+::selection{ background:var(--ink); color:var(--bg); }
+
+a{ color:inherit; text-decoration:none; }
+button{ font:inherit; color:inherit; background:none; border:none; cursor:pointer; }
+img,svg{ display:block; max-width:100%; }
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important; }
+}
+
+:focus-visible{
+  outline:1px solid var(--metal);
+  outline-offset:4px;
+}
+
+/* ============================================================
+   BACKGROUND FX — grain + particle field (shared canvas layer)
+   ============================================================ */
+.fx-layer{
+  position:fixed; inset:0;
+  z-index:0;
+  pointer-events:none;
+}
+#grain{
+  position:fixed; inset:0;
+  z-index:1;
+  opacity:0.05;
+  mix-blend-mode:overlay;
+  pointer-events:none;
+}
+#particles{
+  position:fixed; inset:0;
+  z-index:0;
+  pointer-events:none;
+}
+
+/* ============================================================
+   LOAD VEIL — cinematic curtain
+   ============================================================ */
+#veil{
+  position:fixed; inset:0;
+  background:var(--bg);
+  z-index:100;
+  display:flex; align-items:center; justify-content:center;
+  transition:opacity 1.1s var(--ease), visibility 1.1s var(--ease);
+}
+#veil.hide{ opacity:0; visibility:hidden; }
+.veil-mark{
+  font-family:var(--f-display);
+  font-weight:300;
+  font-size:clamp(20px,4vw,28px);
+  letter-spacing:0.5em;
+  color:var(--ink-faint);
+  opacity:0;
+  animation:veilPulse 1.8s var(--ease-soft) forwards;
+}
+@keyframes veilPulse{
+  0%{ opacity:0; letter-spacing:0.8em; }
+  60%{ opacity:1; }
+  100%{ opacity:0.35; letter-spacing:0.5em; }
+}
+
+/* ============================================================
+   NAV
+   ============================================================ */
+.nav{
+  position:fixed; top:0; left:0; right:0;
+  z-index:40;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:26px var(--edge);
+  opacity:0;
+  transform:translateY(-12px);
+  transition:opacity 1s var(--ease) 1.6s, transform 1s var(--ease) 1.6s, padding 0.5s var(--ease-soft), background 0.5s var(--ease-soft), border-color .5s;
+  border-bottom:1px solid transparent;
+}
+.nav.in{ opacity:1; transform:translateY(0); }
+.nav.scrolled{
+  padding-top:16px; padding-bottom:16px;
+  background:rgba(3,3,5,0.72);
+  backdrop-filter:blur(14px) saturate(120%);
+  border-bottom-color:var(--line);
+}
+.nav-mark{
+  font-family:var(--f-display);
+  font-weight:600;
+  font-size:15px;
+  letter-spacing:0.22em;
+}
+.nav-links{
+  display:flex; gap:clamp(20px,3vw,40px);
+  list-style:none;
+}
+.nav-links a{
+  font-size:13px;
+  color:var(--ink-dim);
+  letter-spacing:0.02em;
+  position:relative;
+  padding-bottom:3px;
+  transition:color 0.4s var(--ease-soft);
+}
+.nav-links a::after{
+  content:"";
+  position:absolute; left:0; right:100%; bottom:0;
+  height:1px; background:var(--ink);
+  transition:right 0.45s var(--ease);
+}
+.nav-links a:hover{ color:var(--ink); }
+.nav-links a:hover::after{ right:0; }
+.nav-links li{ display:block; }
+@media (max-width:720px){ .nav-links{ display:none; } }
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{
+  position:relative;
+  min-height:100svh;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center;
+  padding:120px var(--edge) 80px;
+  z-index:2;
+  overflow:hidden;
+}
+
+.hero-coord{
+  position:absolute;
+  top:110px; left:var(--edge);
+  font-size:11px;
+  letter-spacing:0.18em;
+  color:var(--ink-faint);
+  opacity:0;
+  transform:translateX(-10px);
+  transition:opacity 1s var(--ease) 2.5s, transform 1s var(--ease) 2.5s;
+}
+.hero-coord.in{ opacity:1; transform:translateX(0); }
+.hero-coord span{ color:var(--ink-dim); }
+
+.hero-scroll-cue{
+  position:absolute;
+  bottom:44px; left:var(--edge);
+  display:flex; align-items:center; gap:12px;
+  font-size:11px; letter-spacing:0.14em; color:var(--ink-faint);
+  opacity:0;
+  transition:opacity 1s var(--ease) 3s;
+}
+.hero-scroll-cue.in{ opacity:1; }
+.hero-scroll-cue i{
+  display:block; width:1px; height:34px;
+  background:linear-gradient(var(--ink-dim), transparent);
+  animation:cueDrift 2.4s var(--ease-soft) infinite;
+}
+@keyframes cueDrift{
+  0%{ transform:scaleY(0.3); transform-origin:top; opacity:0.3; }
+  50%{ transform:scaleY(1); opacity:1; }
+  100%{ transform:scaleY(0.3); transform-origin:bottom; opacity:0.3; }
+}
+
+.wordmark{
+  font-family:var(--f-display);
+  font-weight:700;
+  font-size:clamp(56px, 13vw, 168px);
+  line-height:0.92;
+  letter-spacing:0.01em;
+  display:flex;
+  justify-content:center;
+  filter:blur(0px);
+}
+.wordmark .ch{
+  display:inline-block;
+  opacity:0;
+  filter:blur(14px);
+  transform:translateY(0.22em) scale(1.06);
+  animation:letterIn 1.1s var(--ease) forwards;
+}
+@keyframes letterIn{
+  0%{ opacity:0; filter:blur(14px); transform:translateY(0.22em) scale(1.06); }
+  55%{ opacity:1; filter:blur(2px); }
+  100%{ opacity:1; filter:blur(0px); transform:translateY(0) scale(1); }
+}
+
+.hero-tagline{
+  margin-top:28px;
+  max-width:32ch;
+  font-size:clamp(15px,1.6vw,18px);
+  color:var(--ink-dim);
+  font-weight:400;
+  letter-spacing:0.01em;
+  opacity:0;
+  transform:translateY(10px);
+  transition:opacity 1s var(--ease) 2.1s, transform 1s var(--ease) 2.1s;
+}
+.hero-tagline.in{ opacity:1; transform:translateY(0); }
+
+.hero-cta-wrap{
+  margin-top:52px;
+  opacity:0;
+  transform:translateY(14px);
+  transition:opacity 1s var(--ease) 2.5s, transform 1s var(--ease) 2.5s;
+}
+.hero-cta-wrap.in{ opacity:1; transform:translateY(0); }
+
+.magnetic-btn{
+  position:relative;
+  display:inline-flex; align-items:center; gap:14px;
+  padding:18px 38px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:transparent;
+  font-family:var(--f-body);
+  font-size:13.5px;
+  font-weight:500;
+  letter-spacing:0.06em;
+  overflow:hidden;
+  transition:border-color 0.5s var(--ease-soft), color 0.5s var(--ease-soft);
+}
+.magnetic-btn .fill{
+  position:absolute; inset:0;
+  background:var(--ink);
+  border-radius:999px;
+  transform:scale(0);
+  transition:transform 0.55s var(--ease);
+  z-index:0;
+}
+.magnetic-btn:hover .fill{ transform:scale(1); }
+.magnetic-btn:hover{ color:var(--bg); border-color:var(--ink); }
+.magnetic-btn span, .magnetic-btn .dot{ position:relative; z-index:1; }
+.magnetic-btn .dot{
+  width:6px; height:6px; border-radius:50%;
+  background:var(--metal);
+  transition:background 0.5s var(--ease-soft), transform 0.6s var(--ease);
+}
+.magnetic-btn:hover .dot{ background:var(--bg); transform:scale(1.4); }
+
+/* ============================================================
+   SECTION SHELL
+   ============================================================ */
+.section{
+  position:relative;
+  z-index:2;
+  padding:clamp(90px,14vw,180px) var(--edge);
+}
+.section-head{
+  display:flex; flex-wrap:wrap;
+  align-items:flex-end; justify-content:space-between;
+  gap:24px;
+  margin-bottom:clamp(48px,7vw,84px);
+}
+.section-index{
+  font-size:11px; color:var(--ink-faint); letter-spacing:0.16em;
+  margin-bottom:14px; display:block;
+}
+.section-title{
+  font-family:var(--f-display);
+  font-weight:500;
+  font-size:clamp(30px,4.4vw,52px);
+  line-height:1.08;
+  max-width:16ch;
+}
+.section-sub{
+  max-width:34ch;
+  color:var(--ink-dim);
+  font-size:14.5px;
+  line-height:1.6;
+}
+
+.reveal{
+  opacity:0;
+  transform:translateY(28px);
+  transition:opacity 0.9s var(--ease), transform 0.9s var(--ease);
+}
+.reveal.in{ opacity:1; transform:translateY(0); }
+
+/* ============================================================
+   CATEGORY BENTO GRID
+   ============================================================ */
+.bento{
+  display:grid;
+  grid-template-columns:repeat(4, 1fr);
+  grid-auto-rows:150px;
+  gap:1px;
+  background:var(--line);
+  border:1px solid var(--line);
+  border-radius:26px;
+  overflow:hidden;
+}
+.cell{
+  position:relative;
+  background:var(--panel);
+  padding:28px;
+  display:flex; flex-direction:column; justify-content:space-between;
+  overflow:hidden;
+  transition:background 0.6s var(--ease-soft);
+}
+.cell::before{
+  content:"";
+  position:absolute; inset:0;
+  background:radial-gradient(280px circle at var(--mx,50%) var(--my,50%), rgba(237,234,227,0.07), transparent 70%);
+  opacity:0;
+  transition:opacity 0.5s var(--ease-soft);
+  pointer-events:none;
+}
+.cell:hover{ background:var(--panel-2); }
+.cell:hover::before{ opacity:1; }
+
+.cell-worlds{ grid-column:1 / 3; grid-row:1 / 3; }
+.cell-store{ grid-column:3 / 4; grid-row:1 / 2; }
+.cell-books{ grid-column:4 / 5; grid-row:1 / 2; }
+.cell-projects{ grid-column:3 / 4; grid-row:2 / 3; }
+.cell-editing{ grid-column:4 / 5; grid-row:2 / 3; }
+.cell-community{ grid-column:1 / 3; grid-row:3 / 4; }
+.cell-3d{ grid-column:3 / 5; grid-row:3 / 4; }
+
+.cell-top{
+  display:flex; justify-content:space-between; align-items:flex-start;
+  gap:12px;
+}
+.cell-num{
+  font-size:11px; color:var(--ink-faint); letter-spacing:0.1em;
+}
+.cell-arrow{
+  width:26px; height:26px;
+  border-radius:50%;
+  border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center;
+  transition:transform 0.55s var(--ease), border-color 0.5s var(--ease-soft), background 0.5s var(--ease-soft);
+}
+.cell-arrow svg{ width:11px; height:11px; transition:transform 0.55s var(--ease); }
+.cell:hover .cell-arrow{ border-color:var(--metal-dim); background:var(--ink); }
+.cell:hover .cell-arrow svg{ transform:translate(2px,-2px); }
+.cell:hover .cell-arrow svg path{ stroke:var(--bg); }
+
+.cell-name{
+  font-family:var(--f-display);
+  font-weight:500;
+  letter-spacing:0.01em;
+  transition:transform 0.55s var(--ease);
+}
+.cell-worlds .cell-name{ font-size:clamp(28px,3vw,40px); }
+.cell-name{ font-size:clamp(19px,2vw,24px); }
+.cell:hover .cell-name{ transform:translateX(6px); }
+
+.cell-desc{
+  font-size:13px; color:var(--ink-dim);
+  max-width:34ch; line-height:1.55;
+  margin-top:10px;
+  opacity:0.85;
+}
+.cell-worlds .cell-desc{ max-width:42ch; font-size:14px; }
+
+@media (max-width:860px){
+  .bento{ grid-template-columns:1fr 1fr; grid-auto-rows:170px; }
+  .cell-worlds{ grid-column:1/3; grid-row:1/3; }
+  .cell-store{ grid-column:1/2; grid-row:3/4; }
+  .cell-books{ grid-column:2/3; grid-row:3/4; }
+  .cell-projects{ grid-column:1/2; grid-row:4/5; }
+  .cell-editing{ grid-column:2/3; grid-row:4/5; }
+  .cell-community{ grid-column:1/3; grid-row:5/6; }
+  .cell-3d{ grid-column:1/3; grid-row:6/7; }
+}
+@media (max-width:560px){
+  .bento{ grid-template-columns:1fr; grid-auto-rows:auto; border-radius:20px; }
+  .cell{ grid-column:1/2 !important; grid-row:auto !important; min-height:150px; padding:24px; }
+  .cell-worlds{ min-height:220px; }
+}
+
+/* ============================================================
+   FEATURED STRIP
+   ============================================================ */
+.strip{
+  display:flex; gap:16px;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  padding-bottom:8px;
+  margin:0 calc(var(--edge) * -1);
+  padding-left:var(--edge); padding-right:var(--edge);
+  scrollbar-width:none;
+}
+.strip::-webkit-scrollbar{ display:none; }
+.dispatch{
+  scroll-snap-align:start;
+  flex:0 0 clamp(260px,32vw,360px);
+  border:1px solid var(--line);
+  border-radius:22px;
+  padding:30px 26px;
+  background:var(--panel);
+  transition:border-color 0.5s var(--ease-soft), transform 0.5s var(--ease);
+}
+.dispatch:hover{ border-color:var(--line-soft); transform:translateY(-4px); }
+.dispatch-tag{
+  font-size:11px; color:var(--metal-dim); letter-spacing:0.1em;
+  margin-bottom:22px; display:block;
+}
+.dispatch-title{
+  font-family:var(--f-display);
+  font-weight:500;
+  font-size:19px;
+  line-height:1.3;
+  margin-bottom:12px;
+}
+.dispatch-desc{
+  font-size:13px; color:var(--ink-dim); line-height:1.6;
+}
+.dispatch-meta{
+  margin-top:24px; padding-top:18px;
+  border-top:1px solid var(--line);
+  font-size:11.5px; color:var(--ink-faint);
+}
+
+/* ============================================================
+   MANIFESTO / ECOSYSTEM STATEMENT
+   ============================================================ */
+.manifesto{
+  text-align:center;
+  padding-top:clamp(90px,14vw,160px);
+  padding-bottom:clamp(90px,14vw,160px);
+}
+.manifesto p{
+  font-family:var(--f-display);
+  font-weight:300;
+  font-size:clamp(22px,3.6vw,40px);
+  line-height:1.35;
+  max-width:20ch;
+  margin:0 auto;
+  color:var(--ink);
+}
+.manifesto p em{
+  font-style:normal;
+  color:var(--ink-faint);
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer{
+  border-top:1px solid var(--line);
+  padding:48px var(--edge) 40px;
+  display:flex; flex-wrap:wrap; gap:24px;
+  align-items:center; justify-content:space-between;
+  position:relative; z-index:2;
+}
+.footer-mark{
+  font-family:var(--f-display); font-weight:600;
+  font-size:14px; letter-spacing:0.2em;
+  color:var(--ink-dim);
+}
+.footer-meta{
+  font-size:12px; color:var(--ink-faint);
+  display:flex; gap:28px; flex-wrap:wrap;
+}
+.footer-meta a{ transition:color 0.4s var(--ease-soft); }
+.footer-meta a:hover{ color:var(--ink); }
+
+/* custom cursor (desktop only) */
+.ring{
+  position:fixed; top:0; left:0;
+  width:26px; height:26px;
+  border:1px solid var(--metal);
+  border-radius:50%;
+  pointer-events:none;
+  z-index:200;
+  transform:translate(-50%,-50%);
+  transition:width 0.3s var(--ease-soft), height 0.3s var(--ease-soft), opacity 0.3s;
+  opacity:0;
+  mix-blend-mode:difference;
+}
+@media (hover:hover) and (pointer:fine){ .ring{ opacity:0.6; } }
+.ring.big{ width:56px; height:56px; }
+</style>
 </head>
 <body>
 
-  <!-- Ambient Ambient Grid Overlay -->
-  <div class="bg-mesh"></div>
+<div id="veil"><span class="veil-mark">ZETRAXUS</span></div>
 
-  <!-- Top Navigation Bar -->
-  <header class="nav">
-    <a href="#" class="brand-logo">
-      <span class="brand-badge"></span>
-      ZΞTRΛXUS
-    </a>
-    <nav class="nav-links">
-      <a href="#categories" class="nav-link">Categories</a>
-      <a href="#store" class="nav-link">Store</a>
-      <a href="#about" class="nav-link">About</a>
-    </nav>
-    <a href="#store" class="btn btn-secondary btn-sm">Shop Now</a>
-  </header>
+<canvas id="particles"></canvas>
+<canvas id="grain"></canvas>
+<div class="ring" id="ring"></div>
 
-  <!-- Hero Section -->
+<nav class="nav" id="nav">
+  <a href="#top" class="nav-mark">ZETRAXUS</a>
+  <ul class="nav-links">
+    <li><a href="#directions">Explore</a></li>
+    <li><a href="#worlds-cell">Worlds</a></li>
+    <li><a href="#dispatches">Dispatches</a></li>
+    <li><a href="#store-cell">Store</a></li>
+  </ul>
+</nav>
+
+<main id="top">
+
   <section class="hero">
-    <div class="container">
-      <div class="hero-eyebrow">
-        <span>●</span> pırt
-      </div>
-      <h1 class="hero-title">ZΞTRΛXUS</h1>
-      <p class="hero-subtitle">
-        pırt pırt patapim dostlar
-      </p>
-      <div class="hero-actions">
-        <a href="#categories" class="btn btn-primary">
-          EXPLORE CATEGORIES
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-        </a>
-        <a href="#store" class="btn btn-secondary">
-          STORE
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-        </a>
-      </div>
+    <span class="hero-coord" id="heroCoord">ORIGIN POINT <span>· 00.01</span></span>
+
+    <h1 class="wordmark" id="wordmark" aria-label="ZETRAXUS"></h1>
+
+    <p class="hero-tagline" id="heroTag">A space for creation, ideas, worlds and possibilities — still becoming what it will be.</p>
+
+    <div class="hero-cta-wrap" id="heroCta">
+      <button class="magnetic-btn" id="magBtn" data-scroll="#directions">
+        <span>Enter Zetraxus</span>
+        <i class="dot"></i>
+      </button>
     </div>
+
+    <div class="hero-scroll-cue" id="scrollCue"><i></i>scroll</div>
   </section>
 
-  <!-- Categories Section -->
-  <section id="categories" class="section">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-tag">ARCHITECTURAL DIVISIONS</span>
-        <h2 class="section-title">SYSTEM CATEGORIES</h2>
-        <p class="section-desc">Each module is calibrated for high performance, heavy visual discipline, and modular expansion.</p>
+  <section class="section" id="directions">
+    <div class="section-head reveal">
+      <div>
+        <span class="section-index">Seven directions, one platform</span>
+        <h2 class="section-title">Everything ZETRAXUS is becoming</h2>
       </div>
-
-      <div class="categories-grid" id="categoriesContainer">
-        <!-- Injected via JavaScript -->
-      </div>
+      <p class="section-sub">None of this is finished. Each direction is a room being built inside the same structure — open the doors early, watch them fill in.</p>
     </div>
-  </section>
 
-  <!-- Store Section -->
-  <section id="store" class="section">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-tag">COMMERCIAL ARM</span>
-        <h2 class="section-title">DIGITAL STORE</h2>
-        <p class="section-desc">Pre-calibrated assets, engineering toolsets, and digital licenses built to drop straight into your workspace.</p>
-      </div>
+    <div class="bento reveal">
 
-      <div class="products-grid" id="productsContainer">
-        <!-- Injected via JavaScript -->
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-content">
-        <div class="footer-brand">ZΞTRΛXUS</div>
-        <div class="footer-copy">© 2026 ZETRAXUS. ALL RIGHTS RESERVED. OBSIDIAN CLASS PROTOCOL.</div>
-        <div class="footer-socials">
-          <a href="#" class="social-link">X / TWITTER</a>
-          <a href="#" class="social-link">GITHUB</a>
-          <a href="#" class="social-link">INSTAGRAM</a>
-          <a href="#" class="social-link">YOUTUBE</a>
+      <a href="#" class="cell cell-worlds" id="worlds-cell">
+        <div class="cell-top">
+          <span class="cell-num">01</span>
+          <span class="cell-arrow"><svg viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H4M10 2V8" stroke="currentColor" stroke-width="1.1"/></svg></span>
         </div>
-      </div>
-    </div>
-  </footer>
-
-  <!-- Reusable Modal / Drawer -->
-  <div class="modal-backdrop" id="categoryModal" onclick="closeModalOnBackdrop(event)">
-    <div class="modal-window">
-      <button class="modal-close" onclick="closeModal()">✕</button>
-      <span class="modal-tag" id="modalTag">SYSTEM DETAIL</span>
-      <h3 class="modal-title" id="modalTitle">Title</h3>
-      <p class="modal-desc" id="modalDesc">Description</p>
-      <ul class="modal-features" id="modalFeatures"></ul>
-      <button class="btn btn-primary" id="modalCta" onclick="closeModal()">Confirm & Enter Module</button>
-    </div>
-  </div>
-
-  <!-- Toast Notification -->
-  <div class="toast" id="toast">
-    <span class="toast-dot"></span>
-    <span id="toastMsg">Order initialized</span>
-  </div>
-
-  <!-- Script (Modular Data & Interactions) -->
-  <script>
-    // 1. DATA DEFINITIONS
-    const categoriesData = [
-      {
-        id: "print-engineering",
-        tag: "01 / HARDWARE & FABRICATION",
-        title: "3D PRINTING & ENGINEERING",
-        short: "Rapid physical prototyping pipelines and topology-optimized generative meshes.",
-        desc: "Parametric CAD pipelines, topology-optimized meshes, and slicer profiles tuned for titanium-grade output. From concept to physical artifact in one controlled environment.",
-        features: [
-          "Parametric CAD-to-print pipelines",
-          "Topology optimization presets & mesh solvers",
-          "Slicer profiles for industrial carbon & filaments",
-          "Tolerance validation and physical stress checklists"
-        ],
-        cta: "ENTER ENGINEERING LAB"
-      },
-      {
-        id: "editorial-video",
-        tag: "02 / MOTION & NARRATIVE",
-        title: "EDITORIAL & VIDEO DYNAMICS",
-        short: "Kinetic motion grammar and typography built for high-velocity storytelling.",
-        desc: "A motion grammar built for high-velocity content: type-driven edits, dynamic grade templates, and frame-perfect pacing tools for campaigns that refuse to be ignored.",
-        features: [
-          "Motion typography & kinetic title engines",
-          "Dark Triad high-contrast color LUT collections",
-          "Frame pacing, cuts, and rhythm templates",
-          "Social-native multi-aspect ratio export kits"
-        ],
-        cta: "OPEN VIDEO DYNAMICS"
-      },
-      {
-        id: "library-archive",
-        tag: "03 / KNOWLEDGE REPOSITORY",
-        title: "LIBRARY & ARCHIVE",
-        short: "Taxonomy-first storage for philosophy, blueprints, and deep research.",
-        desc: "Taxonomy-first storage for references, media, research, and long-form documents. Searchable, versioned, and designed to outlive the platforms that host it.",
-        features: [
-          "Hierarchical taxonomy & tagging engine",
-          "Version-controlled document & blueprint sets",
-          "Full-text, semantic and metadata search",
-          "Cold-archive markdown and offline export workflows"
-        ],
-        cta: "BROWSE ARCHIVE"
-      },
-      {
-        id: "store-shop",
-        tag: "04 / LICENSED ASSETS",
-        title: "STORE / DIGITAL SHOP",
-        short: "Downloadable kits, 3D assets, editorial presets, and commercial tools.",
-        desc: "The commercial arm of ZETRAXUS. Downloadable kits, editable templates, engineering models, and editorial packs built to plug directly into your workflow.",
-        features: [
-          "Instant digital download keys",
-          "Commercial & extended lifetime licenses",
-          "Member-exclusive stealth drops",
-          "Modular bundle pricing and asset updates"
-        ],
-        cta: "VISIT DIGITAL SHOP"
-      }
-    ];
-
-    const productsData = [
-      {
-        name: "OBSIDIAN TEMPLATES",
-        category: "EDITORIAL & VIDEO",
-        price: "$?",
-        desc: "12 premium kinetic title systems, lower thirds, and transition layouts tuned for stark black/white edits."
-      },
-      {
-        name: "CINEMATIC LUT BUNDLE",
-        category: "COLOR SCIENCE",
-        price: "$?",
-        desc: "High-contrast monochrome and cold-steel tone curves crafted for intense atmospheric storytelling."
-      },
-      {
-        name: "ENGINEERING CAD KIT",
-        category: "3D PRINTING",
-        price: "$?",
-        desc: "Parametric joint files, mounting hardware, and torture-test benchmarks for precision fabrication."
-      },
-      {
-        name: "ARCHIVE COLLECTION VOL.1",
-        category: "LIBRARY & RESEARCH",
-        price: "$?",
-        desc: "Curated technical treatises, aesthetic guides, and markdown taxonomies for structured thinkers."
-      }
-    ];
-
-    // 2. RENDER CATEGORIES
-    const catContainer = document.getElementById('categoriesContainer');
-    categoriesData.forEach((cat, index) => {
-      const card = document.createElement('div');
-      card.className = 'category-card';
-      card.onclick = () => openModal(index);
-      card.innerHTML = `
         <div>
-          <div class="category-number">${cat.tag}</div>
-          <h3>${cat.title}</h3>
-          <p>${cat.short}</p>
+          <h3 class="cell-name">Worlds</h3>
+          <p class="cell-desc">A world-building space for fictional universes, characters, lore and civilizations — the early groundwork for full-dive experiences still ahead.</p>
         </div>
-        <div class="category-footer-link">
-          <span>Explore Details</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-        </div>
-      `;
-      catContainer.appendChild(card);
+      </a>
+
+      <a href="#" class="cell cell-store" id="store-cell">
+        <div class="cell-top"><span class="cell-num">02</span><span class="cell-arrow"><svg viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H4M10 2V8" stroke="currentColor" stroke-width="1.1"/></svg></span></div>
+        <div><h3 class="cell-name">Store</h3><p class="cell-desc">Physical goods and the beginnings of a wider marketplace.</p></div>
+      </a>
+
+      <a href="#" class="cell cell-books">
+        <div class="cell-top"><span class="cell-num">03</span><span class="cell-arrow"><svg viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H4M10 2V8" stroke="currentColor" stroke-width="1.1"/></svg></span></div>
+        <div><h3 class="cell-name">Books</h3><p class="cell-desc">Printed and digital editions, side by side.</p></div>
+      </a>
+
+      <a href="#" class="cell cell-projects">
+        <div class="cell-top"><span class="cell-num">04</span><span class="cell-arrow"><svg viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H4M10 2V8" stroke="currentColor" stroke-width="1.1"/></svg></span></div>
+        <div><h3 class="cell-name">Projects</h3><p class="cell-desc">A gallery for what people are building, in progress or finished.</p></div>
+      </a>
+
+      <a href="#" class="cell cell-editing">
+        <div class="cell-top"><span class="cell-num">05</span><span class="cell-arrow"><svg viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H4M10 2V8" stroke="currentColor" stroke-width="1.1"/></svg></span></div>
+        <div><h3 class="cell-name">Editing</h3><p class="cell-desc">Video editing and creative services, done by hand.</p></div>
+      </a>
+
+      <a href="#" class="cell cell-community">
+        <div class="cell-top"><span class="cell-num">06</span><span class="cell-arrow"><svg viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H4M10 2V8" stroke="currentColor" stroke-width="1.1"/></svg></span></div>
+        <div><h3 class="cell-name">Community</h3><p class="cell-desc">Theories, discoveries and future predictions, discussed in the open.</p></div>
+      </a>
+
+      <a href="#" class="cell cell-3d">
+        <div class="cell-top"><span class="cell-num">07</span><span class="cell-arrow"><svg viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H4M10 2V8" stroke="currentColor" stroke-width="1.1"/></svg></span></div>
+        <div><h3 class="cell-name">3D</h3><p class="cell-desc">Printable models and digital sculpting, from first draft to finished object.</p></div>
+      </a>
+
+    </div>
+  </section>
+
+  <section class="section" id="dispatches">
+    <div class="section-head reveal">
+      <div>
+        <span class="section-index">From inside the build</span>
+        <h2 class="section-title">Recent developments</h2>
+      </div>
+      <p class="section-sub">A running log of what's shipping, shifting, or just started. This strip is built to keep filling in.</p>
+    </div>
+
+    <div class="strip reveal">
+      <article class="dispatch">
+        <span class="dispatch-tag">Worlds</span>
+        <h3 class="dispatch-title">First lore framework goes up</h3>
+        <p class="dispatch-desc">The foundational structure for building fictional universes inside ZETRAXUS — the scaffolding, not the story yet.</p>
+        <div class="dispatch-meta">Placeholder entry</div>
+      </article>
+      <article class="dispatch">
+        <span class="dispatch-tag">Store</span>
+        <h3 class="dispatch-title">Early catalog taking shape</h3>
+        <p class="dispatch-desc">The first physical items being prepared ahead of the wider marketplace.</p>
+        <div class="dispatch-meta">Placeholder entry</div>
+      </article>
+      <article class="dispatch">
+        <span class="dispatch-tag">3D</span>
+        <h3 class="dispatch-title">First printable models drafted</h3>
+        <p class="dispatch-desc">Early digital sculpts being prepared for print and for the archive.</p>
+        <div class="dispatch-meta">Placeholder entry</div>
+      </article>
+      <article class="dispatch">
+        <span class="dispatch-tag">Community</span>
+        <h3 class="dispatch-title">Founding discussions open</h3>
+        <p class="dispatch-desc">The first threads on where this platform goes next, shaped by the people building it.</p>
+        <div class="dispatch-meta">Placeholder entry</div>
+      </article>
+    </div>
+  </section>
+
+  <section class="manifesto reveal">
+    <p>A headquarters, a marketplace, a community and a world-building tool — <em>gradually becoming one place.</em></p>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <span class="footer-mark">ZETRAXUS</span>
+  <div class="footer-meta">
+    <a href="#top">Back to top</a>
+    <a href="#directions">Directions</a>
+    <a href="#dispatches">Dispatches</a>
+    <span>zetraxus.com</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- wordmark letter build ---------- */
+  var word = "ZETRAXUS";
+  var wm = document.getElementById("wordmark");
+  word.split("").forEach(function(ch, i){
+    var span = document.createElement("span");
+    span.className = "ch";
+    span.textContent = ch;
+    span.style.animationDelay = (0.15 + i * 0.055) + "s";
+    wm.appendChild(span);
+  });
+
+  /* ---------- veil + staged reveal ---------- */
+  window.addEventListener("load", function(){
+    setTimeout(function(){
+      document.getElementById("veil").classList.add("hide");
+      ["nav","heroCoord","heroTag","heroCta","scrollCue"].forEach(function(id){
+        document.getElementById(id).classList.add("in");
+      });
+    }, reduced ? 50 : 650);
+  });
+
+  /* ---------- nav scrolled state ---------- */
+  var nav = document.getElementById("nav");
+  window.addEventListener("scroll", function(){
+    nav.classList.toggle("scrolled", window.scrollY > 40);
+  }, { passive:true });
+
+  /* ---------- smooth scroll cta ---------- */
+  document.getElementById("magBtn").addEventListener("click", function(){
+    var target = document.querySelector(this.dataset.scroll);
+    if(target) target.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
+  });
+
+  /* ---------- magnetic button ---------- */
+  if(!reduced && matchMedia("(hover:hover)").matches){
+    var btn = document.getElementById("magBtn");
+    btn.addEventListener("mousemove", function(e){
+      var r = btn.getBoundingClientRect();
+      var x = (e.clientX - r.left - r.width/2) * 0.25;
+      var y = (e.clientY - r.top - r.height/2) * 0.5;
+      btn.style.transform = "translate(" + x + "px," + y + "px)";
     });
-
-    // 3. RENDER PRODUCTS
-    const prodContainer = document.getElementById('productsContainer');
-    productsData.forEach(prod => {
-      const card = document.createElement('div');
-      card.className = 'product-card';
-      card.innerHTML = `
-        <div>
-          <div class="product-badge">${prod.category}</div>
-          <h4 class="product-name">${prod.name}</h4>
-          <p class="product-desc">${prod.desc}</p>
-        </div>
-        <div class="product-footer">
-          <div class="product-price">${prod.price}</div>
-          <button class="btn btn-primary btn-sm" onclick="handleBuy('${prod.name}')">
-            BUY NOW
-          </button>
-        </div>
-      `;
-      prodContainer.appendChild(card);
+    btn.addEventListener("mouseleave", function(){
+      btn.style.transform = "translate(0,0)";
     });
+  }
 
-    // 4. MODAL INTERACTIONS
-    const modal = document.getElementById('categoryModal');
-    const modalTag = document.getElementById('modalTag');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalDesc = document.getElementById('modalDesc');
-    const modalFeatures = document.getElementById('modalFeatures');
-    const modalCta = document.getElementById('modalCta');
-
-    function openModal(index) {
-      const item = categoriesData[index];
-      modalTag.textContent = item.tag;
-      modalTitle.textContent = item.title;
-      modalDesc.textContent = item.desc;
-      modalCta.textContent = item.cta;
-
-      modalFeatures.innerHTML = item.features.map(f => `
-        <li>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          ${f}
-        </li>
-      `).join('');
-
-      modal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeModal() {
-      modal.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-
-    function closeModalOnBackdrop(e) {
-      if (e.target === modal) {
-        closeModal();
-      }
-    }
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeModal();
+  /* ---------- reveal on scroll ---------- */
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){ en.target.classList.add("in"); io.unobserve(en.target); }
     });
+  }, { threshold:0.15 });
+  document.querySelectorAll(".reveal").forEach(function(el){ io.observe(el); });
 
-    // 5. BUY ACTION & TOAST NOTIFICATION
-    let toastTimeout;
-    function handleBuy(productName) {
-      const toast = document.getElementById('toast');
-      const toastMsg = document.getElementById('toastMsg');
-      toastMsg.textContent = `${productName} added to checkout.`;
-      toast.classList.add('show');
-      
-      clearTimeout(toastTimeout);
-      toastTimeout = setTimeout(() => {
-        toast.classList.remove('show');
-      }, 3500);
+  /* ---------- bento cell cursor glow ---------- */
+  document.querySelectorAll(".cell").forEach(function(cell){
+    cell.addEventListener("mousemove", function(e){
+      var r = cell.getBoundingClientRect();
+      cell.style.setProperty("--mx", (e.clientX - r.left) + "px");
+      cell.style.setProperty("--my", (e.clientY - r.top) + "px");
+    });
+  });
+
+  /* ---------- custom cursor ring ---------- */
+  var ring = document.getElementById("ring");
+  if(matchMedia("(hover:hover) and (pointer:fine)").matches){
+    var rx=0, ry=0, tx=0, ty=0;
+    window.addEventListener("mousemove", function(e){ tx=e.clientX; ty=e.clientY; });
+    (function loop(){
+      rx += (tx-rx)*0.18; ry += (ty-ry)*0.18;
+      ring.style.left = rx+"px"; ring.style.top = ry+"px";
+      requestAnimationFrame(loop);
+    })();
+    document.querySelectorAll("a,button").forEach(function(el){
+      el.addEventListener("mouseenter", function(){ ring.classList.add("big"); });
+      el.addEventListener("mouseleave", function(){ ring.classList.remove("big"); });
+    });
+  }
+
+  /* ---------- grain canvas ---------- */
+  var gCanvas = document.getElementById("grain");
+  var gCtx = gCanvas.getContext("2d");
+  function sizeGrain(){ gCanvas.width = innerWidth; gCanvas.height = innerHeight; }
+  sizeGrain();
+  window.addEventListener("resize", sizeGrain);
+  function drawGrain(){
+    var w = gCanvas.width, h = gCanvas.height;
+    var imgData = gCtx.createImageData(w, h);
+    var buf = imgData.data;
+    for(var i=0; i<buf.length; i+=4){
+      var v = (Math.random()*255)|0;
+      buf[i]=v; buf[i+1]=v; buf[i+2]=v; buf[i+3]=18;
     }
-  </script>
+    gCtx.putImageData(imgData,0,0);
+  }
+  if(!reduced){
+    var last=0;
+    function grainLoop(t){
+      if(t-last>90){ drawGrain(); last=t; }
+      requestAnimationFrame(grainLoop);
+    }
+    requestAnimationFrame(grainLoop);
+  } else { drawGrain(); }
+
+  /* ---------- particle field ---------- */
+  var pCanvas = document.getElementById("particles");
+  var pCtx = pCanvas.getContext("2d");
+  var particles = [];
+  function sizeParticles(){
+    pCanvas.width = innerWidth; pCanvas.height = innerHeight;
+    var count = Math.min(70, Math.floor((innerWidth*innerHeight)/22000));
+    particles = [];
+    for(var i=0;i<count;i++){
+      particles.push({
+        x: Math.random()*pCanvas.width,
+        y: Math.random()*pCanvas.height,
+        r: Math.random()*1.3+0.3,
+        vx: (Math.random()-0.5)*0.06,
+        vy: (Math.random()-0.5)*0.06,
+        a: Math.random()*0.35+0.08
+      });
+    }
+  }
+  sizeParticles();
+  window.addEventListener("resize", sizeParticles);
+  function drawParticles(){
+    pCtx.clearRect(0,0,pCanvas.width,pCanvas.height);
+    particles.forEach(function(p){
+      p.x += p.vx; p.y += p.vy;
+      if(p.x<0) p.x=pCanvas.width; if(p.x>pCanvas.width) p.x=0;
+      if(p.y<0) p.y=pCanvas.height; if(p.y>pCanvas.height) p.y=0;
+      pCtx.beginPath();
+      pCtx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      pCtx.fillStyle = "rgba(237,234,227,"+p.a+")";
+      pCtx.fill();
+    });
+    if(!reduced) requestAnimationFrame(drawParticles);
+  }
+  drawParticles();
+
+})();
+</script>
 </body>
 </html>
