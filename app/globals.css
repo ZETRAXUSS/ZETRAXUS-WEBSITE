@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+/* -----------------------------------------------------------------------
+   ZETRAXUS design tokens.
+
+   This is the single source of truth for color, radius and spacing.
+   Nothing downstream should hardcode a hex value or pixel radius —
+   reference these variables (or their Tailwind aliases below) so the
+   full design system can be layered on top later without a rewrite.
+------------------------------------------------------------------------ */
+:root {
+  /* Surfaces */
+  --background: #0a0a0b;      /* page background */
+  --surface: #131316;         /* raised panels, header, cards */
+  --surface-hover: #1a1a1e;   /* hover state for surfaces */
+
+  /* Structure */
+  --border: #26262b;          /* hairline dividers, card edges */
+  --border-strong: #38383f;   /* emphasized borders, focus rings */
+
+  /* Text */
+  --foreground: #ededf0;      /* primary text */
+  --muted: #8c8c94;           /* secondary / supporting text */
+  --faint: #5c5c63;           /* tertiary, disabled, timestamps */
+
+  /* Accent */
+  --accent: #b08d57;          /* brass — links, active states, emphasis */
+  --accent-strong: #c9a86c;   /* accent hover / high emphasis */
+  --accent-foreground: #0a0a0b; /* text on top of accent fill */
+
+  /* Feedback (reserved for later systems — forum, orders, moderation) */
+  --success: #6b9d7a;
+  --warning: #c9a227;
+  --danger: #b0594f;
+
+  /* Shape */
+  --radius-sm: 3px;
+  --radius-md: 5px;
+  --radius-lg: 8px;
+
+  /* Layout rhythm */
+  --header-height: 4rem;
+  --content-max: 72rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* Visible keyboard focus everywhere — no invisible focus states. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
