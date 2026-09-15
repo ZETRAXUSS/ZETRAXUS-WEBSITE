@@ -88,6 +88,46 @@ body {
   outline-offset: 2px;
 }
 
+/* -----------------------------------------------------------------------
+   Cinematic & Motion Effects
+------------------------------------------------------------------------ */
+
+/* Subtle radial gradient for depth (white center, fades out) */
+@supports (backdrop-filter: blur(1px)) {
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(
+      circle at 50% 0%,
+      rgba(255, 255, 255, 0.02) 0%,
+      rgba(255, 255, 255, 0) 40%
+    );
+    pointer-events: none;
+    z-index: -1;
+  }
+}
+
+/* Smooth transitions by default (respected in media query below) */
+* {
+  transition: color 200ms ease, background-color 200ms ease,
+    border-color 200ms ease;
+}
+
+/* Glow effect helper for premium cards (optional use) */
+.glow-subtle {
+  box-shadow: 0 0 1px rgba(255, 255, 255, 0.3) inset;
+}
+
+.glow-hover {
+  transition: box-shadow 200ms ease;
+}
+
+.glow-hover:hover {
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.15),
+    0 0 1px rgba(255, 255, 255, 0.3) inset;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
