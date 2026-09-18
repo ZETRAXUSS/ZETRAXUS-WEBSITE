@@ -13,7 +13,7 @@ export default function ShopPage() {
   ];
 
   return (
-    <Container className="py-16">
+    <Container className="py-20">
       <PageHeader
         eyebrow="Marketplace"
         title="Shop"

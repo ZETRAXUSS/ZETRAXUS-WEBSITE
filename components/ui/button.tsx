@@ -12,11 +12,11 @@ interface BaseProps {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-accent text-accent-foreground hover:bg-[var(--accent-strong)] border border-transparent transition-all hover:shadow-[0_0_8px_rgba(176,141,87,0.2)]",
+    "bg-accent text-accent-foreground hover:bg-[var(--accent-strong)] border border-transparent transition-all duration-300 hover:shadow-[0_0_16px_rgba(176,141,87,0.25),inset_0_0_1px_rgba(255,255,255,0.2)]",
   secondary:
-    "bg-transparent text-foreground border border-border-strong hover:border-accent hover:text-accent hover:shadow-[0_0_8px_rgba(255,255,255,0.1)]",
+    "bg-transparent text-foreground border border-border-strong hover:border-accent/50 hover:text-foreground transition-all duration-300 hover:shadow-[0_0_16px_rgba(255,255,255,0.08),inset_0_0_1px_rgba(255,255,255,0.15)]",
   ghost:
-    "bg-transparent text-muted border border-transparent hover:text-foreground hover:bg-surface-hover hover:shadow-[0_0_6px_rgba(255,255,255,0.08)]",
+    "bg-transparent text-muted border border-transparent hover:text-foreground hover:bg-surface-hover/60 transition-all duration-300 hover:shadow-[0_0_12px_rgba(255,255,255,0.06)]",
 };
 
 const sharedClasses =

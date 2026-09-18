@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 export default function ProfilePage() {
   return (
-    <Container className="py-16">
+    <Container className="py-20">
       <PageHeader
         eyebrow="Account"
         title="Profile"

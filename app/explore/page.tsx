@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 
 export default function ExplorePage() {
   return (
-    <Container className="py-16">
+    <Container className="py-20">
       <PageHeader
         eyebrow="Discovery"
         title="Explore"
@@ -13,14 +13,14 @@ export default function ExplorePage() {
       />
 
       {/* Search & Filter section */}
-      <div className="mt-12 grid gap-6 md:grid-cols-3 mb-12">
+      <div className="mt-16 grid gap-5 md:grid-cols-3 mb-16">
         {/* Search */}
         <div className="md:col-span-2">
           <input
             type="text"
             placeholder="Search projects, worlds, stories..."
             disabled
-            className="w-full px-4 py-3 border border-border bg-surface text-foreground placeholder-faint text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-4 py-3 border border-border/70 bg-surface/50 backdrop-blur-sm text-foreground placeholder-muted/50 text-sm disabled:opacity-40 disabled:cursor-not-allowed rounded-[var(--radius-md)] transition-colors"
           />
           <p className="text-xs text-faint mt-2">Search coming soon</p>
         </div>
@@ -29,7 +29,7 @@ export default function ExplorePage() {
         <div>
           <select
             disabled
-            className="w-full px-4 py-3 border border-border bg-surface text-foreground text-sm disabled:opacity-50 disabled:cursor-not-allowed appearance-none"
+            className="w-full px-4 py-3 border border-border/70 bg-surface/50 backdrop-blur-sm text-foreground text-sm disabled:opacity-40 disabled:cursor-not-allowed appearance-none rounded-[var(--radius-md)] transition-colors"
           >
             <option>All Categories</option>
           </select>
@@ -38,14 +38,15 @@ export default function ExplorePage() {
       </div>
 
       {/* Tabs placeholder */}
-      <div className="flex gap-8 border-b border-border mb-12">
+      <div className="flex gap-10 border-b border-border/60 mb-16 pb-4">
         {["Featured", "Trending", "Latest"].map((tab) => (
           <button
             key={tab}
             disabled
-            className="pb-4 text-sm font-medium text-muted disabled:cursor-not-allowed disabled:opacity-50"
+            className="text-sm font-medium text-muted disabled:cursor-not-allowed disabled:opacity-40 transition-colors duration-300 relative group"
           >
             {tab}
+            <span className="absolute -bottom-3 left-0 w-0 h-px bg-accent group-disabled:w-0 transition-all duration-300" />
           </button>
         ))}
       </div>

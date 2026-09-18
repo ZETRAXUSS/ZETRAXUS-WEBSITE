@@ -11,36 +11,39 @@ import { primaryNav } from "@/lib/navigation";
  */
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-30 h-[var(--header-height)] border-b border-border bg-background/95 backdrop-blur">
+    <header className="sticky top-0 z-30 h-[var(--header-height)] border-b border-border bg-background/80 backdrop-blur-lg backdrop-saturate-150">
+      <div className="absolute inset-0 pointer-events-none opacity-30 bg-gradient-to-r from-white/0 via-white/[0.01] to-white/0" />
+      
       <Container className="relative flex h-full items-center justify-between">
         <div className="flex items-center gap-10">
           <Link
             href="/"
-            className="font-display text-lg tracking-[0.02em] text-foreground"
+            className="font-display text-lg tracking-[0.04em] text-foreground font-semibold transition-colors hover:text-accent"
           >
             ZETRAXUS
           </Link>
 
-          <nav className="hidden items-center gap-8 md:flex">
+          <nav className="hidden items-center gap-10 md:flex">
             {primaryNav.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-sm text-muted transition-colors hover:text-foreground"
+                className="text-sm text-muted transition-all duration-300 hover:text-foreground relative group"
               >
                 {item.label}
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-gradient-to-r from-accent to-transparent group-hover:w-full transition-all duration-300" />
               </Link>
             ))}
           </nav>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <button
             type="button"
             disabled
             aria-label="Search — coming soon"
             title="Search — coming soon"
-            className="hidden h-9 w-9 items-center justify-center border border-border-strong text-faint md:flex disabled:cursor-not-allowed"
+            className="hidden h-9 w-9 items-center justify-center border border-border-strong text-faint hover:text-foreground hover:border-border-strong/70 md:flex disabled:cursor-not-allowed transition-colors duration-300"
           >
             <SearchIcon />
           </button>
@@ -51,7 +54,7 @@ export function SiteHeader() {
 
           <Link
             href="/profile"
-            className="hidden h-9 w-9 items-center justify-center border border-border-strong text-sm text-muted transition-colors hover:text-foreground md:flex"
+            className="hidden h-9 w-9 items-center justify-center border border-border-strong text-sm text-muted transition-all duration-300 hover:text-foreground hover:border-accent/30 md:flex glow-link"
             aria-label="Profile"
           >
             <span aria-hidden>Z</span>

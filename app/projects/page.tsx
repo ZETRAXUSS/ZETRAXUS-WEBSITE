@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 
 export default function ProjectsPage() {
   return (
-    <Container className="py-16">
+    <Container className="py-20">
       <PageHeader
         eyebrow="Creator Hub"
         title="Projects"
@@ -14,20 +14,21 @@ export default function ProjectsPage() {
       />
 
       {/* Filter tabs */}
-      <div className="mt-12 flex gap-8 border-b border-border mb-12 overflow-x-auto pb-4">
+      <div className="mt-16 flex gap-10 border-b border-border/60 mb-16 overflow-x-auto pb-4">
         {["All", "Active", "Worlds", "Stories", "Characters"].map((filter) => (
           <button
             key={filter}
             disabled
-            className="text-sm font-medium text-muted whitespace-nowrap pb-4 disabled:cursor-not-allowed disabled:opacity-50"
+            className="text-sm font-medium text-muted whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-40 transition-colors duration-300 relative group"
           >
             {filter}
+            <span className="absolute -bottom-3 left-0 w-0 h-px bg-accent transition-all duration-300" />
           </button>
         ))}
       </div>
 
       {/* Projects grid placeholder */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-12">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-16">
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <Card
             key={i}

@@ -15,7 +15,7 @@ export default function ForumPage() {
   ];
 
   return (
-    <Container className="py-16">
+    <Container className="py-20">
       <PageHeader
         eyebrow="Community"
         title="Forum"
