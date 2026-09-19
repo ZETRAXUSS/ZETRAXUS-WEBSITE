@@ -70,110 +70,220 @@ export default function Home() {
             overflow-hidden rounded-[32px]
             border border-white/[0.12]
             bg-[#030303]
+            transition-[border-color,box-shadow]
+            duration-1000
+            hover:border-white/[0.2]
+            hover:shadow-[0_25px_100px_rgba(0,0,0,0.55)]
           "
         >
           <ParallaxField />
           <StarField />
 
-          {/* Main atmospheric glow */}
+          {/* =====================================================
+              ATMOSPHERE
+          ====================================================== */}
+
           <div
             className="
               pointer-events-none absolute left-1/2 top-1/2
               h-[520px] w-[900px]
               -translate-x-1/2 -translate-y-1/2
-              rounded-full bg-white/[0.035]
+              rounded-full
+              bg-white/[0.03]
               blur-[130px]
               transition-all duration-[1800ms]
-              group-hover:scale-125
+              ease-out
+              group-hover:scale-[1.3]
               group-hover:bg-white/[0.055]
             "
           />
 
+          <div
+            className="
+              pointer-events-none absolute left-1/2 top-1/2
+              h-[280px] w-[700px]
+              -translate-x-1/2 -translate-y-1/2
+              rounded-full
+              bg-white/[0.018]
+              blur-[90px]
+              transition-all duration-[2200ms]
+              group-hover:scale-125
+              group-hover:bg-white/[0.035]
+            "
+          />
+
           {/* Cinematic cross lines */}
-          <div className="pointer-events-none absolute left-[7%] right-[7%] top-1/2 h-px bg-white/[0.035]" />
+          <div
+            className="
+              pointer-events-none absolute left-[7%] right-[7%] top-1/2
+              h-px bg-white/[0.035]
+              transition-all duration-[1200ms]
+              group-hover:left-[4%]
+              group-hover:right-[4%]
+              group-hover:bg-white/[0.07]
+            "
+          />
 
-          <div className="pointer-events-none absolute bottom-[8%] left-1/2 top-[8%] w-px bg-white/[0.025]" />
+          <div
+            className="
+              pointer-events-none absolute bottom-[8%] left-1/2 top-[8%]
+              w-px bg-white/[0.025]
+              transition-all duration-[1200ms]
+              group-hover:bottom-[5%]
+              group-hover:top-[5%]
+              group-hover:bg-white/[0.05]
+            "
+          />
 
-          {/* Corner details */}
-          <div className="pointer-events-none absolute left-7 top-7 h-7 w-7 border-l border-t border-white/[0.08] transition-all duration-700 group-hover:h-10 group-hover:w-10 group-hover:border-white/[0.18]" />
+          {/* =====================================================
+              CORNER DETAILS
+          ====================================================== */}
 
-          <div className="pointer-events-none absolute right-7 top-7 h-7 w-7 border-r border-t border-white/[0.08] transition-all duration-700 group-hover:h-10 group-hover:w-10 group-hover:border-white/[0.18]" />
+          <div
+            className="
+              pointer-events-none absolute left-7 top-7
+              h-7 w-7 border-l border-t border-white/[0.08]
+              transition-all duration-700 ease-out
+              group-hover:h-11 group-hover:w-11
+              group-hover:border-white/[0.2]
+            "
+          />
 
-          <div className="pointer-events-none absolute bottom-7 left-7 h-7 w-7 border-b border-l border-white/[0.08] transition-all duration-700 group-hover:h-10 group-hover:w-10 group-hover:border-white/[0.18]" />
+          <div
+            className="
+              pointer-events-none absolute right-7 top-7
+              h-7 w-7 border-r border-t border-white/[0.08]
+              transition-all duration-700 ease-out
+              group-hover:h-11 group-hover:w-11
+              group-hover:border-white/[0.2]
+            "
+          />
 
-          <div className="pointer-events-none absolute bottom-7 right-7 h-7 w-7 border-b border-r border-white/[0.08] transition-all duration-700 group-hover:h-10 group-hover:w-10 group-hover:border-white/[0.18]" />
+          <div
+            className="
+              pointer-events-none absolute bottom-7 left-7
+              h-7 w-7 border-b border-l border-white/[0.08]
+              transition-all duration-700 ease-out
+              group-hover:h-11 group-hover:w-11
+              group-hover:border-white/[0.2]
+            "
+          />
+
+          <div
+            className="
+              pointer-events-none absolute bottom-7 right-7
+              h-7 w-7 border-b border-r border-white/[0.08]
+              transition-all duration-700 ease-out
+              group-hover:h-11 group-hover:w-11
+              group-hover:border-white/[0.2]
+            "
+          />
 
           {/* =====================================================
               HERO CONTENT
           ====================================================== */}
 
-          <div className="relative z-10 flex flex-col items-center">
-            {/* ZETRAXUS emblem */}
+          <div
+            className="
+              relative z-10 flex flex-col items-center
+              transition-transform duration-[1200ms]
+              ease-[cubic-bezier(0.16,1,0.3,1)]
+              group-hover:-translate-y-1
+            "
+          >
+            {/* =================================================
+                LOGO
+            ================================================== */}
+
             <div className="relative flex items-center justify-center">
+              {/* Large aura */}
               <div
                 className="
                   absolute h-40 w-40 rounded-full
-                  bg-white/[0.055] blur-[45px]
-                  transition-all duration-1000
-                  group-hover:h-52
-                  group-hover:w-52
+                  bg-white/[0.045]
+                  blur-[50px]
+                  transition-all duration-[1400ms]
+                  ease-out
+                  group-hover:h-56
+                  group-hover:w-56
                   group-hover:bg-white/[0.09]
                 "
               />
 
+              {/* Soft secondary glow */}
               <div
                 className="
                   absolute h-28 w-28 rounded-full
-                  border border-white/[0.06]
-                  shadow-[0_0_60px_rgba(255,255,255,0.08)]
+                  bg-white/[0.025]
+                  blur-[25px]
                   transition-all duration-1000
-                  group-hover:scale-125
+                  group-hover:scale-150
+                  group-hover:bg-white/[0.05]
+                "
+              />
+
+              {/* Logo ring */}
+              <div
+                className="
+                  absolute h-28 w-28 rounded-full
+                  border border-white/[0.05]
+                  shadow-[0_0_50px_rgba(255,255,255,0.06)]
+                  transition-all duration-[1200ms]
+                  ease-out
+                  group-hover:scale-[1.35]
                   group-hover:border-white/[0.12]
                 "
               />
 
+              {/* Actual ZETRAXUS logo */}
               <img
                 src="/zetraxus-mark.png"
                 alt=""
                 className="
-                  relative z-10 h-24 w-24 object-contain
-                  opacity-80
-                  drop-shadow-[0_0_18px_rgba(255,255,255,0.5)]
-                  transition-all duration-1000
-                  group-hover:scale-110
+                  relative z-10
+                  h-24 w-24
+                  object-contain
+                  opacity-75
+                  drop-shadow-[0_0_18px_rgba(255,255,255,0.45)]
+                  transition-all duration-[1200ms]
+                  ease-[cubic-bezier(0.16,1,0.3,1)]
+                  group-hover:scale-[1.12]
                   group-hover:opacity-100
-                  group-hover:drop-shadow-[0_0_30px_rgba(255,255,255,0.75)]
+                  group-hover:drop-shadow-[0_0_35px_rgba(255,255,255,0.8)]
                   md:h-28 md:w-28
                 "
               />
             </div>
 
-            {/* Brand */}
+            {/* =================================================
+                BRAND
+            ================================================== */}
+
             <div className="relative mt-5 flex flex-col items-center">
               <div
                 className="
                   pointer-events-none absolute left-1/2 top-1/2
-                  h-24 w-[420px]
+                  h-24 w-[440px]
                   -translate-x-1/2 -translate-y-1/2
-                  bg-white/[0.025] blur-[55px]
+                  bg-white/[0.02]
+                  blur-[60px]
+                  transition-all duration-[1600ms]
+                  group-hover:w-[560px]
+                  group-hover:bg-white/[0.035]
                 "
               />
 
               <h1
                 className="
-                  relative z-10
+                  hero-title relative z-10
                   text-[48px] font-black leading-none
-                  tracking-[15px] text-white
-                  transition-[letter-spacing,transform,text-shadow]
-                  duration-[1100ms]
-                  ease-[cubic-bezier(0.22,1,0.36,1)]
-                  group-hover:tracking-[8px]
+                  text-white
                   sm:text-[60px]
                   md:text-[76px]
-                  md:tracking-[15px]
                   lg:text-[86px]
                 "
                 style={{
+                  letterSpacing: "15px",
                   textShadow:
                     "0 0 18px rgba(255,255,255,0.72), 0 0 55px rgba(255,255,255,0.22)",
                 }}
@@ -182,21 +292,50 @@ export default function Home() {
               </h1>
 
               <div className="mt-5 flex items-center gap-4">
-                <span className="h-px w-8 bg-white/15 transition-all duration-1000 ease-out group-hover:w-14 group-hover:bg-white/30" />
+                <span
+                  className="
+                    h-px w-8 bg-white/15
+                    transition-all duration-[1200ms]
+                    ease-[cubic-bezier(0.16,1,0.3,1)]
+                    group-hover:w-16
+                    group-hover:bg-white/35
+                  "
+                />
 
-                <p className="text-[10px] font-medium tracking-[6px] text-white/35 md:text-[12px] md:tracking-[8px]">
+                <p
+                  className="
+                    text-[10px] font-medium
+                    tracking-[6px] text-white/35
+                    transition-all duration-1000
+                    group-hover:tracking-[8px]
+                    group-hover:text-white/55
+                    md:text-[12px]
+                  "
+                >
                   ENTER THE NETWORK
                 </p>
 
-                <span className="h-px w-8 bg-white/15 transition-all duration-1000 ease-out group-hover:w-14 group-hover:bg-white/30" />
+                <span
+                  className="
+                    h-px w-8 bg-white/15
+                    transition-all duration-[1200ms]
+                    ease-[cubic-bezier(0.16,1,0.3,1)]
+                    group-hover:w-16
+                    group-hover:bg-white/35
+                  "
+                />
               </div>
             </div>
 
-            {/* Enter */}
+            {/* =================================================
+                ENTER BUTTON
+            ================================================== */}
+
             <Link
               href="/explore"
               className="
-                relative mt-10 flex h-12 w-40
+                hero-enter group/enter relative mt-10
+                flex h-12 w-40
                 items-center justify-center
                 overflow-hidden rounded-full
                 border border-white/35
@@ -208,26 +347,41 @@ export default function Home() {
                 hover:border-white
                 hover:bg-white
                 hover:text-black
-                hover:shadow-[0_0_40px_rgba(255,255,255,0.25)]
+                hover:shadow-[0_0_45px_rgba(255,255,255,0.28)]
               "
             >
               <span
                 className="
-                  absolute inset-y-0 -left-full w-1/2
+                  pointer-events-none absolute
+                  -left-[100%] top-0
+                  h-full w-[55%]
                   skew-x-[-20deg]
-                  bg-white/20
+                  bg-white/25
                   transition-all duration-700
-                  hover:left-[130%]
+                  group-hover/enter:left-[150%]
                 "
               />
 
-              <span className="relative z-10">ENTER</span>
+              <span className="relative z-10 transition-transform duration-300 group-hover/enter:scale-105">
+                ENTER
+              </span>
             </Link>
           </div>
 
-          {/* Scroll indicator */}
-          <div className="absolute bottom-7 left-1/2 flex -translate-x-1/2 flex-col items-center gap-3">
-            <span className="text-[9px] uppercase tracking-[4px] text-white/20 transition-colors duration-500 group-hover:text-white/35">
+          {/* =====================================================
+              SCROLL INDICATOR
+          ====================================================== */}
+
+          <div
+            className="
+              absolute bottom-7 left-1/2
+              flex -translate-x-1/2
+              flex-col items-center gap-3
+              transition-all duration-700
+              group-hover:translate-y-1
+            "
+          >
+            <span className="text-[9px] uppercase tracking-[4px] text-white/20 transition-colors duration-500 group-hover:text-white/40">
               Scroll to explore
             </span>
 
@@ -251,7 +405,9 @@ export default function Home() {
               <h2 className="text-4xl font-semibold leading-[1.05] tracking-[-0.04em] text-white md:text-6xl lg:text-7xl">
                 A network built
                 <br />
-                <span className="text-white/35">for creation.</span>
+                <span className="text-white/35 transition-colors duration-700 hover:text-white/55">
+                  for creation.
+                </span>
               </h2>
             </div>
 
@@ -476,8 +632,26 @@ export default function Home() {
         </ScrollReveal>
       </section>
 
-      {/* Page animations */}
+      {/* =========================================================
+          ANIMATIONS
+      ========================================================== */}
+
       <style>{`
+        .hero-title {
+          transition:
+            letter-spacing 1100ms cubic-bezier(0.16, 1, 0.3, 1),
+            transform 1100ms cubic-bezier(0.16, 1, 0.3, 1),
+            text-shadow 1100ms ease;
+        }
+
+        .hero-frame:hover .hero-title {
+          letter-spacing: 8px;
+          transform: scale(1.015);
+          text-shadow:
+            0 0 22px rgba(255,255,255,0.85),
+            0 0 65px rgba(255,255,255,0.3);
+        }
+
         @keyframes hero-scroll {
           0%,
           100% {
@@ -513,10 +687,16 @@ export default function Home() {
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .hero-scroll-line {
-            animation: none;
+          .hero-title {
+            transition: none;
           }
 
+          .hero-frame:hover .hero-title {
+            letter-spacing: 15px;
+            transform: none;
+          }
+
+          .hero-scroll-line,
           .group\\/media:hover .media-shine {
             animation: none;
           }
