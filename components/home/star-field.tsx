@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 
 const STARS = [
-  [7, 8, 1.5],
+  [6, 8, 1.5],
   [13, 17, 2],
   [21, 6, 1],
   [28, 15, 1.5],
@@ -59,75 +59,100 @@ export function StarField() {
 
     if (!container) return;
 
-    const prefersReduced = window.matchMedia(
+    const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
-    if (prefersReduced) return;
+    if (reducedMotion) return;
 
     const stars = Array.from(
       container.querySelectorAll<HTMLElement>("[data-zx-star]"),
     );
 
-    let frame = 0;
+    let animationFrame = 0;
 
-    function handlePointerMove(event: PointerEvent) {
-      if (frame) {
-        cancelAnimationFrame(frame);
+    const resetStars = () => {
+      for (const star of stars) {
+        star.style.setProperty("--escape-x", "0px");
+        star.style.setProperty("--escape-y", "0px");
+        star.style.setProperty("--star-scale", "1");
+        star.style.setProperty("--star-opacity", "0.3");
+      }
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
       }
 
-      frame = requestAnimationFrame(() => {
-        const rect = container.getBoundingClientRect();
-
-        const mouseX = event.clientX - rect.left;
-        const mouseY = event.clientY - rect.top;
+      animationFrame = requestAnimationFrame(() => {
+        const mouseX = event.clientX;
+        const mouseY = event.clientY;
 
         for (const star of stars) {
-          const starX = parseFloat(star.dataset.x ?? "0") * rect.width;
-          const starY = parseFloat(star.dataset.y ?? "0") * rect.height;
+          const rect = star.getBoundingClientRect();
+
+          const starX = rect.left + rect.width / 2;
+          const starY = rect.top + rect.height / 2;
 
           const dx = starX - mouseX;
           const dy = starY - mouseY;
 
           const distance = Math.sqrt(dx * dx + dy * dy);
 
-          const radius = 170;
+          /*
+           * How far the cursor influences a star.
+           * Larger = wider reaction area.
+           */
+          const radius = 240;
 
           if (distance < radius && distance > 0) {
-            const strength = (1 - distance / radius) * 24;
+            /*
+             * Stronger movement when cursor is closer.
+             */
+            const proximity = 1 - distance / radius;
+
+            /*
+             * Non-linear curve makes the reaction
+             * subtle from far away and stronger nearby.
+             */
+            const strength = Math.pow(proximity, 1.7) * 48;
 
             const moveX = (dx / distance) * strength;
             const moveY = (dy / distance) * strength;
 
-            star.style.setProperty("--mouse-x", `${moveX}px`);
-            star.style.setProperty("--mouse-y", `${moveY}px`);
+            star.style.setProperty("--escape-x", `${moveX}px`);
+            star.style.setProperty("--escape-y", `${moveY}px`);
+
             star.style.setProperty(
-              "--mouse-opacity",
-              `${0.35 + (1 - distance / radius) * 0.55}`,
+              "--star-scale",
+              `${1 + proximity * 1.4}`,
+            );
+
+            star.style.setProperty(
+              "--star-opacity",
+              `${0.3 + proximity * 0.55}`,
             );
           } else {
-            star.style.setProperty("--mouse-x", "0px");
-            star.style.setProperty("--mouse-y", "0px");
-            star.style.setProperty("--mouse-opacity", "0.3");
+            star.style.setProperty("--escape-x", "0px");
+            star.style.setProperty("--escape-y", "0px");
+            star.style.setProperty("--star-scale", "1");
+            star.style.setProperty("--star-opacity", "0.3");
           }
         }
       });
-    }
+    };
 
-    function handlePointerLeave() {
-      for (const star of stars) {
-        star.style.setProperty("--mouse-x", "0px");
-        star.style.setProperty("--mouse-y", "0px");
-        star.style.setProperty("--mouse-opacity", "0.3");
-      }
-    }
+    const handlePointerLeave = () => {
+      resetStars();
+    };
 
     container.addEventListener("pointermove", handlePointerMove);
     container.addEventListener("pointerleave", handlePointerLeave);
 
     return () => {
-      if (frame) {
-        cancelAnimationFrame(frame);
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
       }
 
       container.removeEventListener("pointermove", handlePointerMove);
@@ -145,42 +170,48 @@ export function StarField() {
         <span
           key={index}
           data-zx-star
-          data-x={x / 100}
-          data-y={y / 100}
           className="zx-star absolute rounded-full bg-white"
           style={{
             left: `${x}%`,
             top: `${y}%`,
             width: `${size}px`,
             height: `${size}px`,
-            animationDelay: `${(index % 9) * 0.45}s`,
-            animationDuration: `${5.5 + (index % 5) * 0.7}s`,
+            animationDelay: `${(index % 12) * 0.35}s`,
+            animationDuration: `${5.5 + (index % 6) * 0.65}s`,
           }}
         />
       ))}
 
       <style>{`
         .zx-star {
-          --mouse-x: 0px;
-          --mouse-y: 0px;
-          --mouse-opacity: 0.3;
+          --escape-x: 0px;
+          --escape-y: 0px;
+          --star-scale: 1;
+          --star-opacity: 0.3;
 
-          opacity: var(--mouse-opacity);
-
-          filter:
-            drop-shadow(0 0 2px rgba(255, 255, 255, 0.7))
-            drop-shadow(0 0 5px rgba(255, 255, 255, 0.15));
+          opacity: var(--star-opacity);
 
           transform:
-            translate3d(var(--mouse-x), var(--mouse-y), 0);
+            translate3d(
+              var(--escape-x),
+              var(--escape-y),
+              0
+            )
+            scale(var(--star-scale));
+
+          filter:
+            drop-shadow(0 0 2px rgba(255,255,255,0.8))
+            drop-shadow(0 0 5px rgba(255,255,255,0.15));
 
           transition:
-            transform 700ms cubic-bezier(0.16, 1, 0.3, 1),
+            transform 850ms cubic-bezier(0.16, 1, 0.3, 1),
             opacity 500ms ease;
 
           animation-name: zx-star-float;
           animation-timing-function: ease-in-out;
           animation-iteration-count: infinite;
+
+          will-change: transform;
         }
 
         @keyframes zx-star-float {
