@@ -1,79 +1,97 @@
 import { Container } from "@/components/ui/container";
 import { PageHeader } from "@/components/ui/page-header";
-import { EmptyState } from "@/components/ui/empty-state";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function ExplorePage() {
+  const categories = ["Projects", "Worlds", "Stories", "Characters", "Communities"];
+  const featured = [
+    { title: "Featured Realm", desc: "Epic world building in progress" },
+    { title: "Character Gallery", desc: "Premium character design showcase" },
+    { title: "Story Archive", desc: "Narrative-driven creative works" },
+  ];
+
   return (
-    <Container className="py-20">
-      <PageHeader
-        eyebrow="Discovery"
-        title="Explore"
-        description="Discover projects, worlds, stories and communities. Everything happening on Zetraxus."
-      />
-
-      {/* Search & Filter section */}
-      <div className="mt-16 grid gap-5 md:grid-cols-3 mb-16">
-        {/* Search */}
-        <div className="md:col-span-2">
-          <input
-            type="text"
-            placeholder="Search projects, worlds, stories..."
-            disabled
-            className="w-full px-4 py-3 border border-border/70 bg-surface/50 backdrop-blur-sm text-foreground placeholder-muted/50 text-sm disabled:opacity-40 disabled:cursor-not-allowed rounded-[var(--radius-md)] transition-colors"
+    <div className="relative">
+      {/* Hero Section */}
+      <section className="relative py-20 md:py-32 border-b border-white/10">
+        <Container>
+          <PageHeader
+            eyebrow="Discovery"
+            title="Explore"
+            description="Discover extraordinary projects, worlds and stories created by the community. Find inspiration and connect with other creators."
           />
-          <p className="text-xs text-faint mt-2">Search coming soon</p>
-        </div>
+        </Container>
+      </section>
 
-        {/* Category filter */}
-        <div>
-          <select
-            disabled
-            className="w-full px-4 py-3 border border-border/70 bg-surface/50 backdrop-blur-sm text-foreground text-sm disabled:opacity-40 disabled:cursor-not-allowed appearance-none rounded-[var(--radius-md)] transition-colors"
-          >
-            <option>All Categories</option>
-          </select>
-          <p className="text-xs text-faint mt-2">Filters coming soon</p>
-        </div>
-      </div>
+      {/* Search & Filter Section */}
+      <section className="relative py-16 md:py-24 border-b border-white/10">
+        <Container>
+          <div className="space-y-8">
+            <div className="grid gap-4 md:grid-cols-3">
+              <input
+                type="text"
+                placeholder="Search projects, worlds, stories..."
+                disabled
+                className="md:col-span-2 px-5 py-4 border border-white/10 bg-surface-light/30 rounded-[var(--radius-md)] text-foreground placeholder-faint/50 text-sm disabled:opacity-40 transition-all duration-300"
+              />
+              <select
+                disabled
+                className="px-5 py-4 border border-white/10 bg-surface-light/30 rounded-[var(--radius-md)] text-foreground text-sm disabled:opacity-40 appearance-none"
+              >
+                <option>All Categories</option>
+              </select>
+            </div>
 
-      {/* Tabs placeholder */}
-      <div className="flex gap-10 border-b border-border/60 mb-16 pb-4">
-        {["Featured", "Trending", "Latest"].map((tab) => (
-          <button
-            key={tab}
-            disabled
-            className="text-sm font-medium text-muted disabled:cursor-not-allowed disabled:opacity-40 transition-colors duration-300 relative group"
-          >
-            {tab}
-            <span className="absolute -bottom-3 left-0 w-0 h-px bg-accent group-disabled:w-0 transition-all duration-300" />
-          </button>
-        ))}
-      </div>
+            {/* Category pills */}
+            <div className="flex flex-wrap gap-3">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  disabled
+                  className="px-4 py-2 text-sm border border-white/10 rounded-full bg-white/3 text-muted hover:text-foreground hover:border-white/20 disabled:opacity-40 transition-all duration-300"
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+        </Container>
+      </section>
 
-      {/* Content grid */}
-      <div className="mt-10">
-        <EmptyState
-          title="Nothing published yet"
-          description="Once creators publish projects, worlds, stories and discussions, they'll appear here sorted by featured, trending and latest activity."
-        />
-      </div>
+      {/* Featured Grid */}
+      <section className="relative py-20 md:py-32">
+        <Container>
+          <div className="space-y-12">
+            <div className="space-y-3 animate-slide-up">
+              <p className="text-xs uppercase tracking-[0.2em] font-bold text-white border border-white/20 px-4 py-2 rounded-full bg-white/5 inline-block">
+                Featured
+              </p>
+              <h2 className="font-display text-5xl md:text-6xl font-black text-foreground">
+                Community Highlights
+              </h2>
+            </div>
 
-      {/* Mock layout structure for future */}
-      <div className="mt-16">
-        <h3 className="font-display text-xl font-medium text-foreground mb-6">
-          Coming soon: Featured content
-        </h3>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => (
-            <Card key={i} className="aspect-video flex items-center justify-center">
-              <div className="text-center">
-                <p className="text-sm text-muted">Featured {i}</p>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </div>
-    </Container>
+            <div className="grid md:grid-cols-3 gap-6">
+              {featured.map((item, idx) => (
+                <Card
+                  key={idx}
+                  className="group animate-scale-in overflow-hidden"
+                  style={{ animationDelay: `${idx * 100}ms` }}
+                >
+                  <div className="aspect-video bg-gradient-to-br from-white/10 to-white/5 rounded-lg mb-6 flex items-center justify-center">
+                    <span className="text-4xl">🎨</span>
+                  </div>
+                  <h3 className="font-display text-xl font-bold text-foreground group-hover:text-white transition-colors">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-muted/70 mt-2">{item.desc}</p>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </Container>
+      </section>
+    </div>
   );
 }

@@ -1,71 +1,103 @@
 import { Container } from "@/components/ui/container";
 import { PageHeader } from "@/components/ui/page-header";
-import { EmptyState } from "@/components/ui/empty-state";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function ProjectsPage() {
+  const projects = [
+    { title: "Ethereal Worlds", creator: "Cosmic Creator", status: "Active", category: "Worlds" },
+    { title: "Character Chronicles", creator: "Art Master", status: "In Progress", category: "Characters" },
+    { title: "Narrative Depths", creator: "Story Writer", status: "Active", category: "Stories" },
+    { title: "Lore Archive", creator: "Lore Keeper", status: "Active", category: "Lore" },
+    { title: "Project Nexus", creator: "Dev Creator", status: "In Progress", category: "Projects" },
+    { title: "World Foundation", creator: "Builder Pro", status: "Active", category: "Worlds" },
+  ];
+
   return (
-    <Container className="py-20">
-      <PageHeader
-        eyebrow="Creator Hub"
-        title="Projects"
-        description="Worlds, characters, stories and work in progress. Every creator's workspace, all in one place."
-      />
+    <div className="relative">
+      {/* Hero Section */}
+      <section className="relative py-20 md:py-32 border-b border-white/10">
+        <Container>
+          <PageHeader
+            eyebrow="Creator Hub"
+            title="Projects"
+            description="Explore creative workspaces where artists, writers, and builders showcase their projects. From worlds to characters—see what's being created."
+          />
+        </Container>
+      </section>
 
-      {/* Filter tabs */}
-      <div className="mt-16 flex gap-10 border-b border-border/60 mb-16 overflow-x-auto pb-4">
-        {["All", "Active", "Worlds", "Stories", "Characters"].map((filter) => (
-          <button
-            key={filter}
-            disabled
-            className="text-sm font-medium text-muted whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-40 transition-colors duration-300 relative group"
-          >
-            {filter}
-            <span className="absolute -bottom-3 left-0 w-0 h-px bg-accent transition-all duration-300" />
-          </button>
-        ))}
-      </div>
+      {/* Filter Tabs */}
+      <section className="relative py-12 border-b border-white/10">
+        <Container>
+          <div className="flex overflow-x-auto gap-4 pb-4">
+            {["All", "Active", "Worlds", "Stories", "Characters"].map((filter) => (
+              <button
+                key={filter}
+                disabled
+                className="whitespace-nowrap px-4 py-2 text-sm font-medium border border-white/10 rounded-full bg-white/3 text-muted hover:text-foreground hover:border-white/20 disabled:opacity-40 transition-all duration-300"
+              >
+                {filter}
+              </button>
+            ))}
+          </div>
+        </Container>
+      </section>
 
-      {/* Projects grid placeholder */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-16">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
-          <Card
-            key={i}
-            className="group cursor-pointer overflow-hidden"
-          >
-            <div className="aspect-video bg-gradient-to-br from-surface-hover to-background mb-4 flex items-center justify-center">
-              <span className="text-xs text-faint">Project {i}</span>
-            </div>
-            <div>
-              <h3 className="font-display text-lg font-medium text-foreground group-hover:text-accent transition-colors">
-                Project Title
-              </h3>
-              <p className="text-sm text-muted mt-2">
-                Creator name · Fantasy world
-              </p>
-              <div className="flex gap-2 mt-4">
-                <span className="text-xs px-2 py-1 bg-surface-hover text-muted border border-border rounded-[var(--radius-sm)]">
-                  In Progress
-                </span>
-              </div>
-            </div>
-          </Card>
-        ))}
-      </div>
+      {/* Projects Grid */}
+      <section className="relative py-20 md:py-32">
+        <Container>
+          <div className="grid md:grid-cols-3 gap-6">
+            {projects.map((project, idx) => (
+              <Card
+                key={idx}
+                className="group animate-scale-in overflow-hidden"
+                style={{ animationDelay: `${idx * 50}ms` }}
+              >
+                {/* Project Image Area */}
+                <div className="aspect-video bg-gradient-to-br from-white/10 via-white/5 to-surface-bright rounded-lg mb-6 flex items-center justify-center group-hover:from-white/15 transition-all duration-300">
+                  <span className="text-4xl opacity-50 group-hover:opacity-70 transition-opacity">📦</span>
+                </div>
 
-      {/* Empty state */}
-      <div className="mt-16">
-        <EmptyState
-          title="Projects launching soon"
-          description="Creator accounts and project workspaces are coming. Once they ship, you'll be able to browse published projects here and create your own workspace."
-          action={
-            <Button variant="secondary" disabled>
-              Create a project — coming soon
-            </Button>
-          }
-        />
-      </div>
-    </Container>
+                {/* Project Info */}
+                <div className="space-y-3">
+                  <h3 className="font-display text-lg font-bold text-foreground group-hover:text-white transition-colors">
+                    {project.title}
+                  </h3>
+                  <p className="text-xs text-muted/60">
+                    {project.creator} · <span className="text-white/40">{project.category}</span>
+                  </p>
+
+                  {/* Status badge */}
+                  <div className="pt-2">
+                    <span className={`text-xs font-semibold px-3 py-1 rounded-full border ${
+                      project.status === "Active"
+                        ? "border-green-500/30 bg-green-500/10 text-green-300"
+                        : "border-yellow-500/30 bg-yellow-500/10 text-yellow-300"
+                    }`}>
+                      {project.status}
+                    </span>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* CTA Section */}
+      <section className="relative py-20 md:py-32 border-t border-white/10">
+        <Container className="space-y-8">
+          <div className="max-w-2xl space-y-4 animate-slide-up">
+            <h2 className="font-display text-5xl md:text-6xl font-black text-foreground">
+              Start your project
+            </h2>
+            <p className="text-lg text-muted/80">
+              Create your own creative workspace and share your vision with the community.
+            </p>
+          </div>
+          <Button disabled>Create Project — Coming Soon</Button>
+        </Container>
+      </section>
+    </div>
   );
 }

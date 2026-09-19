@@ -12,15 +12,15 @@ interface BaseProps {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-accent text-accent-foreground hover:bg-[var(--accent-strong)] border border-transparent transition-all duration-300 hover:shadow-[0_0_16px_rgba(176,141,87,0.25),inset_0_0_1px_rgba(255,255,255,0.2)]",
+    "bg-foreground text-background font-semibold hover:bg-foreground/90 border border-foreground/20 transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,255,255,0.25)] active:scale-95",
   secondary:
-    "bg-transparent text-foreground border border-border-strong hover:border-accent/50 hover:text-foreground transition-all duration-300 hover:shadow-[0_0_16px_rgba(255,255,255,0.08),inset_0_0_1px_rgba(255,255,255,0.15)]",
+    "bg-transparent text-foreground border border-white/20 hover:border-white/40 hover:bg-white/5 transition-all duration-300 hover:shadow-[0_0_30px_rgba(255,255,255,0.15),inset_0_0_1px_rgba(255,255,255,0.2)] active:scale-95",
   ghost:
-    "bg-transparent text-muted border border-transparent hover:text-foreground hover:bg-surface-hover/60 transition-all duration-300 hover:shadow-[0_0_12px_rgba(255,255,255,0.06)]",
+    "bg-transparent text-muted border border-transparent hover:text-foreground hover:border-white/20 hover:bg-white/3 transition-all duration-300 active:scale-95",
 };
 
 const sharedClasses =
-  "inline-flex items-center justify-center gap-2 rounded-[var(--radius-sm)] px-4 py-2 text-sm font-medium transition-colors disabled:opacity-40 disabled:pointer-events-none";
+  "inline-flex items-center justify-center gap-2 rounded-[var(--radius-md)] px-5 py-3 text-sm font-medium transition-all disabled:opacity-30 disabled:pointer-events-none disabled:cursor-not-allowed";
 
 interface ButtonAsButton
   extends BaseProps,

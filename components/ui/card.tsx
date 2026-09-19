@@ -17,7 +17,7 @@ export function Card({ children, className }: CardProps) {
   return (
     <div
       className={cn(
-        "border border-border/70 bg-surface/50 backdrop-blur-sm p-6 glow-hover rounded-[var(--radius-md)]",
+        "border border-white/10 bg-surface-light/40 backdrop-blur-md p-6 rounded-[var(--radius-lg)] glow-border group transition-all duration-300 hover:bg-surface-light/60 hover:border-white/20",
         className,
       )}
     >

@@ -11,39 +11,42 @@ import { primaryNav } from "@/lib/navigation";
  */
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-30 h-[var(--header-height)] border-b border-border bg-background/80 backdrop-blur-lg backdrop-saturate-150">
-      <div className="absolute inset-0 pointer-events-none opacity-30 bg-gradient-to-r from-white/0 via-white/[0.01] to-white/0" />
-      
+    <header className="sticky top-0 z-40 h-[var(--header-height)] border-b border-white/10 bg-background/70 backdrop-blur-xl bg-gradient-to-b from-white/5 to-transparent">
       <Container className="relative flex h-full items-center justify-between">
-        <div className="flex items-center gap-10">
-          <Link
-            href="/"
-            className="font-display text-lg tracking-[0.04em] text-foreground font-semibold transition-colors hover:text-accent"
-          >
+        {/* Logo */}
+        <Link
+          href="/"
+          className="font-display text-lg font-bold tracking-wider text-foreground transition-all duration-300 hover:text-white group flex items-center gap-2"
+        >
+          <span className="relative">
             ZETRAXUS
-          </Link>
+            <span className="absolute inset-0 blur-md opacity-0 bg-gradient-to-r from-white/20 to-transparent group-hover:opacity-100 transition-opacity duration-300" />
+          </span>
+        </Link>
 
-          <nav className="hidden items-center gap-10 md:flex">
-            {primaryNav.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="text-sm text-muted transition-all duration-300 hover:text-foreground relative group"
-              >
-                {item.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-px bg-gradient-to-r from-accent to-transparent group-hover:w-full transition-all duration-300" />
-              </Link>
-            ))}
-          </nav>
-        </div>
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center gap-8">
+          {primaryNav.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="text-sm text-muted transition-all duration-300 hover:text-foreground relative group capitalize tracking-wide"
+            >
+              <span className="relative z-10">{item.label}</span>
+              {/* Animated underline */}
+              <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-gradient-to-r from-white to-white/30 group-hover:w-full transition-all duration-300" />
+            </Link>
+          ))}
+        </nav>
 
-        <div className="flex items-center gap-4">
+        {/* Right Section */}
+        <div className="flex items-center gap-5">
           <button
             type="button"
             disabled
             aria-label="Search — coming soon"
             title="Search — coming soon"
-            className="hidden h-9 w-9 items-center justify-center border border-border-strong text-faint hover:text-foreground hover:border-border-strong/70 md:flex disabled:cursor-not-allowed transition-colors duration-300"
+            className="hidden md:flex h-8 w-8 items-center justify-center border border-white/10 text-faint hover:text-foreground hover:border-white/20 rounded-[var(--radius-sm)] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed glow-border"
           >
             <SearchIcon />
           </button>
@@ -54,7 +57,7 @@ export function SiteHeader() {
 
           <Link
             href="/profile"
-            className="hidden h-9 w-9 items-center justify-center border border-border-strong text-sm text-muted transition-all duration-300 hover:text-foreground hover:border-accent/30 md:flex glow-link"
+            className="hidden md:flex h-8 w-8 items-center justify-center border border-white/10 text-sm text-muted hover:text-foreground hover:border-white/20 rounded-[var(--radius-sm)] transition-all duration-300 glow-border glow-text"
             aria-label="Profile"
           >
             <span aria-hidden>Z</span>

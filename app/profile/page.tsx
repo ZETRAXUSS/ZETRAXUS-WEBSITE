@@ -1,101 +1,146 @@
 import { Container } from "@/components/ui/container";
-import { PageHeader } from "@/components/ui/page-header";
-import { EmptyState } from "@/components/ui/empty-state";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 export default function ProfilePage() {
+  const stats = [
+    { label: "Projects", value: "—" },
+    { label: "Followers", value: "—" },
+    { label: "Following", value: "—" },
+    { label: "Worlds", value: "—" },
+    { label: "Posts", value: "—" },
+    { label: "Shop Items", value: "—" },
+  ];
+
   return (
-    <Container className="py-20">
-      <PageHeader
-        eyebrow="Account"
-        title="Profile"
-        description="Your workspace, your projects, and your presence on Zetraxus."
-      />
+    <div className="relative">
+      {/* Hero / Profile Header */}
+      <section className="relative py-20 md:py-32 border-b border-white/10">
+        <Container>
+          <div className="space-y-8">
+            {/* Avatar & Bio */}
+            <div className="flex gap-8 items-start animate-slide-up">
+              <div className="w-24 h-24 rounded-[var(--radius-lg)] border border-white/10 bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center text-5xl flex-shrink-0">
+                👤
+              </div>
 
-      {/* Profile header (demo) */}
-      <div className="mt-12 border-b border-border pb-12">
-        <div className="flex items-end gap-6 mb-6">
-          <div className="w-24 h-24 border border-border bg-surface-hover flex items-center justify-center text-2xl">
-            👤
+              <div className="flex-1 space-y-4">
+                <h1 className="font-display text-5xl md:text-6xl font-black text-foreground leading-tight">
+                  Creator Name
+                </h1>
+                <p className="text-lg text-muted/80">@username</p>
+                <p className="text-foreground/80 leading-relaxed max-w-2xl">
+                  Passionate creator building worlds, crafting stories, and designing experiences. Welcome to my creative space where imagination meets technology.
+                </p>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-3 animate-slide-up" style={{ animationDelay: "100ms" }}>
+              <Button disabled>Edit Profile</Button>
+              <Button variant="secondary" disabled>Settings</Button>
+            </div>
           </div>
-          <div>
-            <h1 className="font-display text-3xl font-medium text-foreground">
-              Your Name
-            </h1>
-            <p className="text-sm text-muted mt-2">@username</p>
+        </Container>
+      </section>
+
+      {/* Stats Grid */}
+      <section className="relative py-16 md:py-20 border-b border-white/10">
+        <Container>
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
+            {stats.map((stat, idx) => (
+              <Card
+                key={idx}
+                className="animate-scale-in text-center p-6"
+                style={{ animationDelay: `${idx * 30}ms` }}
+              >
+                <p className="text-3xl font-black text-white">{stat.value}</p>
+                <p className="text-xs text-muted/60 mt-2 uppercase tracking-wide font-semibold">
+                  {stat.label}
+                </p>
+              </Card>
+            ))}
           </div>
-        </div>
-        <p className="text-base text-muted mb-6 max-w-2xl">
-          Your bio goes here. Tell other creators about yourself and what you make.
-        </p>
-        <div className="flex gap-3">
-          <Button disabled>Edit profile</Button>
-          <Button variant="secondary" disabled>Settings</Button>
-        </div>
-      </div>
+        </Container>
+      </section>
 
-      {/* Stats */}
-      <div className="mt-12 grid gap-4 grid-cols-3 md:grid-cols-6 mb-12">
-        {[
-          { label: "Projects", value: "0" },
-          { label: "Worlds", value: "0" },
-          { label: "Followers", value: "0" },
-          { label: "Following", value: "0" },
-          { label: "Posts", value: "0" },
-          { label: "Shop Items", value: "0" },
-        ].map((stat) => (
-          <Card key={stat.label} className="text-center py-4 px-3">
-            <p className="text-2xl font-medium text-foreground">{stat.value}</p>
-            <p className="text-xs text-muted mt-1">{stat.label}</p>
-          </Card>
-        ))}
-      </div>
+      {/* Content Sections */}
+      <section className="relative py-20 md:py-32">
+        <Container className="space-y-24">
+          {/* Projects Section */}
+          <div className="space-y-8">
+            <div className="space-y-3 animate-slide-up">
+              <p className="text-xs uppercase tracking-[0.2em] font-bold text-white border border-white/20 px-4 py-2 rounded-full bg-white/5 inline-block">
+                Portfolio
+              </p>
+              <h2 className="font-display text-4xl md:text-5xl font-black text-foreground">
+                Your Projects
+              </h2>
+              <p className="text-lg text-muted/80">Create and manage your creative projects. Coming soon.</p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {[1, 2, 3].map((_, idx) => (
+                <Card
+                  key={idx}
+                  className="animate-scale-in aspect-video flex items-center justify-center text-faint"
+                  style={{ animationDelay: `${idx * 50}ms` }}
+                >
+                  <div className="text-center">
+                    <p className="text-lg">No projects yet</p>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
 
-      {/* Sections */}
-      <div className="space-y-12">
-        {/* Projects */}
-        <div>
-          <h2 className="font-display text-2xl font-medium text-foreground mb-6">
-            Your Projects
-          </h2>
-          <EmptyState
-            title="No projects yet"
-            description="Once your account is set up, you'll be able to create and manage projects here."
-            action={<Button variant="secondary" disabled>New project</Button>}
-          />
-        </div>
+          {/* Activity Section */}
+          <div className="space-y-8">
+            <div className="space-y-3 animate-slide-up">
+              <p className="text-xs uppercase tracking-[0.2em] font-bold text-white border border-white/20 px-4 py-2 rounded-full bg-white/5 inline-block">
+                Activity
+              </p>
+              <h2 className="font-display text-4xl md:text-5xl font-black text-foreground">
+                Recent Activity
+              </h2>
+              <p className="text-lg text-muted/80">Your activity will appear here once you start creating.</p>
+            </div>
+            <Card className="animate-scale-in p-8 text-center">
+              <p className="text-faint">No activity yet</p>
+            </Card>
+          </div>
 
-        {/* Activity */}
-        <div>
-          <h2 className="font-display text-2xl font-medium text-foreground mb-6">
-            Recent Activity
-          </h2>
-          <EmptyState
-            title="No activity yet"
-            description="Once you start creating and engaging, your activity will show here."
-          />
-        </div>
+          {/* Saved / Favorites */}
+          <div className="space-y-8">
+            <div className="space-y-3 animate-slide-up">
+              <p className="text-xs uppercase tracking-[0.2em] font-bold text-white border border-white/20 px-4 py-2 rounded-full bg-white/5 inline-block">
+                Saved
+              </p>
+              <h2 className="font-display text-4xl md:text-5xl font-black text-foreground">
+                Bookmarks & Favorites
+              </h2>
+              <p className="text-lg text-muted/80">Save projects and content you love for quick access.</p>
+            </div>
+            <Card className="animate-scale-in p-8 text-center">
+              <p className="text-faint">No saved items yet</p>
+            </Card>
+          </div>
+        </Container>
+      </section>
 
-        {/* Favorites */}
-        <div>
-          <h2 className="font-display text-2xl font-medium text-foreground mb-6">
-            Saved & Favorites
-          </h2>
-          <EmptyState
-            title="Nothing saved yet"
-            description="Bookmark projects, worlds and discussions that inspire you."
-          />
-        </div>
-      </div>
-
-      {/* Sign in notice */}
-      <div className="mt-16">
-        <EmptyState
-          title="Sign in to see your profile"
-          description="Authentication isn't available yet. Once accounts ship, you'll see your personalized dashboard here with all your projects, activity and settings."
-        />
-      </div>
-    </Container>
+      {/* Sign In CTA */}
+      <section className="relative py-20 md:py-32 border-t border-white/10">
+        <Container className="space-y-8 text-center animate-slide-up">
+          <div className="max-w-2xl mx-auto space-y-4">
+            <h2 className="font-display text-5xl md:text-6xl font-black text-foreground">
+              Sign in to customize
+            </h2>
+            <p className="text-lg text-muted/80">
+              Create your account to build your portfolio, share projects, and connect with the creative community.
+            </p>
+          </div>
+          <Button disabled>Sign In — Coming Soon</Button>
+        </Container>
+      </section>
+    </div>
   );
 }
