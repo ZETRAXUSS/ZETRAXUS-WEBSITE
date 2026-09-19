@@ -282,11 +282,6 @@ export default function Home() {
                   md:text-[76px]
                   lg:text-[86px]
                 "
-                style={{
-                  letterSpacing: "15px",
-                  textShadow:
-                    "0 0 18px rgba(255,255,255,0.72), 0 0 55px rgba(255,255,255,0.22)",
-                }}
               >
                 ZETRAXUS
               </h1>
