@@ -4,49 +4,48 @@ import { CreateMenu } from "@/components/layout/create-menu";
 import { MobileMenu } from "@/components/layout/mobile-menu";
 import { primaryNav } from "@/lib/navigation";
 
-/**
- * Global site header. Renders from primaryNav so adding a new
- * top-level section (Worlds, Lore, etc.) later is a one-line change
- * in lib/navigation.ts, not a template edit.
- */
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 h-[var(--header-height)] border-b border-white/10 bg-background/70 backdrop-blur-xl bg-gradient-to-b from-white/5 to-transparent">
-      <Container className="relative flex h-full items-center justify-between">
+    <header className="relative z-40 px-5 pt-5 md:px-6 md:pt-6">
+      <Container className="relative flex h-[68px] items-center justify-between rounded-[20px] border border-white/[0.12] bg-[#080808]/90 px-5 shadow-[0_10px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl md:px-7">
         {/* Logo */}
         <Link
           href="/"
-          className="font-display text-lg font-bold tracking-wider text-foreground transition-all duration-300 hover:text-white group flex items-center gap-2"
+          className="group flex items-center gap-2.5 text-white"
         >
-          <span className="relative">
+          <span className="relative flex h-7 w-7 items-center justify-center">
+            <span className="absolute h-3 w-3 rotate-45 border border-white/70 transition-all duration-500 group-hover:scale-125 group-hover:border-white" />
+            <span className="absolute h-1.5 w-1.5 rotate-45 bg-white shadow-[0_0_12px_rgba(255,255,255,0.8)]" />
+          </span>
+
+          <span className="text-[15px] font-bold tracking-[3px] transition-opacity duration-300 group-hover:opacity-80">
             ZETRAXUS
-            <span className="absolute inset-0 blur-md opacity-0 bg-gradient-to-r from-white/20 to-transparent group-hover:opacity-100 transition-opacity duration-300" />
           </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-7 md:flex">
           {primaryNav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm text-muted transition-all duration-300 hover:text-foreground relative group capitalize tracking-wide"
+              className="group relative py-2 text-[12px] font-medium uppercase tracking-[2px] text-white/45 transition-colors duration-300 hover:text-white"
             >
-              <span className="relative z-10">{item.label}</span>
-              {/* Animated underline */}
-              <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-gradient-to-r from-white to-white/30 group-hover:w-full transition-all duration-300" />
+              {item.label}
+
+              <span className="absolute -bottom-0.5 left-1/2 h-px w-0 -translate-x-1/2 bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)] transition-all duration-300 group-hover:w-full" />
             </Link>
           ))}
         </nav>
 
-        {/* Right Section */}
-        <div className="flex items-center gap-5">
+        {/* Right */}
+        <div className="flex items-center gap-2.5">
           <button
             type="button"
             disabled
             aria-label="Search — coming soon"
             title="Search — coming soon"
-            className="hidden md:flex h-8 w-8 items-center justify-center border border-white/10 text-faint hover:text-foreground hover:border-white/20 rounded-[var(--radius-sm)] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed glow-border"
+            className="hidden h-9 w-9 items-center justify-center rounded-full border border-white/[0.12] bg-white/[0.025] text-white/45 transition-all duration-300 hover:border-white/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-70 md:flex"
           >
             <SearchIcon />
           </button>
@@ -57,10 +56,10 @@ export function SiteHeader() {
 
           <Link
             href="/profile"
-            className="hidden md:flex h-8 w-8 items-center justify-center border border-white/10 text-sm text-muted hover:text-foreground hover:border-white/20 rounded-[var(--radius-sm)] transition-all duration-300 glow-border glow-text"
             aria-label="Profile"
+            className="hidden h-9 w-9 items-center justify-center rounded-full border border-white/[0.15] bg-white/[0.025] text-[11px] font-semibold text-white/65 transition-all duration-300 hover:border-white/40 hover:bg-white/[0.06] hover:text-white hover:shadow-[0_0_18px_rgba(255,255,255,0.08)] md:flex"
           >
-            <span aria-hidden>Z</span>
+            Z
           </Link>
 
           <MobileMenu />
@@ -79,8 +78,19 @@ function SearchIcon() {
       fill="none"
       aria-hidden="true"
     >
-      <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" strokeWidth="1.2" />
-      <path d="M10.5 10.5L14 14" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <circle
+        cx="6.5"
+        cy="6.5"
+        r="4.7"
+        stroke="currentColor"
+        strokeWidth="1.15"
+      />
+      <path
+        d="M10.2 10.2L14 14"
+        stroke="currentColor"
+        strokeWidth="1.15"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
