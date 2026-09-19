@@ -258,3 +258,26 @@ body::before {
     scroll-behavior: auto !important;
   }
 }
+/* ZETRAXUS Hero Title Animation */
+
+.hero-title {
+  letter-spacing: 15px;
+  transform: scale(1);
+  text-shadow:
+    0 0 12px rgba(255, 255, 255, 0.18),
+    0 0 35px rgba(255, 255, 255, 0.08);
+
+  transition:
+    letter-spacing 1100ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1100ms cubic-bezier(0.16, 1, 0.3, 1),
+    text-shadow 1100ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-frame:hover .hero-title {
+  letter-spacing: 8px;
+  transform: scale(1.018);
+
+  text-shadow:
+    0 0 18px rgba(255, 255, 255, 0.35),
+    0 0 55px rgba(255, 255, 255, 0.14);
+}
