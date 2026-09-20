@@ -191,7 +191,7 @@ export default function Home() {
               group-hover:-translate-y-1
             "
           >
-          {/* =================================================
+            {/* =================================================
                 LOGO
             ================================================== */}
 
@@ -628,82 +628,78 @@ export default function Home() {
         </ScrollReveal>
       </section>
 
-      {/* =========================================================
-          ANIMATIONS
-      ========================================================== */}
+      <style>{`
+        .hero-title {
+          transition:
+            letter-spacing 1100ms cubic-bezier(0.16, 1, 0.3, 1),
+            transform 1100ms cubic-bezier(0.16, 1, 0.3, 1),
+            text-shadow 1100ms ease;
+        }
 
-     <style>{`
-  .hero-title {
-    transition:
-      letter-spacing 1100ms cubic-bezier(0.16, 1, 0.3, 1),
-      transform 1100ms cubic-bezier(0.16, 1, 0.3, 1),
-      text-shadow 1100ms ease;
-  }
+        .hero-frame:hover .hero-title {
+          letter-spacing: 8px;
+          transform: scale(1.015);
+          text-shadow:
+            0 0 22px rgba(255,255,255,0.85),
+            0 0 65px rgba(255,255,255,0.3);
+        }
 
-  .hero-frame:hover .hero-title {
-    letter-spacing: 8px;
-    transform: scale(1.015);
-    text-shadow:
-      0 0 22px rgba(255,255,255,0.85),
-      0 0 65px rgba(255,255,255,0.3);
-  }
+        @keyframes hero-scroll {
+          0%, 100% {
+            opacity: 0.2;
+            transform: scaleY(0.55);
+            transform-origin: top;
+          }
+          50% {
+            opacity: 0.8;
+            transform: scaleY(1);
+            transform-origin: top;
+          }
+        }
 
-  @keyframes hero-scroll {
-    0%, 100% {
-      opacity: 0.2;
-      transform: scaleY(0.55);
-      transform-origin: top;
-    }
-    50% {
-      opacity: 0.8;
-      transform: scaleY(1);
-      transform-origin: top;
-    }
-  }
+        @keyframes media-shine {
+          0% { left: -60%; }
+          45%, 100% { left: 130%; }
+        }
 
-  @keyframes media-shine {
-    0% { left: -60%; }
-    45%, 100% { left: 130%; }
-  }
+        .hero-scroll-line {
+          animation: hero-scroll 2.4s ease-in-out infinite;
+        }
 
-  .hero-scroll-line {
-    animation: hero-scroll 2.4s ease-in-out infinite;
-  }
+        .group\\/media:hover .media-shine {
+          animation: media-shine 1.4s ease-out;
+        }
 
-  .group\\/media:hover .media-shine {
-    animation: media-shine 1.4s ease-out;
-  }
+        @keyframes hero-aura-breathe {
+          0%, 100% {
+            transform: scale(1);
+            opacity: 0.85;
+          }
+          50% {
+            transform: scale(1.08);
+            opacity: 1;
+          }
+        }
 
-  @keyframes hero-aura-breathe {
-    0%, 100% {
-      transform: scale(1);
-      opacity: 0.85;
-    }
-    50% {
-      transform: scale(1.08);
-      opacity: 1;
-    }
-  }
+        .hero-aura-breathe {
+          animation: hero-aura-breathe 4.5s ease-in-out infinite;
+        }
 
-.hero-aura-breathe {
-  animation: hero-aura-breathe 4.5s ease-in-out infinite;
-}
+        @media (prefers-reduced-motion: reduce) {
+          .hero-title {
+            transition: none;
+          }
 
-@media (prefers-reduced-motion: reduce) {
-  .hero-title {
-    transition: none;
-  }
+          .hero-frame:hover .hero-title {
+            letter-spacing: 15px;
+            transform: none;
+          }
 
-  .hero-frame:hover .hero-title {
-    letter-spacing: 15px;
-    transform: none;
-  }
-
-  .hero-scroll-line,
-  .hero-aura-breathe {
-    animation: none;
-  }
-}
+          .hero-scroll-line,
+          .hero-aura-breathe {
+            animation: none;
+          }
+        }
       `}</style>
     </main>
   );
