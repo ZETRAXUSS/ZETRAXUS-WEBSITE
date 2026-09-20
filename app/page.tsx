@@ -223,19 +223,6 @@ export default function Home() {
                 "
               />
 
-              {/* Logo ring */}
-              <div
-                className="
-                  absolute h-40 w-40 rounded-full
-                  border border-white/[0.05]
-                  shadow-[0_0_50px_rgba(255,255,255,0.06)]
-                  transition-all duration-[1200ms]
-                  ease-out
-                  group-hover:scale-[1.35]
-                  group-hover:border-white/[0.12]
-                "
-              />
-
               {/* Actual ZETRAXUS logo */}
               <img
                 src="/zetraxus-mark.png"
