@@ -199,6 +199,7 @@ export default function Home() {
               {/* Large aura */}
               <div
                 className="
+                  hero-aura-breathe
                   absolute h-56 w-56 rounded-full
                   bg-white/[0.045]
                   blur-[50px]
@@ -631,72 +632,77 @@ export default function Home() {
           ANIMATIONS
       ========================================================== */}
 
-      <style>{`
-        .hero-title {
-          transition:
-            letter-spacing 1100ms cubic-bezier(0.16, 1, 0.3, 1),
-            transform 1100ms cubic-bezier(0.16, 1, 0.3, 1),
-            text-shadow 1100ms ease;
-        }
+     <style>{`
+  .hero-title {
+    transition:
+      letter-spacing 1100ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 1100ms cubic-bezier(0.16, 1, 0.3, 1),
+      text-shadow 1100ms ease;
+  }
 
-        .hero-frame:hover .hero-title {
-          letter-spacing: 8px;
-          transform: scale(1.015);
-          text-shadow:
-            0 0 22px rgba(255,255,255,0.85),
-            0 0 65px rgba(255,255,255,0.3);
-        }
+  .hero-frame:hover .hero-title {
+    letter-spacing: 8px;
+    transform: scale(1.015);
+    text-shadow:
+      0 0 22px rgba(255,255,255,0.85),
+      0 0 65px rgba(255,255,255,0.3);
+  }
 
-        @keyframes hero-scroll {
-          0%,
-          100% {
-            opacity: 0.2;
-            transform: scaleY(0.55);
-            transform-origin: top;
-          }
+  @keyframes hero-scroll {
+    0%, 100% {
+      opacity: 0.2;
+      transform: scaleY(0.55);
+      transform-origin: top;
+    }
+    50% {
+      opacity: 0.8;
+      transform: scaleY(1);
+      transform-origin: top;
+    }
+  }
 
-          50% {
-            opacity: 0.8;
-            transform: scaleY(1);
-            transform-origin: top;
-          }
-        }
+  @keyframes media-shine {
+    0% { left: -60%; }
+    45%, 100% { left: 130%; }
+  }
 
-        @keyframes media-shine {
-          0% {
-            left: -60%;
-          }
+  .hero-scroll-line {
+    animation: hero-scroll 2.4s ease-in-out infinite;
+  }
 
-          45%,
-          100% {
-            left: 130%;
-          }
-        }
+  .group\\/media:hover .media-shine {
+    animation: media-shine 1.4s ease-out;
+  }
 
-        .hero-scroll-line {
-          animation: hero-scroll 2.4s ease-in-out infinite;
-        }
+  @keyframes hero-aura-breathe {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 0.85;
+    }
+    50% {
+      transform: scale(1.08);
+      opacity: 1;
+    }
+  }
 
-        .group\\/media:hover .media-shine {
-          animation: media-shine 1.4s ease-out;
-        }
+  .hero-aura-breathe {
+    animation: hero-aura-breathe 4.5s ease-in-out infinite;
+  }
 
-        @media (prefers-reduced-motion: reduce) {
-          .hero-title {
-            transition: none;
-          }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-title {
+      transition: none;
+    }
 
-          .hero-frame:hover .hero-title {
-            letter-spacing: 15px;
-            transform: none;
-          }
+    .hero-frame:hover .hero-title {
+      letter-spacing: 15px;
+      transform: none;
+    }
 
-          .hero-scroll-line,
-          .group\\/media:hover .media-shine {
-            animation: none;
-          }
-        }
-      `}</style>
-    </main>
-  );
-}
+    .hero-scroll-line,
+    .group\\/media:hover .media-shine,
+    .hero-aura-breathe {
+      animation: none;
+    }
+  }
+`}</style>
