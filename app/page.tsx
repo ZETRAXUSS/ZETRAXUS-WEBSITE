@@ -690,19 +690,22 @@ export default function Home() {
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .hero-title {
-      transition: none;
-    }
+          .hero-title {
+            transition: none;
+          }
 
-    .hero-frame:hover .hero-title {
-      letter-spacing: 15px;
-      transform: none;
-    }
+          .hero-frame:hover .hero-title {
+            letter-spacing: 15px;
+            transform: none;
+          }
 
-    .hero-scroll-line,
-    .group\\/media:hover .media-shine,
-    .hero-aura-breathe {
-      animation: none;
-    }
-  }
-`}</style>
+          .hero-scroll-line,
+          .group\/media:hover .media-shine,
+          .hero-aura-breathe {
+            animation: none;
+          }
+        }
+      `}</style>
+    </div>
+  );
+}
