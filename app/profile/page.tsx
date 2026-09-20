@@ -1,146 +1,444 @@
-import { Container } from "@/components/ui/container";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+"use client";
+
+import { useState } from "react";
+import { StarField } from "@/components/home/star-field";
+import { ParallaxField } from "@/components/home/parallax-field";
+import { ScrollReveal } from "@/components/home/scroll-reveal";
+
+const avatarPresets = [
+  { id: "spark", icon: "⚡", tone: "bg-white/[0.14] text-white/85" },
+  { id: "moon", icon: "🌙", tone: "bg-white/[0.1] text-white/75" },
+  { id: "flame", icon: "🔥", tone: "bg-white/[0.16] text-white/85" },
+  { id: "star", icon: "⭐", tone: "bg-white/[0.12] text-white/80" },
+  { id: "wolf", icon: "🐺", tone: "bg-white/[0.1] text-white/70" },
+  { id: "owl", icon: "🦉", tone: "bg-white/[0.14] text-white/80" },
+  { id: "dragon", icon: "🐉", tone: "bg-white/[0.16] text-white/85" },
+  { id: "wave", icon: "🌊", tone: "bg-white/[0.1] text-white/70" },
+  { id: "mask", icon: "🎭", tone: "bg-white/[0.12] text-white/78" },
+  { id: "shield", icon: "🛡️", tone: "bg-white/[0.14] text-white/82" },
+  { id: "comet", icon: "☄️", tone: "bg-white/[0.1] text-white/72" },
+  { id: "crystal", icon: "🔮", tone: "bg-white/[0.16] text-white/85" },
+];
+
+const stats = [
+  { label: "Projects", value: "—" },
+  { label: "Followers", value: "—" },
+  { label: "Following", value: "—" },
+  { label: "Worlds", value: "—" },
+  { label: "Posts", value: "—" },
+  { label: "Shop Items", value: "—" },
+];
+
+const badges = [
+  { icon: "🌱", name: "First Steps", desc: "Joined ZETRAXUS", unlocked: true },
+  { icon: "✍️", name: "Storyteller", desc: "Publish your first story", unlocked: false },
+  { icon: "🌍", name: "Worldbuilder", desc: "Create your first world", unlocked: false },
+  { icon: "🎭", name: "Character Smith", desc: "Design 5 characters", unlocked: false },
+  { icon: "💬", name: "Voice Heard", desc: "Post 10 forum replies", unlocked: false },
+  { icon: "🛒", name: "Entrepreneur", desc: "List your first product", unlocked: false },
+  { icon: "🔥", name: "On Fire", desc: "7 day activity streak", unlocked: false },
+  { icon: "👑", name: "Legend", desc: "Reach Level 25", unlocked: false },
+];
+
+const tabs = ["Overview", "Projects", "Activity", "Saved"];
 
 export default function ProfilePage() {
-  const stats = [
-    { label: "Projects", value: "—" },
-    { label: "Followers", value: "—" },
-    { label: "Following", value: "—" },
-    { label: "Worlds", value: "—" },
-    { label: "Posts", value: "—" },
-    { label: "Shop Items", value: "—" },
-  ];
+  const [selectedAvatar, setSelectedAvatar] = useState(avatarPresets[0]);
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [activeTab, setActiveTab] = useState("Overview");
+
+  const level = 1;
+  const xpPercent = 12;
 
   return (
-    <div className="relative">
-      {/* Hero / Profile Header */}
-      <section className="relative py-20 md:py-32 border-b border-white/10">
-        <Container>
-          <div className="space-y-8">
-            {/* Avatar & Bio */}
-            <div className="flex gap-8 items-start animate-slide-up">
-              <div className="w-24 h-24 rounded-[var(--radius-lg)] border border-white/10 bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center text-5xl flex-shrink-0">
-                👤
-              </div>
+    <div className="min-h-screen overflow-hidden bg-black text-white">
+      {/* =========================================================
+          BANNER (site-generated, no uploads)
+      ========================================================== */}
 
-              <div className="flex-1 space-y-4">
-                <h1 className="font-display text-5xl md:text-6xl font-black text-foreground leading-tight">
+      <section className="px-4 pb-0 pt-6 md:px-6 md:pt-8">
+        <div className="profile-banner group relative mx-auto w-full max-w-[1760px] overflow-hidden rounded-t-[32px] border border-b-0 border-white/[0.12] bg-[#030303]">
+          <div className="relative h-[240px] w-full overflow-hidden md:h-[300px]">
+            <ParallaxField />
+            <StarField />
+
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.06),transparent_60%)]" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#030303] to-transparent" />
+          </div>
+
+          <div className="absolute right-5 top-5 flex gap-2.5">
+            <button
+              type="button"
+              disabled
+              className="rounded-full border border-white/[0.15] bg-black/40 px-4 py-2 text-[10px] font-semibold uppercase tracking-[2px] text-white/50 opacity-70 backdrop-blur-md transition-all duration-300"
+            >
+              Settings
+            </button>
+            <button
+              type="button"
+              disabled
+              className="rounded-full border border-white/25 bg-white/[0.06] px-4 py-2 text-[10px] font-semibold uppercase tracking-[2px] text-white/80 opacity-70 backdrop-blur-md transition-all duration-300"
+            >
+              Edit Profile
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================
+          IDENTITY BLOCK
+      ========================================================== */}
+
+      <section className="px-4 md:px-6">
+        <div className="relative mx-auto w-full max-w-[1760px] rounded-b-[32px] border border-t-0 border-white/[0.12] bg-[#030303] px-6 pb-10 pt-0 md:px-10">
+          <div className="flex flex-col gap-6 md:flex-row md:items-end md:gap-8">
+            {/* Avatar (preset-only, click to open picker) */}
+            <div className="relative -mt-16 md:-mt-20">
+              <button
+                type="button"
+                onClick={() => setShowAvatarPicker((prev) => !prev)}
+                className="group/avatar relative flex h-32 w-32 items-center justify-center rounded-[28px] border-4 border-black bg-[#030303] shadow-[0_15px_50px_rgba(0,0,0,0.5)] transition-transform duration-500 hover:scale-[1.03] md:h-36 md:w-36"
+              >
+                <div
+                  className={`flex h-full w-full items-center justify-center rounded-[24px] text-5xl md:text-6xl ${selectedAvatar.tone}`}
+                >
+                  {selectedAvatar.icon}
+                </div>
+
+                <span className="absolute -bottom-1.5 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full border border-white/20 bg-black px-2.5 py-1 text-[9px] font-bold uppercase tracking-[1px] text-white/70 opacity-0 transition-opacity duration-300 group-hover/avatar:opacity-100">
+                  Change
+                </span>
+
+                <span className="absolute -right-2 -top-2 flex h-9 w-9 items-center justify-center rounded-full border-2 border-black bg-white text-[11px] font-black text-black shadow-[0_0_18px_rgba(255,255,255,0.4)]">
+                  {level}
+                </span>
+              </button>
+            </div>
+
+            {/* Name & bio */}
+            <div className="min-w-0 flex-1 pt-2">
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="text-3xl font-black tracking-[-0.03em] text-white md:text-4xl">
                   Creator Name
                 </h1>
-                <p className="text-lg text-muted/80">@username</p>
-                <p className="text-foreground/80 leading-relaxed max-w-2xl">
-                  Passionate creator building worlds, crafting stories, and designing experiences. Welcome to my creative space where imagination meets technology.
-                </p>
+                <span className="rounded-full border border-white/20 bg-white/[0.05] px-3 py-1 text-[9px] font-bold uppercase tracking-[2px] text-white/60">
+                  Wanderer
+                </span>
               </div>
-            </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-wrap gap-3 animate-slide-up" style={{ animationDelay: "100ms" }}>
-              <Button disabled>Edit Profile</Button>
-              <Button variant="secondary" disabled>Settings</Button>
+              <p className="mt-1.5 text-sm text-white/30">@username</p>
+
+              <p className="mt-4 max-w-2xl text-sm leading-6 text-white/45">
+                Passionate creator building worlds, crafting stories, and
+                designing experiences. Welcome to my creative space where
+                imagination meets technology.
+              </p>
             </div>
           </div>
-        </Container>
+
+          {/* XP bar */}
+          <div className="mt-8 max-w-md">
+            <div className="flex items-center justify-between text-[9px] uppercase tracking-[2px] text-white/30">
+              <span>Level {level} · Wanderer</span>
+              <span className="text-white/50">{xpPercent}% to Level {level + 1}</span>
+            </div>
+            <div className="mt-2 h-[4px] w-full overflow-hidden rounded-full bg-white/[0.06]">
+              <div
+                className="xp-fill h-full rounded-full bg-white/60"
+                style={{ width: `${xpPercent}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Avatar picker (presets only — no uploads) */}
+          {showAvatarPicker && (
+            <div className="mt-8 rounded-[20px] border border-white/[0.1] bg-[#080808] p-6">
+              <div className="mb-5 flex items-center justify-between">
+                <p className="text-[10px] uppercase tracking-[3px] text-white/30">
+                  Choose Your Avatar
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowAvatarPicker(false)}
+                  className="text-[10px] uppercase tracking-[2px] text-white/30 transition-colors hover:text-white"
+                >
+                  Close
+                </button>
+              </div>
+
+              <div className="grid grid-cols-4 gap-3 sm:grid-cols-6 md:grid-cols-12">
+                {avatarPresets.map((avatar) => {
+                  const isSelected = avatar.id === selectedAvatar.id;
+                  return (
+                    <button
+                      key={avatar.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedAvatar(avatar);
+                        setShowAvatarPicker(false);
+                      }}
+                      className={`flex aspect-square items-center justify-center rounded-[16px] text-2xl transition-all duration-300 ${
+                        avatar.tone
+                      } ${
+                        isSelected
+                          ? "scale-[1.06] ring-2 ring-white/80 shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                          : "hover:scale-105 hover:ring-2 hover:ring-white/30"
+                      }`}
+                    >
+                      {avatar.icon}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <p className="mt-4 text-[11px] text-white/25">
+                More avatar frames and presets unlock as you level up.
+              </p>
+            </div>
+          )}
+        </div>
       </section>
 
-      {/* Stats Grid */}
-      <section className="relative py-16 md:py-20 border-b border-white/10">
-        <Container>
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
-            {stats.map((stat, idx) => (
-              <Card
-                key={idx}
-                className="animate-scale-in text-center p-6"
-                style={{ animationDelay: `${idx * 30}ms` }}
-              >
-                <p className="text-3xl font-black text-white">{stat.value}</p>
-                <p className="text-xs text-muted/60 mt-2 uppercase tracking-wide font-semibold">
+      {/* =========================================================
+          STATS
+      ========================================================== */}
+
+      <section className="mx-auto w-full max-w-[1760px] px-6 py-16 md:px-10 md:py-20">
+        <div className="grid grid-cols-3 gap-4 md:grid-cols-6">
+          {stats.map((stat, index) => (
+            <ScrollReveal key={stat.label} delay={index * 50}>
+              <div className="rounded-[18px] border border-white/[0.1] bg-[#080808] px-4 py-6 text-center transition-all duration-500 hover:-translate-y-0.5 hover:border-white/[0.2]">
+                <p className="stat-glow text-xl font-black text-white md:text-2xl">
+                  {stat.value}
+                </p>
+                <p className="mt-1.5 text-[9px] uppercase tracking-[2px] text-white/30">
                   {stat.label}
                 </p>
-              </Card>
-            ))}
-          </div>
-        </Container>
+              </div>
+            </ScrollReveal>
+          ))}
+        </div>
       </section>
 
-      {/* Content Sections */}
-      <section className="relative py-20 md:py-32">
-        <Container className="space-y-24">
-          {/* Projects Section */}
-          <div className="space-y-8">
-            <div className="space-y-3 animate-slide-up">
-              <p className="text-xs uppercase tracking-[0.2em] font-bold text-white border border-white/20 px-4 py-2 rounded-full bg-white/5 inline-block">
-                Portfolio
-              </p>
-              <h2 className="font-display text-4xl md:text-5xl font-black text-foreground">
-                Your Projects
-              </h2>
-              <p className="text-lg text-muted/80">Create and manage your creative projects. Coming soon.</p>
-            </div>
-            <div className="grid md:grid-cols-3 gap-6">
-              {[1, 2, 3].map((_, idx) => (
-                <Card
-                  key={idx}
-                  className="animate-scale-in aspect-video flex items-center justify-center text-faint"
-                  style={{ animationDelay: `${idx * 50}ms` }}
-                >
-                  <div className="text-center">
-                    <p className="text-lg">No projects yet</p>
+      {/* =========================================================
+          TABS
+      ========================================================== */}
+
+      <section className="mx-auto w-full max-w-[1760px] px-6 md:px-10">
+        <div className="flex gap-8 border-b border-white/[0.08]">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab;
+            return (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setActiveTab(tab)}
+                className={`relative pb-4 text-[11px] font-medium uppercase tracking-[2px] transition-colors duration-300 ${
+                  isActive ? "text-white" : "text-white/30 hover:text-white/60"
+                }`}
+              >
+                {tab}
+                <span
+                  className={`absolute -bottom-px left-0 h-px w-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-transform duration-300 ${
+                    isActive ? "scale-x-100" : "scale-x-0"
+                  }`}
+                />
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* =========================================================
+          TAB CONTENT
+      ========================================================== */}
+
+      <section className="mx-auto w-full max-w-[1760px] px-6 py-16 md:px-10 md:py-20">
+        {activeTab === "Overview" && (
+          <div className="space-y-16">
+            <ScrollReveal>
+              <div className="mb-8 flex items-end justify-between border-b border-white/[0.08] pb-5">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[5px] text-white/25">
+                    ACHIEVEMENTS
+                  </p>
+                  <h3 className="mt-3 text-2xl font-medium tracking-[-0.02em] md:text-3xl">
+                    Badges
+                  </h3>
+                </div>
+                <span className="hidden text-[10px] tracking-[3px] text-white/20 md:block">
+                  1 / {badges.length} UNLOCKED
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-8">
+                {badges.map((badge) => (
+                  <div
+                    key={badge.name}
+                    className={`group/badge relative flex flex-col items-center gap-2 rounded-[18px] border p-4 text-center transition-all duration-500 ${
+                      badge.unlocked
+                        ? "border-white/[0.2] bg-white/[0.04] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(255,255,255,0.08)]"
+                        : "border-white/[0.06] bg-white/[0.015] opacity-40 grayscale"
+                    }`}
+                  >
+                    <span className="text-3xl">{badge.icon}</span>
+                    <span className="text-[9px] font-semibold uppercase tracking-[1px] text-white/70">
+                      {badge.name}
+                    </span>
+
+                    <span className="pointer-events-none absolute -bottom-2 left-1/2 z-20 w-max max-w-[140px] -translate-x-1/2 translate-y-full rounded-[10px] border border-white/10 bg-black px-3 py-2 text-[10px] text-white/60 opacity-0 shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all duration-300 group-hover/badge:opacity-100">
+                      {badge.desc}
+                    </span>
                   </div>
-                </Card>
+                ))}
+              </div>
+            </ScrollReveal>
+
+            <ScrollReveal>
+              <div className="mb-8 border-b border-white/[0.08] pb-5">
+                <p className="text-[10px] uppercase tracking-[5px] text-white/25">
+                  ACTIVITY
+                </p>
+                <h3 className="mt-3 text-2xl font-medium tracking-[-0.02em] md:text-3xl">
+                  Recent Activity
+                </h3>
+              </div>
+
+              <div className="rounded-[20px] border border-dashed border-white/[0.12] bg-[#070707] px-8 py-16 text-center">
+                <span className="text-3xl">🌱</span>
+                <p className="mt-4 text-sm text-white/30">
+                  Your activity will appear here once you start creating.
+                </p>
+              </div>
+            </ScrollReveal>
+          </div>
+        )}
+
+        {activeTab === "Projects" && (
+          <ScrollReveal>
+            <div className="mb-8 border-b border-white/[0.08] pb-5">
+              <p className="text-[10px] uppercase tracking-[5px] text-white/25">
+                PORTFOLIO
+              </p>
+              <h3 className="mt-3 text-2xl font-medium tracking-[-0.02em] md:text-3xl">
+                Your Projects
+              </h3>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-3">
+              {[1, 2, 3].map((item) => (
+                <div
+                  key={item}
+                  className="flex aspect-video items-center justify-center rounded-[20px] border border-dashed border-white/[0.12] bg-[#070707] text-white/20"
+                >
+                  <p className="text-sm">No projects yet</p>
+                </div>
               ))}
             </div>
-          </div>
+          </ScrollReveal>
+        )}
 
-          {/* Activity Section */}
-          <div className="space-y-8">
-            <div className="space-y-3 animate-slide-up">
-              <p className="text-xs uppercase tracking-[0.2em] font-bold text-white border border-white/20 px-4 py-2 rounded-full bg-white/5 inline-block">
-                Activity
+        {activeTab === "Activity" && (
+          <ScrollReveal>
+            <div className="mb-8 border-b border-white/[0.08] pb-5">
+              <p className="text-[10px] uppercase tracking-[5px] text-white/25">
+                TIMELINE
               </p>
-              <h2 className="font-display text-4xl md:text-5xl font-black text-foreground">
+              <h3 className="mt-3 text-2xl font-medium tracking-[-0.02em] md:text-3xl">
                 Recent Activity
-              </h2>
-              <p className="text-lg text-muted/80">Your activity will appear here once you start creating.</p>
+              </h3>
             </div>
-            <Card className="animate-scale-in p-8 text-center">
-              <p className="text-faint">No activity yet</p>
-            </Card>
-          </div>
 
-          {/* Saved / Favorites */}
-          <div className="space-y-8">
-            <div className="space-y-3 animate-slide-up">
-              <p className="text-xs uppercase tracking-[0.2em] font-bold text-white border border-white/20 px-4 py-2 rounded-full bg-white/5 inline-block">
-                Saved
+            <div className="rounded-[20px] border border-dashed border-white/[0.12] bg-[#070707] px-8 py-16 text-center">
+              <span className="text-3xl">📡</span>
+              <p className="mt-4 text-sm text-white/30">No activity yet.</p>
+            </div>
+          </ScrollReveal>
+        )}
+
+        {activeTab === "Saved" && (
+          <ScrollReveal>
+            <div className="mb-8 border-b border-white/[0.08] pb-5">
+              <p className="text-[10px] uppercase tracking-[5px] text-white/25">
+                SAVED
               </p>
-              <h2 className="font-display text-4xl md:text-5xl font-black text-foreground">
+              <h3 className="mt-3 text-2xl font-medium tracking-[-0.02em] md:text-3xl">
                 Bookmarks & Favorites
-              </h2>
-              <p className="text-lg text-muted/80">Save projects and content you love for quick access.</p>
+              </h3>
             </div>
-            <Card className="animate-scale-in p-8 text-center">
-              <p className="text-faint">No saved items yet</p>
-            </Card>
-          </div>
-        </Container>
+
+            <div className="rounded-[20px] border border-dashed border-white/[0.12] bg-[#070707] px-8 py-16 text-center">
+              <span className="text-3xl">🔖</span>
+              <p className="mt-4 text-sm text-white/30">
+                Save projects and content you love for quick access.
+              </p>
+            </div>
+          </ScrollReveal>
+        )}
       </section>
 
-      {/* Sign In CTA */}
-      <section className="relative py-20 md:py-32 border-t border-white/10">
-        <Container className="space-y-8 text-center animate-slide-up">
-          <div className="max-w-2xl mx-auto space-y-4">
-            <h2 className="font-display text-5xl md:text-6xl font-black text-foreground">
-              Sign in to customize
-            </h2>
-            <p className="text-lg text-muted/80">
-              Create your account to build your portfolio, share projects, and connect with the creative community.
-            </p>
+      {/* =========================================================
+          SIGN IN CTA
+      ========================================================== */}
+
+      <section className="px-6 pb-10 md:px-10">
+        <ScrollReveal>
+          <div className="group/cta relative mx-auto flex min-h-[400px] w-full max-w-[1760px] flex-col items-center justify-center overflow-hidden rounded-[30px] border border-white/[0.1] bg-[#050505] text-center transition-all duration-700 hover:border-white/[0.18]">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.055),transparent_60%)] transition-transform duration-[1500ms] group-hover/cta:scale-125" />
+
+            <div className="relative z-10 px-6">
+              <p className="text-[10px] font-medium uppercase tracking-[5px] text-white/30">
+                MAKE IT YOURS
+              </p>
+
+              <h3 className="mt-5 text-3xl font-semibold tracking-[-0.03em] md:text-5xl">
+                Sign in to customize.
+              </h3>
+
+              <p className="mx-auto mt-5 max-w-lg text-sm leading-6 text-white/30">
+                Create your account to build your portfolio, share projects,
+                and connect with the creative community.
+              </p>
+
+              <button
+                type="button"
+                disabled
+                className="mt-8 inline-flex h-11 cursor-not-allowed items-center rounded-full border border-white/25 px-7 text-[10px] font-semibold tracking-[3px] text-white/40 opacity-60"
+              >
+                SIGN IN — COMING SOON
+              </button>
+            </div>
           </div>
-          <Button disabled>Sign In — Coming Soon</Button>
-        </Container>
+        </ScrollReveal>
       </section>
+
+      <style>{`
+        @keyframes stat-glow-pulse {
+          0%, 100% { text-shadow: 0 0 0 rgba(255,255,255,0); }
+          50% { text-shadow: 0 0 18px rgba(255,255,255,0.35); }
+        }
+
+        .stat-glow {
+          animation: stat-glow-pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes xp-shimmer {
+          0% { filter: brightness(1); }
+          50% { filter: brightness(1.4); }
+          100% { filter: brightness(1); }
+        }
+
+        .xp-fill {
+          animation: xp-shimmer 2.4s ease-in-out infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .stat-glow,
+          .xp-fill {
+            animation: none;
+          }
+        }
+      `}</style>
     </div>
   );
 }
