@@ -191,21 +191,21 @@ export default function Home() {
               group-hover:-translate-y-1
             "
           >
-            {/* =================================================
+          {/* =================================================
                 LOGO
             ================================================== */}
 
-            <div className="relative flex items-center justify-center">
+            <div className="relative -mt-16 flex items-center justify-center md:-mt-20">
               {/* Large aura */}
               <div
                 className="
-                  absolute h-40 w-40 rounded-full
+                  absolute h-56 w-56 rounded-full
                   bg-white/[0.045]
                   blur-[50px]
                   transition-all duration-[1400ms]
                   ease-out
-                  group-hover:h-56
-                  group-hover:w-56
+                  group-hover:h-72
+                  group-hover:w-72
                   group-hover:bg-white/[0.09]
                 "
               />
@@ -213,7 +213,7 @@ export default function Home() {
               {/* Soft secondary glow */}
               <div
                 className="
-                  absolute h-28 w-28 rounded-full
+                  absolute h-40 w-40 rounded-full
                   bg-white/[0.025]
                   blur-[25px]
                   transition-all duration-1000
@@ -225,7 +225,7 @@ export default function Home() {
               {/* Logo ring */}
               <div
                 className="
-                  absolute h-28 w-28 rounded-full
+                  absolute h-40 w-40 rounded-full
                   border border-white/[0.05]
                   shadow-[0_0_50px_rgba(255,255,255,0.06)]
                   transition-all duration-[1200ms]
@@ -241,7 +241,7 @@ export default function Home() {
                 alt=""
                 className="
                   relative z-10
-                  h-24 w-24
+                  h-40 w-40
                   object-contain
                   opacity-75
                   drop-shadow-[0_0_18px_rgba(255,255,255,0.45)]
@@ -250,7 +250,7 @@ export default function Home() {
                   group-hover:scale-[1.12]
                   group-hover:opacity-100
                   group-hover:drop-shadow-[0_0_35px_rgba(255,255,255,0.8)]
-                  md:h-28 md:w-28
+                  md:h-52 md:w-52
                 "
               />
             </div>
