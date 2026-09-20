@@ -685,27 +685,26 @@ export default function Home() {
     }
   }
 
-  .hero-aura-breathe {
-    animation: hero-aura-breathe 4.5s ease-in-out infinite;
+.hero-aura-breathe {
+  animation: hero-aura-breathe 4.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-title {
+    transition: none;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-          .hero-title {
-            transition: none;
-          }
+  .hero-frame:hover .hero-title {
+    letter-spacing: 15px;
+    transform: none;
+  }
 
-          .hero-frame:hover .hero-title {
-            letter-spacing: 15px;
-            transform: none;
-          }
-
-          .hero-scroll-line,
-          .group\/media:hover .media-shine,
-          .hero-aura-breathe {
-            animation: none;
-          }
-        }
+  .hero-scroll-line,
+  .hero-aura-breathe {
+    animation: none;
+  }
+}
       `}</style>
     </div>
   );
-}
+}>
