@@ -705,6 +705,6 @@ export default function Home() {
   }
 }
       `}</style>
-    </div>
+    </main>
   );
 }>
