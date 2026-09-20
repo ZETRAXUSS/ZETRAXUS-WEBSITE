@@ -1,10 +1,44 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { Container } from "@/components/ui/container";
 import { CreateMenu } from "@/components/layout/create-menu";
 import { MobileMenu } from "@/components/layout/mobile-menu";
 import { primaryNav } from "@/lib/navigation";
 
 export function SiteHeader() {
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const searchWrapRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        searchWrapRef.current &&
+        !searchWrapRef.current.contains(event.target as Node)
+      ) {
+        setIsSearchOpen(false);
+      }
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setIsSearchOpen(false);
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isSearchOpen) searchInputRef.current?.focus();
+  }, [isSearchOpen]);
+
   return (
     <header className="relative z-40 px-4 pt-5 md:px-6 md:pt-6">
       <Container className="mx-auto flex h-[70px] w-full max-w-[1760px] items-center justify-between rounded-[22px] border border-white/[0.12] bg-[#080808]/90 px-5 shadow-[0_15px_50px_rgba(0,0,0,0.4)] backdrop-blur-xl md:px-8">
@@ -42,15 +76,37 @@ export function SiteHeader() {
 
         {/* Right */}
         <div className="flex items-center gap-2.5">
-          <button
-            type="button"
-            disabled
-            aria-label="Search — coming soon"
-            title="Search — coming soon"
-            className="hidden h-9 w-9 items-center justify-center rounded-full border border-white/[0.12] bg-white/[0.025] text-white/40 transition-all duration-300 hover:border-white/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-70 md:flex"
-          >
-            <SearchIcon />
-          </button>
+          {/* Search */}
+          <div ref={searchWrapRef} className="hidden items-center md:flex">
+            <div
+              className={`overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                isSearchOpen
+                  ? "mr-2 w-[220px] opacity-100"
+                  : "mr-0 w-0 opacity-0"
+              }`}
+            >
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Search ZETRAXUS..."
+                className="h-9 w-full rounded-full border border-white/[0.14] bg-white/[0.03] px-4 text-[12px] text-white outline-none transition-colors duration-300 placeholder:text-white/30 focus:border-white/30"
+              />
+            </div>
+
+            <button
+              type="button"
+              aria-label={isSearchOpen ? "Close search" : "Search"}
+              title="Search"
+              onClick={() => setIsSearchOpen((prev) => !prev)}
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${
+                isSearchOpen
+                  ? "border-white/40 bg-white/[0.08] text-white"
+                  : "border-white/[0.12] bg-white/[0.025] text-white/40 hover:border-white/30 hover:text-white"
+              }`}
+            >
+              <SearchIcon isOpen={isSearchOpen} />
+            </button>
+          </div>
 
           <div className="hidden md:block">
             <CreateMenu />
@@ -71,7 +127,7 @@ export function SiteHeader() {
   );
 }
 
-function SearchIcon() {
+function SearchIcon({ isOpen }: { isOpen?: boolean }) {
   return (
     <svg
       width="15"
@@ -79,21 +135,10 @@ function SearchIcon() {
       viewBox="0 0 15 15"
       fill="none"
       aria-hidden="true"
+      className={`transition-transform duration-300 ${isOpen ? "rotate-90 scale-95" : ""}`}
     >
-      <circle
-        cx="6.5"
-        cy="6.5"
-        r="4.7"
-        stroke="currentColor"
-        strokeWidth="1.15"
-      />
-
-      <path
-        d="M10.2 10.2L14 14"
-        stroke="currentColor"
-        strokeWidth="1.15"
-        strokeLinecap="round"
-      />
+      <circle cx="6.5" cy="6.5" r="4.7" stroke="currentColor" strokeWidth="1.15" />
+      <path d="M10.2 10.2L14 14" stroke="currentColor" strokeWidth="1.15" strokeLinecap="round" />
     </svg>
   );
 }
