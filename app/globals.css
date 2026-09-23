@@ -1,0 +1,301 @@
+@import "tailwindcss";
+
+/* -----------------------------------------------------------------------
+   ZETRAXUS Premium Dark Design System
+   
+   Black → Dark Gray → White + White Glow aesthetic
+   Gaming/Digital platform premium feel
+------------------------------------------------------------------------ */
+:root {
+  /* Core Colors */
+  --background: #050505;      /* pure black */
+  --surface: #0f0f12;         /* dark gray surface */
+  --surface-light: #1a1a20;   /* lighter surface */
+  --surface-bright: #252530;  /* bright surface for emphasis */
+
+  /* Borders & Dividers */
+  --border-subtle: #1a1a20;   /* subtle dividers */
+  --border: #252530;          /* standard border */
+  --border-bright: #3a3a45;   /* bright borders */
+  --border-glow: rgba(255, 255, 255, 0.1); /* white glow border */
+
+  /* Text */
+  --foreground: #f5f5f7;      /* primary text - bright white */
+  --foreground-secondary: #e0e0e5; /* secondary bright text */
+  --muted: #a0a0a8;           /* muted text */
+  --faint: #696975;           /* very faint text */
+
+  /* Accent - White Glow Only */
+  --accent: #ffffff;          /* pure white for glow */
+  --accent-subtle: rgba(255, 255, 255, 0.3);
+  --accent-medium: rgba(255, 255, 255, 0.5);
+  --accent-strong: rgba(255, 255, 255, 0.8);
+
+  /* Feedback */
+  --success: #6b9d7a;
+  --warning: #c9a227;
+  --danger: #b0594f;
+
+  /* Shape */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Layout */
+  --header-height: 3.5rem;
+  --content-max: 72rem;
+
+  /* Animation */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-light: var(--surface-light);
+  --color-surface-bright: var(--surface-bright);
+  --color-border: var(--border);
+  --color-border-bright: var(--border-bright);
+  --color-foreground: var(--foreground);
+  --color-foreground-secondary: var(--foreground-secondary);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  background-attachment: fixed;
+}
+
+/* Premium dark background with subtle ambient light */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse 1200px 600px at 50% 0%, rgba(255, 255, 255, 0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 400px 400px at 10% 50%, rgba(255, 255, 255, 0.02) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Visible keyboard focus everywhere */
+:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* -----------------------------------------------------------------------
+   Premium Cinema Motion & Animation System
+------------------------------------------------------------------------ */
+
+/* Keyframe animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleInFade {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.05), inset 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.1), inset 0 0 1px rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* Scroll reveal animation */
+@keyframes scrollReveal {
+  from {
+    opacity: 0;
+    transform: translateY(60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Global smooth transitions */
+* {
+  transition: 
+    color var(--transition-base),
+    background-color var(--transition-base),
+    border-color var(--transition-base),
+    opacity var(--transition-base),
+    transform var(--transition-base),
+    box-shadow var(--transition-base);
+}
+
+/* Animation utility classes */
+.animate-fade-in {
+  animation: fadeIn var(--transition-slow) ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUpFade var(--transition-slow) cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-scale-in {
+  animation: scaleInFade var(--transition-slow) cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-slide-left {
+  animation: slideInLeft var(--transition-slow) cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-slide-right {
+  animation: slideInRight var(--transition-slow) cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Premium glow effects */
+.glow-border {
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: inset 0 0 1px rgba(255, 255, 255, 0.2);
+  transition: all var(--transition-base);
+}
+
+.glow-border:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 0 30px rgba(255, 255, 255, 0.1),
+    inset 0 0 1px rgba(255, 255, 255, 0.3);
+}
+
+.glow-text {
+  transition: all var(--transition-base);
+}
+
+.glow-text:hover {
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 
+    0 0 20px rgba(255, 255, 255, 0.2),
+    0 0 40px rgba(255, 255, 255, 0.1);
+}
+
+/* Respect motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* ZETRAXUS Hero Title Animation */
+
+.hero-title {
+  letter-spacing: 15px;
+  transform: scale(1);
+  text-shadow:
+    0 0 12px rgba(255, 255, 255, 0.18),
+    0 0 35px rgba(255, 255, 255, 0.08);
+
+  transition:
+    letter-spacing 1100ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1100ms cubic-bezier(0.16, 1, 0.3, 1),
+    text-shadow 1100ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-frame:hover .hero-title {
+  letter-spacing: 8px;
+  transform: scale(1.018);
+
+  text-shadow:
+    0 0 18px rgba(255, 255, 255, 0.35),
+    0 0 55px rgba(255, 255, 255, 0.14);
+}
+
+/* ZETRAXUS Page Transition */
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.99);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.page-transition {
+  animation: pageEnter 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
