@@ -1,5 +1,4 @@
 name = "zetraxus-website"
 compatibility_date = "2026-09-15"
 
-[assets]
-directory = "./out"
+pages_build_output_dir = ".vercel/output/static"
