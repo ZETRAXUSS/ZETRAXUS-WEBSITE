@@ -4,9 +4,12 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  // Cloudflare Pages compatibility
   reactStrictMode: true,
   swcMinify: true,
+  // OpenNext/Cloudflare Workers configuration
+  experimental: {
+    isrMemoryCacheSize: 0,
+  },
 };
 
 export default nextConfig;
