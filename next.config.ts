@@ -6,7 +6,6 @@ const nextConfig: NextConfig = {
   },
   // Cloudflare Pages compatibility
   reactStrictMode: true,
-  swcMinify: true,
 };
 
 export default nextConfig;
