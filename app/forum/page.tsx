@@ -19,7 +19,7 @@ const stats = [
   { label: "Online Now", value: "37" },
 ];
 
-const categories = [
+const staticCategories = [
   { icon: "👋", name: "General", description: "Welcome, introductions, off-topic chatter.", threads: "142", replies: "890" },
   { icon: "🛠️", name: "Projects", description: "Discuss and showcase creative projects.", threads: "216", replies: "1,204" },
   { icon: "🌍", name: "Worlds", description: "Share worldbuilding ideas and concepts.", threads: "98", replies: "540" },
@@ -227,7 +227,7 @@ export default function ForumPage() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
-            {categories.map((cat, index) => (
+            {staticCategories.map((cat, index) => (
               <ScrollReveal key={cat.name} delay={index * 70}>
                 <article className="group/cat relative overflow-hidden rounded-[24px] border border-white/[0.1] bg-[#080808] p-7 transition-all duration-700 hover:-translate-y-1 hover:border-white/[0.23] hover:shadow-[0_20px_70px_rgba(0,0,0,0.45)]">
                   <div className="absolute inset-3 rounded-[18px] border border-white/[0.035] transition-all duration-700 group-hover/cat:border-white/[0.08]" />

@@ -73,10 +73,12 @@ export default function ProfilePage() {
       });
 
       async function loadCounts() {
-        const followers = await getFollowerCount(profile.id);
-        const following = await getFollowingCount(profile.id);
-        setFollowerCount(followers);
-        setFollowingCount(following);
+        if (profile) {
+          const followers = await getFollowerCount(profile.id);
+          const following = await getFollowingCount(profile.id);
+          setFollowerCount(followers);
+          setFollowingCount(following);
+        }
       }
 
       loadCounts();
