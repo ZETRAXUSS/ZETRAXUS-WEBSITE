@@ -1,9 +1,8 @@
-import { createBrowserClient } from "@supabase/ssr";
-import type { Database } from "@/types/database";
+import { createBrowserClient } from '@supabase/ssr'
 
 export function createClient() {
-  return createBrowserClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
-  );
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://eicbvvrayoubpbkuttmi.supabase.co'
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpY2J2dnJheW91YnBia3V0dG1pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwODQyMjcsImV4cCI6MjEwNTY2MDIyN30.OzmAEBVYoHmkfuerbfIqmvxhZ6khtZaaOxWWmcjyXQ4'
+
+  return createBrowserClient(url, key)
 }
