@@ -1,6 +1,4 @@
 name = "zetraxus-website"
 compatibility_date = "2024-09-15"
-type = "javascript"
 
-# Cloudflare Pages configuration
 pages_build_output_dir = ".next"
