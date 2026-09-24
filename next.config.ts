@@ -5,11 +5,6 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   reactStrictMode: true,
-  swcMinify: true,
-  // OpenNext/Cloudflare Workers configuration
-  experimental: {
-    isrMemoryCacheSize: 0,
-  },
 };
 
 export default nextConfig;
