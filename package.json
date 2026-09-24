@@ -18,10 +18,9 @@
     "next": "16.3.5",
     "react": "19.2.8",
     "react-dom": "19.2.8"
-    "@opennextjs/cloudflare": "^1.0.0",
-    "wrangler": "^4.0.0",
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "^1.0.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -29,6 +28,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^4.0.0"
   }
 }
