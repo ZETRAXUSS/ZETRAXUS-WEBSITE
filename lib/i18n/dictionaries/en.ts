@@ -2,6 +2,8 @@
 
 export const en = {
   "admin.approve": "Approve",
+  "admin.autoReport": "AI check failed",
+  "admin.autoReportDesc": "posted by {name} while the AI check was unavailable — review it manually",
   "admin.banUser": "Ban",
   "admin.banned": "Banned",
   "admin.confirmBan": "Sure? Ban",

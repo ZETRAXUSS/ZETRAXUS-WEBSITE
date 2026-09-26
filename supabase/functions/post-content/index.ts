@@ -170,13 +170,19 @@ Deno.serve(async (req) => {
 
   // Could not verify with AI → let moderators look at it.
   if (!verdict.checked) {
-    await admin.from("reports").insert({
-      reporter_id: user.id,
-      target_type: targetType,
-      target_id: result.id,
-      reason: "other",
-      details: "Automatic: AI text check was unavailable when this was posted.",
-    });
+    const { error: reportError } = await admin.from("reports").upsert(
+      {
+        reporter_id: user.id,
+        target_type: targetType,
+        target_id: result.id,
+        reason: "other",
+        is_auto: true,
+        status: "open",
+        details: "AI_CHECK_UNAVAILABLE",
+      },
+      { onConflict: "reporter_id,target_type,target_id" },
+    );
+    if (reportError) console.error("auto report failed", reportError);
   }
 
   return json({ id: result.id });

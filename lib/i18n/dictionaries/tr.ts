@@ -4,6 +4,8 @@ import type { en } from "./en";
 
 export const tr: Record<keyof typeof en, string> = {
   "admin.approve": "Onayla",
+  "admin.autoReport": "AI kontrolü yapılamadı",
+  "admin.autoReportDesc": "{name} paylaştı; o sırada AI kontrolü çalışmıyordu, elle incele",
   "admin.banUser": "Yasakla",
   "admin.banned": "Yasaklı",
   "admin.confirmBan": "Emin misin? Yasakla",

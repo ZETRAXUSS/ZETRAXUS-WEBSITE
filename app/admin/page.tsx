@@ -33,6 +33,7 @@ interface ReportRow {
   reason: string;
   details: string | null;
   status: ReportStatus;
+  is_auto: boolean;
   created_at: string;
   reporter: MiniProfile | null;
 }
@@ -190,7 +191,7 @@ function ReportsPanel({ onChange }: { onChange: () => void }) {
     const supabase = db();
     const { data } = await supabase
       .from("reports")
-      .select(`id, target_type, target_id, reason, details, status, created_at, reporter:profiles!reports_reporter_id_fkey(${PROFILE_FIELDS})`)
+      .select(`id, target_type, target_id, reason, details, status, is_auto, created_at, reporter:profiles!reports_reporter_id_fkey(${PROFILE_FIELDS})`)
       .eq("status", status)
       .order("created_at", { ascending: false })
       .limit(100);
@@ -319,13 +320,16 @@ function ReportsPanel({ onChange }: { onChange: () => void }) {
             >
               <div className="flex flex-wrap items-center gap-3 border-b border-white/[0.06] px-6 py-4 text-[11px]">
                 <span className="rounded-full bg-white px-2.5 py-1 text-[9px] font-bold uppercase tracking-[1.5px] text-black">
-                  {t(`report.reason.${row.reason}` as TranslationKey)}
+                  {row.is_auto ? t("admin.autoReport") : t(`report.reason.${row.reason}` as TranslationKey)}
                 </span>
                 <span className="rounded-full border border-white/15 px-2.5 py-1 text-[9px] uppercase tracking-[1.5px] text-white/50">
                   {t(`admin.target.${row.target_type}` as TranslationKey)}
                 </span>
                 <span className="text-white/30">
-                  {t("admin.reportedBy", { name: row.reporter?.display_name ?? "?" })} · {timeAgo(lang, row.created_at)}
+                  {row.is_auto
+                    ? t("admin.autoReportDesc", { name: row.reporter?.display_name ?? "?" })
+                    : t("admin.reportedBy", { name: row.reporter?.display_name ?? "?" })}{" "}
+                  · {timeAgo(lang, row.created_at)}
                 </span>
               </div>
 
@@ -355,7 +359,7 @@ function ReportsPanel({ onChange }: { onChange: () => void }) {
                       {target.url && <img src={target.url} alt="" className="mt-2 h-40 rounded-[12px] border border-white/10 object-cover" />}
                     </>
                   )}
-                  {row.details && (
+                  {row.details && !row.is_auto && (
                     <p className="mt-4 rounded-[12px] border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-[12px] italic text-white/50">
                       “{row.details}”
                     </p>
