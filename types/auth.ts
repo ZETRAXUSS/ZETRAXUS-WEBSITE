@@ -8,13 +8,17 @@ export interface AuthUser {
   user_metadata?: Record<string, unknown>;
 }
 
+export type ProfileRole = "user" | "creator" | "moderator" | "admin";
+
 export interface Profile {
   id: string;
   username: string;
   display_name: string;
   bio: string | null;
   avatar_url: string | null;
-  role: "user" | "creator" | "admin";
+  role: ProfileRole;
+  is_banned: boolean;
+  banned_reason: string | null;
   created_at: string;
   updated_at: string;
 }

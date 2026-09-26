@@ -190,9 +190,16 @@ body::before {
   }
 }
 
-/* Global smooth transitions */
-* {
-  transition: 
+/* Smooth transitions for interactive elements only.
+   (Previously applied to `*`, which made the browser track transitions on
+   every single node of the page — a major source of scroll/hover jank.) */
+a,
+button,
+input,
+textarea,
+select,
+[role="button"] {
+  transition:
     color var(--transition-base),
     background-color var(--transition-base),
     border-color var(--transition-base),
@@ -297,5 +304,514 @@ body::before {
 }
 
 .page-transition {
-  animation: pageEnter 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* `backwards` (not `both`): once finished, no transform/filter is left on
+     the wrapper. A lingering transform turns it into the containing block
+     for position:fixed children, which broke modals and overlays. */
+  animation: pageEnter 700ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+/* =======================================================================
+   ZETRAXUS FX LAYER
+   ======================================================================= */
+
+::selection {
+  background: rgba(255, 255, 255, 0.9);
+  color: #000;
+}
+
+html {
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border: 3px solid #050505;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* ---------- Split title characters ------------------------------------ */
+
+@keyframes zxCharIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.45em) scale(0.96);
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+.zx-char {
+  display: inline-block;
+  animation: zxCharIn 900ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+/* ---------- Cursor spotlight ------------------------------------------ */
+/* Any element with data-spotlight gets a soft light that follows the
+   cursor plus a light that travels along its border. Pure CSS; the
+   --mx/--my variables are set by <FxProvider>. */
+
+[data-spotlight] {
+  --mx: 50%;
+  --my: 50%;
+  isolation: isolate;
+}
+
+[data-spotlight]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    420px circle at var(--mx) var(--my),
+    rgba(255, 255, 255, 0.07),
+    transparent 45%
+  );
+  opacity: 0;
+  transition: opacity 500ms ease;
+}
+
+[data-spotlight]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: radial-gradient(
+    260px circle at var(--mx) var(--my),
+    rgba(255, 255, 255, 0.55),
+    transparent 60%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  opacity: 0;
+  transition: opacity 500ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-spotlight]:hover::after,
+  [data-spotlight]:hover::before {
+    opacity: 1;
+  }
+}
+
+/* ---------- Magnetic -------------------------------------------------- */
+
+[data-magnetic] {
+  transition:
+    translate 450ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 300ms ease,
+    background-color 300ms ease,
+    border-color 300ms ease,
+    box-shadow 300ms ease,
+    transform 300ms ease;
+}
+
+/* ---------- Skeleton shimmer ------------------------------------------ */
+
+@keyframes zxShimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+
+.zx-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  background-size: 200% 100%;
+  animation: zxShimmer 1.6s ease-in-out infinite;
+}
+
+/* ---------- Overlays: modal / palette / dropdown ----------------------- */
+
+@keyframes zxBackdropIn {
+  from { opacity: 0; backdrop-filter: blur(0); }
+  to { opacity: 1; }
+}
+
+@keyframes zxPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.965);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes zxPanelOut {
+  to {
+    opacity: 0;
+    transform: translateY(10px) scale(0.975);
+    filter: blur(6px);
+  }
+}
+
+@keyframes zxDropIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes zxRiseIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.zx-backdrop-in { animation: zxBackdropIn 380ms ease-out both; }
+.zx-backdrop-out { animation: zxBackdropIn 280ms ease-in reverse both; }
+.zx-panel-in { animation: zxPanelIn 520ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.zx-panel-out { animation: zxPanelOut 240ms cubic-bezier(0.4, 0, 1, 1) both; }
+.zx-drop-in { animation: zxDropIn 320ms cubic-bezier(0.16, 1, 0.3, 1) both; transform-origin: top right; }
+.zx-rise-in { animation: zxRiseIn 460ms cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+
+/* Line that sweeps under a focused search field */
+@keyframes zxScan {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+.zx-scanline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  overflow: hidden;
+}
+
+.zx-scanline::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9), transparent);
+  animation: zxScan 2.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+/* Notification badge pop */
+@keyframes zxPop {
+  0% { transform: scale(0.4); opacity: 0; }
+  60% { transform: scale(1.18); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+.zx-pop { animation: zxPop 460ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+@keyframes zxRing {
+  0%, 100% { transform: rotate(0); }
+  15% { transform: rotate(14deg); }
+  30% { transform: rotate(-12deg); }
+  45% { transform: rotate(8deg); }
+  60% { transform: rotate(-5deg); }
+  75% { transform: rotate(2deg); }
+}
+
+.zx-ring { animation: zxRing 900ms ease both; transform-origin: 50% 10%; }
+
+/* Heart burst on like */
+@keyframes zxBurst {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.35); }
+  60% { transform: scale(0.92); }
+  100% { transform: scale(1); }
+}
+
+.zx-burst { animation: zxBurst 520ms cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+@keyframes zxRipple {
+  from { transform: scale(0.6); opacity: 0.6; }
+  to { transform: scale(2.2); opacity: 0; }
+}
+
+.zx-ripple { animation: zxRipple 700ms ease-out forwards; }
+
+/* Sound equalizer bars */
+@keyframes zxEq {
+  0%, 100% { transform: scaleY(0.35); }
+  50% { transform: scaleY(1); }
+}
+
+.zx-eq > span {
+  transform-origin: bottom;
+  animation: zxEq 900ms ease-in-out infinite;
+}
+.zx-eq > span:nth-child(2) { animation-delay: -300ms; }
+.zx-eq > span:nth-child(3) { animation-delay: -600ms; }
+
+/* ---------- Markdown content ------------------------------------------ */
+
+.zx-prose {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 15px;
+  line-height: 1.8;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+.zx-prose > * + * { margin-top: 0.9em; }
+.zx-prose h2,
+.zx-prose h3 {
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  margin-top: 1.4em;
+}
+.zx-prose h2 { font-size: 1.35em; }
+.zx-prose h3 { font-size: 1.12em; }
+.zx-prose strong { color: #fff; font-weight: 600; }
+.zx-prose em { color: rgba(255, 255, 255, 0.85); }
+.zx-prose del { color: rgba(255, 255, 255, 0.35); }
+.zx-prose a {
+  color: #fff;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.3);
+  text-underline-offset: 3px;
+}
+.zx-prose a:hover { text-decoration-color: #fff; }
+.zx-prose code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 0.12em 0.4em;
+  color: #fff;
+}
+.zx-prose pre {
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 16px 18px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.65;
+}
+.zx-prose pre code { background: none; border: 0; padding: 0; font-size: inherit; }
+.zx-prose blockquote {
+  border-left: 2px solid rgba(255, 255, 255, 0.35);
+  padding: 2px 0 2px 16px;
+  color: rgba(255, 255, 255, 0.55);
+  font-style: italic;
+}
+.zx-prose ul,
+.zx-prose ol { padding-left: 1.3em; }
+.zx-prose ul { list-style: none; }
+.zx-prose ul > li { position: relative; }
+.zx-prose ul > li::before {
+  content: "";
+  position: absolute;
+  left: -1em;
+  top: 0.8em;
+  width: 5px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.5);
+}
+.zx-prose ol { list-style: decimal; }
+.zx-prose li + li { margin-top: 0.3em; }
+.zx-prose hr { border: 0; height: 1px; background: rgba(255, 255, 255, 0.1); margin: 1.6em 0; }
+
+/* ---------- Intro ------------------------------------------------------ */
+
+.zx-intro-skip #zx-intro { display: none; }
+.zx-intro-lock { overflow: hidden; }
+
+.zx-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  cursor: pointer;
+  overflow: hidden;
+  transition: opacity 900ms cubic-bezier(0.65, 0, 0.35, 1), visibility 900ms;
+}
+
+.zx-intro--leaving {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.zx-intro__grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.06;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.9) 0.5px, transparent 0.5px);
+  background-size: 3px 3px;
+}
+
+.zx-intro__halo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 780px;
+  height: 780px;
+  margin: -390px 0 0 -390px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.12), transparent 60%);
+  animation: zxIntroHalo 2600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes zxIntroHalo {
+  from { transform: scale(0.2); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.zx-intro__stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 900ms cubic-bezier(0.65, 0, 0.35, 1), filter 900ms ease;
+}
+
+.zx-intro--leaving .zx-intro__stage {
+  transform: scale(1.08) translateY(-12px);
+  filter: blur(8px);
+}
+
+.zx-intro__mark-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 128px;
+  height: 128px;
+}
+
+.zx-intro__mark {
+  width: 104px;
+  height: 104px;
+  object-fit: contain;
+  animation: zxIntroMark 1400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes zxIntroMark {
+  0% { opacity: 0; transform: scale(0.6) rotate(-12deg); filter: blur(14px) drop-shadow(0 0 0 rgba(255,255,255,0)); }
+  60% { opacity: 1; filter: blur(0) drop-shadow(0 0 40px rgba(255,255,255,0.9)); }
+  100% { opacity: 1; transform: none; filter: drop-shadow(0 0 22px rgba(255,255,255,0.55)); }
+}
+
+.zx-intro__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  animation: zxIntroRing 1600ms cubic-bezier(0.16, 1, 0.3, 1) 250ms both;
+}
+
+.zx-intro__ring--late { animation-delay: 550ms; }
+
+@keyframes zxIntroRing {
+  from { transform: scale(0.5); opacity: 0.9; }
+  to { transform: scale(2.6); opacity: 0; }
+}
+
+.zx-intro__word {
+  margin-top: 26px;
+  font-size: clamp(30px, 6vw, 54px);
+  font-weight: 900;
+  letter-spacing: 0.32em;
+  padding-left: 0.32em;
+  color: #fff;
+  text-shadow: 0 0 22px rgba(255, 255, 255, 0.45);
+}
+
+.zx-intro__word span {
+  display: inline-block;
+  animation: zxCharIn 900ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.zx-intro__line {
+  margin-top: 22px;
+  height: 1px;
+  width: 220px;
+  background: linear-gradient(90deg, transparent, #fff, transparent);
+  transform-origin: center;
+  animation: zxIntroLine 1100ms cubic-bezier(0.65, 0, 0.35, 1) 1250ms both;
+}
+
+@keyframes zxIntroLine {
+  from { transform: scaleX(0); opacity: 0; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+
+.zx-intro__tag {
+  margin-top: 16px;
+  font-size: 10px;
+  letter-spacing: 0.6em;
+  padding-left: 0.6em;
+  color: rgba(255, 255, 255, 0.45);
+  animation: zxRiseIn 800ms ease 1550ms backwards;
+}
+
+.zx-intro__curtain {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: #000;
+  transform: scaleY(0);
+  transition: transform 900ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.zx-intro__curtain--top { top: 0; transform-origin: top; }
+.zx-intro__curtain--bottom { bottom: 0; transform-origin: bottom; }
+
+@media (prefers-reduced-motion: reduce) {
+  .zx-char,
+  .zx-intro__word span,
+  .zx-intro__mark,
+  .zx-intro__ring,
+  .zx-intro__halo,
+  .zx-intro__line,
+  .zx-intro__tag,
+  .zx-skeleton,
+  .zx-eq > span {
+    animation: none !important;
+  }
 }

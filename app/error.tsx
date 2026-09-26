@@ -1,41 +1,30 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react'
+import { useEffect } from "react";
+import { useT } from "@/lib/i18n/provider";
 
-export default function Error({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string }
-  reset: () => void
-}) {
+export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  const t = useT();
+
   useEffect(() => {
-    console.error('Sayfa Yükleme Hatası:', error)
-  }, [error])
+    console.error("Page error:", error);
+  }, [error]);
 
   return (
-    <>
-      <div className="w-full py-12 flex items-center justify-center text-neutral-500 text-sm">
-        <p>Bu sayfanın verisi yüklenemedi. Sitede gezinmeye devam edebilirsiniz.</p>
-      </div>
-
-      <div className="fixed bottom-4 right-4 z-[9999] bg-neutral-900/90 border border-red-500/30 text-white p-3 rounded-xl shadow-2xl backdrop-blur-md flex items-center gap-3 text-xs">
-        <div className="relative flex h-2 w-2">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-        </div>
-
-        <span className="text-neutral-300">
-          Sayfa tam yüklenemedi
-        </span>
-
-        <button
-          onClick={() => reset()}
-          className="bg-neutral-800 hover:bg-neutral-700 text-neutral-200 px-2 py-1 rounded text-[11px] border border-neutral-700 transition"
-        >
-          Tekrar Deneyin
-        </button>
-      </div>
-    </>
-  )
+    <div className="mx-auto flex min-h-[60vh] max-w-xl flex-col items-center justify-center px-6 text-center">
+      <span className="relative flex h-3 w-3">
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/60" />
+        <span className="relative inline-flex h-3 w-3 rounded-full bg-white" />
+      </span>
+      <h1 className="mt-8 text-3xl font-black tracking-[-0.03em] text-white">{t("error.pageTitle")}</h1>
+      <p className="mt-3 text-sm text-white/40">{t("error.pageText")}</p>
+      <button
+        type="button"
+        onClick={() => reset()}
+        className="mt-8 h-11 rounded-full border border-white/25 px-7 text-[10px] font-semibold uppercase tracking-[2px] text-white/70 transition-all hover:border-white hover:bg-white hover:text-black"
+      >
+        {t("error.retry")}
+      </button>
+    </div>
+  );
 }

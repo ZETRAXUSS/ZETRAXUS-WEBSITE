@@ -4,12 +4,16 @@ import { useState } from "react";
 import { StarField } from "@/components/home/star-field";
 import { ParallaxField } from "@/components/home/parallax-field";
 import { ScrollReveal } from "@/components/home/scroll-reveal";
+import { SplitText } from "@/components/fx/split-text";
+import { useT } from "@/lib/i18n/provider";
+import type { TranslationKey } from "@/lib/i18n/translate";
 
-const categories = [
-  { name: "Books", icon: "📚", count: "Coming soon" },
-  { name: "Digital", icon: "💿", count: "Coming soon" },
-  { name: "3D Prints", icon: "🖨️", count: "Coming soon" },
-  { name: "Services", icon: "✨", count: "Coming soon" },
+// Emoji icons replaced with the site's index-number language + a hairline mark.
+const categories: { name: string; label: TranslationKey }[] = [
+  { name: "Books", label: "shop.cat.books" },
+  { name: "Digital", label: "shop.cat.digital" },
+  { name: "3D Prints", label: "shop.cat.prints" },
+  { name: "Services", label: "shop.cat.services" },
 ];
 
 const featured = [
@@ -22,6 +26,7 @@ const featured = [
 ];
 
 export default function ShopPage() {
+  const t = useT();
   const [activeCategory, setActiveCategory] = useState("All");
 
   const visibleProducts =
@@ -53,7 +58,7 @@ export default function ShopPage() {
           <ParallaxField />
           <StarField />
 
-          <div className="pointer-events-none absolute left-1/2 top-1/2 h-[420px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/[0.03] blur-[130px] transition-all duration-[1800ms] ease-out group-hover:scale-[1.25] group-hover:bg-white/[0.05]" />
+          <div className="pointer-events-none absolute left-1/2 top-1/2 h-[420px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/[0.05] opacity-60 blur-[130px] transition-[transform,opacity] duration-[1800ms] ease-out will-change-transform group-hover:scale-[1.25] group-hover:opacity-100" />
 
           <div className="pointer-events-none absolute left-[7%] right-[7%] top-1/2 h-px bg-white/[0.035] transition-all duration-[1200ms] group-hover:left-[4%] group-hover:right-[4%] group-hover:bg-white/[0.07]" />
 
@@ -73,19 +78,17 @@ export default function ShopPage() {
             <div className="flex items-center gap-4">
               <span className="h-px w-8 bg-white/15 transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-16 group-hover:bg-white/35" />
               <p className="text-[10px] font-medium tracking-[6px] text-white/35 transition-all duration-1000 group-hover:tracking-[8px] group-hover:text-white/55 md:text-[12px]">
-                MARKETPLACE
+                {t("shop.eyebrow")}
               </p>
               <span className="h-px w-8 bg-white/15 transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-16 group-hover:bg-white/35" />
             </div>
 
             <h1 className="shop-title relative z-10 mt-5 text-[48px] font-black leading-none text-white sm:text-[60px] md:text-[76px] lg:text-[86px]">
-              SHOP
+              <SplitText text={t("nav.shop").toUpperCase()} />
             </h1>
 
             <p className="mt-6 max-w-xl text-sm leading-7 text-white/35 md:text-base">
-              Premium digital products, physical goods and creative
-              services from talented creators. Support artists and own
-              something worth keeping.
+              {t("shop.heroText")}
             </p>
           </div>
         </div>
@@ -100,10 +103,10 @@ export default function ShopPage() {
           <div className="mb-10 flex items-end justify-between border-b border-white/[0.08] pb-5">
             <div>
               <p className="text-[10px] uppercase tracking-[5px] text-white/25">
-                BROWSE
+                {t("projects.browseEyebrow")}
               </p>
               <h3 className="mt-3 text-2xl font-medium tracking-[-0.02em] md:text-3xl">
-                Categories
+                {t("forum.categories")}
               </h3>
             </div>
           </div>
@@ -116,6 +119,8 @@ export default function ShopPage() {
                 <button
                   key={cat.name}
                   type="button"
+                  data-sound="toggle"
+                  data-spotlight
                   onClick={() => setActiveCategory(isActive ? "All" : cat.name)}
                   className={`
                     group/cat relative flex flex-col items-center justify-center gap-3
@@ -128,22 +133,33 @@ export default function ShopPage() {
                     }
                   `}
                 >
-                  <span className="text-3xl transition-transform duration-500 group-hover/cat:scale-110">
-                    {cat.icon}
+                  <span
+                    className={`relative flex h-12 w-12 items-center justify-center rounded-full border font-mono text-[12px] tracking-[1px] transition-all duration-500 group-hover/cat:scale-110 ${
+                      isActive
+                        ? "border-black/20 text-black"
+                        : "border-white/[0.14] text-white/55 group-hover/cat:border-white/40 group-hover/cat:text-white group-hover/cat:shadow-[0_0_24px_rgba(255,255,255,0.15)]"
+                    }`}
+                  >
+                    {String(categories.indexOf(cat) + 1).padStart(2, "0")}
+                    <span
+                      className={`absolute -bottom-1.5 left-1/2 h-px w-6 -translate-x-1/2 transition-all duration-500 group-hover/cat:w-10 ${
+                        isActive ? "bg-black/40" : "bg-white/25 group-hover/cat:bg-white/70"
+                      }`}
+                    />
                   </span>
                   <span
                     className={`text-[11px] font-semibold uppercase tracking-[2px] ${
                       isActive ? "text-black" : "text-white/75"
                     }`}
                   >
-                    {cat.name}
+                    {t(cat.label)}
                   </span>
                   <span
                     className={`text-[10px] ${
                       isActive ? "text-black/50" : "text-white/25"
                     }`}
                   >
-                    {cat.count}
+                    {t("common.comingSoon")}
                   </span>
                 </button>
               );
@@ -160,15 +176,15 @@ export default function ShopPage() {
         <div className="mb-12 flex items-end justify-between border-b border-white/[0.08] pb-5">
           <div>
             <p className="text-[10px] uppercase tracking-[5px] text-white/25">
-              FEATURED
+              {t("explore.featuredEyebrow")}
             </p>
             <h3 className="mt-3 text-2xl font-medium tracking-[-0.02em] md:text-3xl">
-              Curated Products
+              {t("shop.curated")}
             </h3>
           </div>
 
           <span className="hidden text-[10px] tracking-[3px] text-white/20 md:block">
-            {String(visibleProducts.length).padStart(2, "0")} ITEMS
+            {String(visibleProducts.length).padStart(2, "0")} {t("shop.items")}
           </span>
         </div>
 
@@ -177,6 +193,7 @@ export default function ShopPage() {
             <ScrollReveal key={product.number} delay={index * 90}>
               <article className="group/media">
                 <div
+                  data-spotlight
                   className="
                     relative aspect-square
                     overflow-hidden rounded-[24px]
@@ -194,7 +211,7 @@ export default function ShopPage() {
 
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-[9px] uppercase tracking-[4px] text-white/15 transition-all duration-500 group-hover/media:tracking-[6px] group-hover/media:text-white/35">
-                      {product.category}
+                      {t(categories.find((c) => c.name === product.category)?.label ?? "shop.cat.digital")}
                     </span>
                   </div>
 
@@ -216,7 +233,7 @@ export default function ShopPage() {
                     {product.title.toUpperCase()}
                   </h4>
                   <p className="mt-2 text-sm leading-6 text-white/30 transition-colors duration-500 group-hover/media:text-white/50">
-                    by {product.creator}
+                    {t("common.by")} {product.creator}
                   </p>
                 </div>
               </article>
@@ -236,17 +253,15 @@ export default function ShopPage() {
 
             <div className="relative z-10 px-6">
               <p className="text-[10px] font-medium uppercase tracking-[5px] text-white/30">
-                CREATOR MARKETPLACE
+                {t("shop.ctaEyebrow")}
               </p>
 
               <h3 className="mt-5 text-3xl font-semibold tracking-[-0.03em] md:text-5xl">
-                Sell your digital creations.
+                {t("shop.ctaTitle")}
               </h3>
 
               <p className="mx-auto mt-5 max-w-lg text-sm leading-6 text-white/30">
-                Templates, asset packs, ebooks, presets and plugins — list
-                your digital products and build a sustainable creative
-                business on ZETRAXUS.
+                {t("shop.ctaText")}
               </p>
 
               <button
@@ -262,7 +277,7 @@ export default function ShopPage() {
                   opacity-60
                 "
               >
-                LIST A DIGITAL PRODUCT — COMING SOON
+                {t("shop.ctaButton")}
               </button>
             </div>
           </div>

@@ -1,6 +1,14 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { AuthProvider } from "@/lib/auth/auth-provider";
+import { I18nProvider } from "@/lib/i18n/provider";
+import { getServerT } from "@/lib/i18n/server";
+import { FxProvider } from "@/components/fx/fx-provider";
+import { Intro } from "@/components/fx/intro";
+import { RouteProgress } from "@/components/fx/route-progress";
+import { SearchPaletteProvider } from "@/components/search/search-palette";
 
 // Self-hosted (no runtime call to Google Fonts) — weights/styles actually used.
 import "@fontsource/fraunces/400.css";
@@ -14,23 +22,53 @@ import "@fontsource/ibm-plex-mono/400.css";
 import "@fontsource/ibm-plex-mono/500.css";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "Zetraxus",
-  description:
-    "A platform for building projects, worlds and communities in one place.",
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getServerT();
+  return {
+    title: {
+      default: "ZETRAXUS",
+      template: "%s · ZETRAXUS",
+    },
+    description: t("meta.description"),
+  };
+}
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
+  colorScheme: "dark",
 };
 
-export default function RootLayout({
+// Runs before first paint: returning visitors (this session) skip the intro
+// without a single frame of it flashing.
+const introScript = `try{if(sessionStorage.getItem('zx-intro-seen')==='1'){document.documentElement.classList.add('zx-intro-skip')}}catch(e){}`;
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { lang } = await getServerT();
+
   return (
-    <html lang="en">
+    <html lang={lang} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: introScript }} />
+      </head>
       <body className="flex min-h-screen flex-col antialiased">
-        <SiteHeader />
-        <main className="flex-1">{children}</main>
-        <SiteFooter />
+        <I18nProvider initialLang={lang}>
+          <AuthProvider>
+            <SearchPaletteProvider>
+              <Intro />
+              <Suspense fallback={null}>
+                <RouteProgress />
+              </Suspense>
+              <FxProvider />
+              <SiteHeader />
+              <main className="flex-1">{children}</main>
+              <SiteFooter />
+            </SearchPaletteProvider>
+          </AuthProvider>
+        </I18nProvider>
       </body>
     </html>
   );

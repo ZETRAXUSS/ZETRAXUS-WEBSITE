@@ -1,56 +1,49 @@
 "use client";
 
 import Link from "next/link";
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { LoginForm } from "@/components/auth/login-form";
-import { StarField } from "@/components/home/star-field";
-import { ScrollReveal } from "@/components/home/scroll-reveal";
+import { AuthDivider, GoogleButton } from "@/components/auth/google-button";
+import { AuthShell } from "@/components/auth/auth-shell";
+import { useT } from "@/lib/i18n/provider";
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen overflow-hidden bg-black text-white">
-      <section className="relative px-4 py-20 md:px-6 md:py-32">
-        <div className="absolute inset-0 pointer-events-none">
-          <StarField />
-        </div>
+    <Suspense fallback={<div className="min-h-screen bg-black" />}>
+      <LoginView />
+    </Suspense>
+  );
+}
 
-        <div className="relative z-10 mx-auto w-full max-w-[400px]">
-          <ScrollReveal>
-            <div className="mb-12 text-center">
-              <h1 className="text-3xl font-black tracking-[-0.03em] text-white md:text-4xl">
-                Sign In
-              </h1>
-              <p className="mt-3 text-sm text-white/40">
-                Welcome back to ZETRAXUS
-              </p>
-            </div>
+function LoginView() {
+  const t = useT();
+  const params = useSearchParams();
+  const rawNext = params.get("next") ?? "/profile";
+  const next = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/profile";
+  const error = params.get("error");
 
-            <div className="rounded-[24px] border border-white/[0.1] bg-[#080808] p-8 backdrop-blur-xl">
-              <LoginForm />
-
-              <div className="mt-8 border-t border-white/[0.08] pt-6">
-                <p className="text-center text-[12px] text-white/40">
-                  Don't have an account?{" "}
-                  <Link
-                    href="/auth/register"
-                    className="text-white transition-colors hover:text-white/80"
-                  >
-                    Create one
-                  </Link>
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-8 text-center">
-              <Link
-                href="/"
-                className="text-[11px] font-medium uppercase tracking-[2px] text-white/40 transition-colors hover:text-white/60"
-              >
-                ← Back to Home
-              </Link>
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
-    </div>
+  return (
+    <AuthShell
+      title={t("auth.signInTitle")}
+      subtitle={t("auth.signInSubtitle")}
+      footer={
+        <p className="text-center text-[12px] text-white/40">
+          {t("auth.noAccount")}{" "}
+          <Link href={`/auth/register${next !== "/profile" ? `?next=${encodeURIComponent(next)}` : ""}`} className="text-white transition-colors hover:text-white/80">
+            {t("auth.createOne")}
+          </Link>
+        </p>
+      }
+    >
+      {error && (
+        <p className="zx-rise-in mb-5 rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-3 text-[12px] text-red-300">
+          {t("auth.callbackError")}
+        </p>
+      )}
+      <GoogleButton next={next} />
+      <AuthDivider />
+      <LoginForm next={next} />
+    </AuthShell>
   );
 }

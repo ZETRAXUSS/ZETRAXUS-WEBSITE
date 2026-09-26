@@ -2,59 +2,25 @@ import Link from "next/link";
 import { StarField } from "@/components/home/star-field";
 import { ParallaxField } from "@/components/home/parallax-field";
 import { ScrollReveal } from "@/components/home/scroll-reveal";
+import { SplitText } from "@/components/fx/split-text";
+import { getServerT } from "@/lib/i18n/server";
+import type { TranslationKey } from "@/lib/i18n/translate";
 
-const mediaItems = [
-  {
-    number: "01",
-    title: "EXPLORE",
-    description:
-      "Discover creations, ideas and stories emerging across the network.",
-  },
-  {
-    number: "02",
-    title: "PROJECTS",
-    description:
-      "Enter ambitious projects, worlds and concepts built by creators.",
-  },
-  {
-    number: "03",
-    title: "FORUM",
-    description:
-      "Discuss theories, ideas and everything happening inside the network.",
-  },
-  {
-    number: "04",
-    title: "SHOP",
-    description:
-      "Physical products, books, digital releases and creator-made assets.",
-  },
-  {
-    number: "05",
-    title: "CREATORS",
-    description:
-      "Meet the people shaping the worlds and projects of ZETRAXUS.",
-  },
-  {
-    number: "06",
-    title: "WORLDS",
-    description:
-      "Explore characters, lore and interconnected fictional universes.",
-  },
-  {
-    number: "07",
-    title: "DIGITAL",
-    description:
-      "A space for digital releases, resources and creative assets.",
-  },
-  {
-    number: "08",
-    title: "NETWORK",
-    description:
-      "One ecosystem connecting creation, discovery and community.",
-  },
+const mediaItems: { number: string; key: string }[] = [
+  { number: "01", key: "explore" },
+  { number: "02", key: "projects" },
+  { number: "03", key: "forum" },
+  { number: "04", key: "shop" },
+  { number: "05", key: "creators" },
+  { number: "06", key: "worlds" },
+  { number: "07", key: "digital" },
+  { number: "08", key: "network" },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const { t } = await getServerT();
+  const m = (key: string, part: "title" | "desc") => t(`home.media.${key}.${part}` as TranslationKey);
+
   return (
     <main className="min-h-screen overflow-hidden bg-black text-white">
       {/* =========================================================
@@ -89,12 +55,14 @@ export default function Home() {
               h-[520px] w-[900px]
               -translate-x-1/2 -translate-y-1/2
               rounded-full
-              bg-white/[0.03]
+              bg-white/[0.055]
+              opacity-[0.55]
               blur-[130px]
-              transition-all duration-[1800ms]
+              transition-[transform,opacity] duration-[1800ms]
               ease-out
+              will-change-transform
               group-hover:scale-[1.3]
-              group-hover:bg-white/[0.055]
+              group-hover:opacity-100
             "
           />
 
@@ -104,11 +72,12 @@ export default function Home() {
               h-[280px] w-[700px]
               -translate-x-1/2 -translate-y-1/2
               rounded-full
-              bg-white/[0.018]
+              bg-white/[0.035]
+              opacity-50
               blur-[90px]
-              transition-all duration-[2200ms]
+              transition-[transform,opacity] duration-[2200ms]
               group-hover:scale-125
-              group-hover:bg-white/[0.035]
+              group-hover:opacity-100
             "
           />
 
@@ -271,7 +240,7 @@ export default function Home() {
                   lg:text-[86px]
                 "
               >
-                ZETRAXUS
+                <SplitText text="ZETRAXUS" delay={200} stagger={60} />
               </h1>
 
               <div className="mt-5 flex items-center gap-4">
@@ -295,7 +264,7 @@ export default function Home() {
                     md:text-[12px]
                   "
                 >
-                  ENTER THE NETWORK
+                  {t("home.hero.tagline")}
                 </p>
 
                 <span
@@ -316,6 +285,8 @@ export default function Home() {
 
             <Link
               href="/explore"
+              data-magnetic="0.25"
+              data-sound="whoosh"
               className="
                 hero-enter group/enter relative mt-10
                 flex h-12 w-40
@@ -346,7 +317,7 @@ export default function Home() {
               />
 
               <span className="relative z-10 transition-transform duration-300 group-hover/enter:scale-105">
-                ENTER
+                {t("home.hero.enter")}
               </span>
             </Link>
           </div>
@@ -365,7 +336,7 @@ export default function Home() {
             "
           >
             <span className="text-[9px] uppercase tracking-[4px] text-white/20 transition-colors duration-500 group-hover:text-white/40">
-              Scroll to explore
+              {t("home.hero.scroll")}
             </span>
 
             <span className="hero-scroll-line h-7 w-px bg-gradient-to-b from-white/30 to-transparent" />
@@ -382,21 +353,20 @@ export default function Home() {
           <div className="grid gap-10 md:grid-cols-[1fr_0.7fr] md:items-end">
             <div>
               <p className="mb-5 text-[10px] font-medium uppercase tracking-[5px] text-white/30">
-                THE NETWORK
+                {t("home.intro.eyebrow")}
               </p>
 
               <h2 className="text-4xl font-semibold leading-[1.05] tracking-[-0.04em] text-white md:text-6xl lg:text-7xl">
-                A network built
+                {t("home.intro.title1")}
                 <br />
                 <span className="text-white/35 transition-colors duration-700 hover:text-white/55">
-                  for creation.
+                  {t("home.intro.title2")}
                 </span>
               </h2>
             </div>
 
             <p className="max-w-md text-sm leading-7 text-white/35 md:justify-self-end md:text-base">
-              ZETRAXUS brings projects, worlds, discussions, creators and
-              digital creations into one evolving network.
+              {t("home.intro.text")}
             </p>
           </div>
         </ScrollReveal>
@@ -410,16 +380,16 @@ export default function Home() {
         <div className="mb-12 flex items-end justify-between border-b border-white/[0.08] pb-5">
           <div>
             <p className="text-[10px] uppercase tracking-[5px] text-white/25">
-              DISCOVER
+              {t("home.grid.eyebrow")}
             </p>
 
             <h3 className="mt-3 text-2xl font-medium tracking-[-0.02em] md:text-3xl">
-              Inside ZETRAXUS
+              {t("home.grid.title")}
             </h3>
           </div>
 
           <span className="hidden text-[10px] tracking-[3px] text-white/20 md:block">
-            08 AREAS
+            08 {t("home.grid.areas")}
           </span>
         </div>
 
@@ -428,6 +398,7 @@ export default function Home() {
             <ScrollReveal key={item.number} delay={index * 70}>
               <article className="group/media">
                 <div
+                  data-spotlight
                   className="
                     relative aspect-[16/8]
                     overflow-hidden rounded-[24px]
@@ -446,17 +417,18 @@ export default function Home() {
                       absolute left-1/2 top-1/2
                       h-32 w-64
                       -translate-x-1/2 -translate-y-1/2
-                      rounded-full bg-white/[0.025]
+                      rounded-full bg-white/[0.05]
+                      opacity-50
                       blur-[55px]
-                      transition-all duration-700
+                      transition-[transform,opacity] duration-700
                       group-hover/media:scale-150
-                      group-hover/media:bg-white/[0.05]
+                      group-hover/media:opacity-100
                     "
                   />
 
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-[9px] uppercase tracking-[4px] text-white/15 transition-all duration-500 group-hover/media:tracking-[6px] group-hover/media:text-white/35">
-                      MEDIA {item.number}
+                      {t("home.grid.media")} {item.number}
                     </span>
                   </div>
 
@@ -471,11 +443,11 @@ export default function Home() {
 
                 <div className="mt-5 flex gap-6">
                   <h4 className="min-w-[110px] text-[12px] font-semibold tracking-[3px] text-white/75 transition-all duration-500 group-hover/media:tracking-[3.5px] group-hover/media:text-white">
-                    {item.title}
+                    {m(item.key, "title")}
                   </h4>
 
                   <p className="max-w-md text-sm leading-6 text-white/30 transition-colors duration-500 group-hover/media:text-white/50">
-                    {item.description}
+                    {m(item.key, "desc")}
                   </p>
                 </div>
               </article>
@@ -490,7 +462,7 @@ export default function Home() {
 
       <section className="mx-auto w-full max-w-[1760px] px-6 pb-32 md:px-10 md:pb-40">
         <ScrollReveal>
-          <div className="group/feature overflow-hidden rounded-[28px] border border-white/[0.1] bg-[#060606] transition-all duration-700 hover:border-white/[0.18] hover:shadow-[0_25px_90px_rgba(0,0,0,0.5)]">
+          <div data-spotlight className="group/feature relative overflow-hidden rounded-[28px] border border-white/[0.1] bg-[#060606] transition-all duration-700 hover:border-white/[0.18] hover:shadow-[0_25px_90px_rgba(0,0,0,0.5)]">
             <div className="grid min-h-[460px] md:grid-cols-[1.35fr_0.65fr]">
               <div className="relative flex items-end overflow-hidden border-b border-white/[0.08] p-8 md:border-b-0 md:border-r md:p-12">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.07),transparent_55%)] transition-transform duration-[1200ms] group-hover/feature:scale-125" />
@@ -499,28 +471,27 @@ export default function Home() {
 
                 <div className="relative z-10">
                   <p className="text-[10px] uppercase tracking-[5px] text-white/25">
-                    FEATURED CREATION
+                    {t("home.featured.eyebrow")}
                   </p>
 
                   <h3 className="mt-4 max-w-2xl text-4xl font-medium tracking-[-0.035em] transition-transform duration-700 group-hover/feature:translate-x-1 md:text-6xl">
-                    The next world
+                    {t("home.featured.title1")}
                     <br />
-                    <span className="text-white/35">starts here.</span>
+                    <span className="text-white/35">{t("home.featured.title2")}</span>
                   </h3>
                 </div>
               </div>
 
               <div className="flex flex-col justify-between p-8 md:p-12">
                 <p className="max-w-sm text-sm leading-7 text-white/35">
-                  A dedicated space for large creative projects, fictional
-                  worlds, characters, lore and experiences.
+                  {t("home.featured.text")}
                 </p>
 
                 <Link
                   href="/projects"
                   className="mt-10 inline-flex w-fit border-b border-white/25 pb-2 text-[10px] font-semibold tracking-[3px] text-white/60 transition-all duration-500 hover:border-white hover:pl-2 hover:text-white"
                 >
-                  VIEW PROJECTS →
+                  {t("home.featured.cta")} →
                 </Link>
               </div>
             </div>
@@ -537,27 +508,26 @@ export default function Home() {
           <div className="grid gap-10 md:grid-cols-[0.6fr_1.4fr] md:items-end">
             <div>
               <p className="text-[10px] uppercase tracking-[5px] text-white/25">
-                SHOP
+                {t("nav.shop").toUpperCase()}
               </p>
 
               <h3 className="mt-4 text-4xl font-medium tracking-[-0.035em] md:text-6xl">
-                Creations
+                {t("home.shop.title1")}
                 <br />
-                <span className="text-white/35">worth keeping.</span>
+                <span className="text-white/35">{t("home.shop.title2")}</span>
               </h3>
             </div>
 
             <div className="md:justify-self-end">
               <p className="max-w-md text-sm leading-7 text-white/35">
-                Physical products, books, digital books and creator-made
-                digital assets will live inside the ZETRAXUS marketplace.
+                {t("home.shop.text")}
               </p>
 
               <Link
                 href="/shop"
                 className="mt-7 inline-flex border-b border-white/25 pb-2 text-[10px] font-semibold tracking-[3px] text-white/60 transition-all duration-500 hover:border-white hover:pl-2 hover:text-white"
               >
-                ENTER SHOP →
+                {t("home.shop.cta")} →
               </Link>
             </div>
           </div>
@@ -570,7 +540,7 @@ export default function Home() {
 
       <section className="px-6 pb-10 md:px-10">
         <ScrollReveal>
-          <div className="group/cta relative mx-auto flex min-h-[430px] w-full max-w-[1760px] flex-col items-center justify-center overflow-hidden rounded-[30px] border border-white/[0.1] bg-[#050505] text-center transition-all duration-700 hover:border-white/[0.18]">
+          <div data-spotlight className="group/cta relative mx-auto flex min-h-[430px] w-full max-w-[1760px] flex-col items-center justify-center overflow-hidden rounded-[30px] border border-white/[0.1] bg-[#050505] text-center transition-all duration-700 hover:border-white/[0.18]">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.055),transparent_60%)] transition-transform duration-[1500ms] group-hover/cta:scale-125" />
 
             <div className="relative z-10">
@@ -585,15 +555,16 @@ export default function Home() {
               </div>
 
               <h3 className="mt-7 text-3xl font-semibold tracking-[-0.03em] md:text-5xl">
-                CREATE. EXPLORE. CONNECT.
+                {t("home.cta.title")}
               </h3>
 
               <p className="mx-auto mt-5 max-w-lg text-sm leading-6 text-white/30">
-                The network is only the beginning.
+                {t("home.cta.text")}
               </p>
 
               <Link
                 href="/explore"
+                data-magnetic="0.2"
                 className="
                   mt-8 inline-flex h-11
                   items-center rounded-full
@@ -608,7 +579,7 @@ export default function Home() {
                   hover:shadow-[0_0_30px_rgba(255,255,255,0.18)]
                 "
               >
-                ENTER ZETRAXUS
+                {t("home.cta.button")}
               </Link>
             </div>
           </div>

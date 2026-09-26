@@ -1,210 +1,209 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { createThread } from "@/lib/actions/forum";
-import type { Database } from "@/types/database";
-
-type ForumCategory = Database["public"]["Tables"]["forum_categories"]["Row"];
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Modal } from "@/components/ui/modal";
+import { MarkdownEditor } from "@/components/forum/markdown-editor";
+import { useAuth } from "@/lib/auth/use-auth";
+import { useI18n } from "@/lib/i18n/provider";
+import { createThread } from "@/lib/forum/client";
+import type { ForumCategory, MediaItem } from "@/lib/forum/types";
+import type { TranslationKey } from "@/lib/i18n/translate";
+import { playSound } from "@/lib/sound/engine";
 
 interface CreateThreadModalProps {
   isOpen: boolean;
   onClose: () => void;
   categories: ForumCategory[];
-  onThreadCreated?: () => void;
+  defaultCategoryId?: string | null;
 }
 
-export function CreateThreadModal({
-  isOpen,
-  onClose,
-  categories,
-  onThreadCreated,
-}: CreateThreadModalProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string>(categories[0]?.id || "");
+const TITLE_MAX = 200;
+const BODY_MAX = 20000;
+
+export function CreateThreadModal({ isOpen, onClose, categories, defaultCategoryId }: CreateThreadModalProps) {
+  const router = useRouter();
+  const { user, profile } = useAuth();
+  const { t, lang } = useI18n();
+  const [categoryId, setCategoryId] = useState<string>("");
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [attachments, setAttachments] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const modalRef = useRef<HTMLDivElement>(null);
+  const [error, setError] = useState<TranslationKey | null>(null);
 
-  // Close modal on Escape key
+  // Pick a category as soon as they load (this was the "empty dropdown" bug).
   useEffect(() => {
-    function handleEscape(event: KeyboardEvent) {
-      if (event.key === "Escape" && isOpen) {
-        onClose();
-      }
+    if (!isOpen) return;
+    if (defaultCategoryId && categories.some((c) => c.id === defaultCategoryId)) {
+      setCategoryId(defaultCategoryId);
+    } else if (!categoryId && categories[0]) {
+      setCategoryId(categories[0].id);
     }
+  }, [isOpen, categories, defaultCategoryId, categoryId]);
 
-    if (isOpen) {
-      document.addEventListener("keydown", handleEscape);
-      return () => document.removeEventListener("keydown", handleEscape);
+  async function handleSubmit() {
+    if (!user) {
+      router.push("/auth/login?next=/forum");
+      return;
     }
-  }, [isOpen, onClose]);
+    setError(null);
 
-  // Close modal when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        modalRef.current &&
-        !modalRef.current.contains(event.target as Node)
-      ) {
-        onClose();
-      }
-    }
+    if (title.trim().length < 3) return setError("error.titleLength");
+    if (!body.trim()) return setError("error.bodyLength");
+    if (!categoryId) return setError("forum.pickCategory");
 
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
-    }
-  }, [isOpen, onClose]);
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
     setLoading(true);
-    setError("");
+    const result = await createThread({
+      userId: user.id,
+      categoryId,
+      title,
+      body,
+      mediaIds: attachments.map((item) => item.id),
+    });
+    setLoading(false);
 
-    if (!title.trim() || !body.trim()) {
-      setError("Title and body are required");
-      setLoading(false);
+    if (!result.ok) {
+      setError(result.error);
+      playSound("error");
       return;
     }
 
-    if (!selectedCategory) {
-      setError("Please select a category");
-      setLoading(false);
-      return;
-    }
-
-    const result = await createThread(selectedCategory, title, body);
-
-    if (!result.success) {
-      setError(result.error || "Failed to create thread");
-      setLoading(false);
-      return;
-    }
-
-    // Success
+    playSound("success");
     setTitle("");
     setBody("");
-    setSelectedCategory(categories[0]?.id || "");
-    onThreadCreated?.();
+    setAttachments([]);
     onClose();
+    router.push(`/forum/${result.data.id}`);
   }
 
-  if (!isOpen) return null;
-
   return (
-    <>
-      {/* Backdrop */}
-      <div className="fixed inset-0 z-40 bg-black/80 backdrop-blur-sm" />
-
-      {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6 sm:py-10">
-        <div
-          ref={modalRef}
-          className="relative w-full max-w-[600px] rounded-[24px] border border-white/[0.12] bg-[#080808] shadow-[0_25px_100px_rgba(0,0,0,0.8)]"
+    <Modal
+      open={isOpen}
+      onClose={onClose}
+      title={t("forum.createTitle")}
+      subtitle={t("forum.createSubtitle")}
+      maxWidth={760}
+      closeLabel={t("common.close")}
+    >
+      {profile?.is_banned ? (
+        <p className="rounded-[14px] border border-red-500/30 bg-red-500/5 px-5 py-4 text-sm text-red-300">
+          {t("error.banned")}
+        </p>
+      ) : (
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            void handleSubmit();
+          }}
+          className="space-y-7"
         >
-          {/* Close button */}
-          <button
-            onClick={onClose}
-            className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.1] bg-white/[0.05] text-white/60 transition-all hover:border-white/30 hover:bg-white/[0.1] hover:text-white"
-            aria-label="Close"
-          >
-            ✕
-          </button>
-
-          {/* Content */}
-          <div className="p-8">
-            <h2 className="text-2xl font-black tracking-[-0.02em] text-white">
-              Create Discussion
-            </h2>
-            <p className="mt-1 text-sm text-white/40">
-              Start a new thread in the community forum
-            </p>
-
-            <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-              {/* Category */}
-              <div>
-                <label className="block text-[11px] font-medium uppercase tracking-[2px] text-white/60 mb-2">
-                  Category
-                </label>
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full h-11 rounded-lg border border-white/[0.12] bg-white/[0.03] px-4 text-sm text-white outline-none transition-all duration-300 placeholder:text-white/20 focus:border-white/30 focus:bg-white/[0.06]"
-                >
-                  {categories.map((cat) => (
-                    <option
-                      key={cat.id}
-                      value={cat.id}
-                      className="bg-black text-white"
+          {/* Category */}
+          <div>
+            <p className="mb-3 text-[10px] font-medium uppercase tracking-[2px] text-white/45">{t("forum.category")}</p>
+            {categories.length === 0 ? (
+              <div className="flex gap-2">
+                {[0, 1, 2, 3].map((i) => (
+                  <span key={i} className="zx-skeleton h-10 w-24 rounded-full" />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {categories.map((category, index) => {
+                  const active = category.id === categoryId;
+                  return (
+                    <button
+                      key={category.id}
+                      type="button"
+                      onClick={() => setCategoryId(category.id)}
+                      data-sound="toggle"
+                      className={`zx-rise-in flex items-center gap-2 rounded-full border px-4 py-2.5 text-[11px] font-medium uppercase tracking-[1.5px] transition-all duration-300 ${
+                        active
+                          ? "border-white bg-white text-black shadow-[0_0_24px_rgba(255,255,255,0.22)]"
+                          : "border-white/[0.12] bg-white/[0.02] text-white/50 hover:border-white/40 hover:text-white"
+                      }`}
+                      style={{ animationDelay: `${index * 35}ms` }}
                     >
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
+                      <span className={`font-mono text-[9px] ${active ? "text-black/50" : "text-white/25"}`}>
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                      {lang === "tr" && category.name_tr ? category.name_tr : category.name}
+                    </button>
+                  );
+                })}
               </div>
-
-              {/* Title */}
-              <div>
-                <label className="block text-[11px] font-medium uppercase tracking-[2px] text-white/60 mb-2">
-                  Title
-                </label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="What's your discussion about?"
-                  maxLength={200}
-                  className="w-full h-11 rounded-lg border border-white/[0.12] bg-white/[0.03] px-4 text-sm text-white outline-none transition-all duration-300 placeholder:text-white/20 focus:border-white/30 focus:bg-white/[0.06]"
-                />
-              </div>
-
-              {/* Body */}
-              <div>
-                <label className="block text-[11px] font-medium uppercase tracking-[2px] text-white/60 mb-2">
-                  Description
-                </label>
-                <textarea
-                  value={body}
-                  onChange={(e) => setBody(e.target.value)}
-                  placeholder="Share your thoughts, ask questions, or start a discussion..."
-                  maxLength={2000}
-                  rows={6}
-                  className="w-full rounded-lg border border-white/[0.12] bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition-all duration-300 placeholder:text-white/20 focus:border-white/30 focus:bg-white/[0.06] resize-none"
-                />
-                <p className="mt-1 text-[9px] text-white/30">
-                  {body.length}/2000 characters
-                </p>
-              </div>
-
-              {/* Error */}
-              {error && (
-                <div className="rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-3 text-[12px] text-red-400">
-                  {error}
-                </div>
-              )}
-
-              {/* Buttons */}
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="flex-1 h-11 rounded-lg border border-white/[0.12] bg-white/[0.03] text-[11px] font-semibold uppercase tracking-[2px] text-white/60 transition-all hover:border-white/30 hover:bg-white/[0.06] hover:text-white"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 h-11 rounded-lg border border-white/25 bg-white text-black text-[11px] font-semibold uppercase tracking-[2px] transition-all hover:bg-white/90 hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? "Creating..." : "Create Thread"}
-                </button>
-              </div>
-            </form>
+            )}
           </div>
-        </div>
-      </div>
-    </>
+
+          {/* Title */}
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <label htmlFor="thread-title" className="text-[10px] font-medium uppercase tracking-[2px] text-white/45">
+                {t("forum.threadTitle")}
+              </label>
+              <span className="text-[10px] tabular-nums text-white/25">
+                {title.length}/{TITLE_MAX}
+              </span>
+            </div>
+            <div className="relative">
+              <input
+                id="thread-title"
+                type="text"
+                value={title}
+                onChange={(event) => setTitle(event.target.value.slice(0, TITLE_MAX))}
+                placeholder={t("forum.threadTitlePlaceholder")}
+                autoFocus
+                className="peer h-14 w-full rounded-[16px] border border-white/[0.12] bg-white/[0.02] px-5 text-[16px] font-medium text-white outline-none transition-all duration-300 placeholder:text-white/20 focus:border-white/30 focus:bg-white/[0.04]"
+              />
+              <span className="pointer-events-none absolute inset-x-5 bottom-0 h-px scale-x-0 bg-gradient-to-r from-transparent via-white to-transparent transition-transform duration-700 peer-focus:scale-x-100" />
+            </div>
+          </div>
+
+          {/* Body */}
+          <div>
+            <p className="mb-2 text-[10px] font-medium uppercase tracking-[2px] text-white/45">{t("forum.threadBody")}</p>
+            <MarkdownEditor
+              value={body}
+              onChange={setBody}
+              placeholder={t("forum.threadBodyPlaceholder")}
+              maxLength={BODY_MAX}
+              rows={8}
+              attachments={attachments}
+              onAttachmentsChange={setAttachments}
+              onSubmitShortcut={() => void handleSubmit()}
+            />
+          </div>
+
+          {error && (
+            <p className="zx-rise-in rounded-[14px] border border-red-500/30 bg-red-500/5 px-4 py-3 text-[12px] text-red-300">
+              {t(error)}
+            </p>
+          )}
+
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[11px] text-white/25">{t("forum.rulesHint")}</p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="h-12 rounded-full border border-white/[0.12] px-6 text-[10px] font-semibold uppercase tracking-[2px] text-white/55 hover:border-white/30 hover:text-white"
+              >
+                {t("common.cancel")}
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                data-sound="off"
+                data-magnetic="0.15"
+                className="group relative h-12 overflow-hidden rounded-full bg-white px-8 text-[10px] font-semibold uppercase tracking-[2px] text-black transition-all hover:shadow-[0_0_32px_rgba(255,255,255,0.3)] disabled:opacity-50"
+              >
+                <span className="pointer-events-none absolute -left-full top-0 h-full w-1/2 skew-x-[-20deg] bg-black/10 transition-all duration-700 group-hover:left-[150%]" />
+                <span className="relative">{loading ? t("forum.publishing") : t("forum.publish")}</span>
+              </button>
+            </div>
+          </div>
+        </form>
+      )}
+    </Modal>
   );
 }

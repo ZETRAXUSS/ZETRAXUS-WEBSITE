@@ -2,7 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { logoutUser } from "@/lib/actions/auth";
+import { useRouter } from "next/navigation";
+import { signOut } from "@/lib/auth/client-auth";
+import { useAuth } from "@/lib/auth/use-auth";
+import { useT } from "@/lib/i18n/provider";
+import { Avatar } from "@/components/ui/avatar";
+import { BookmarkIcon, LogoutIcon, ShieldIcon, UserIcon } from "@/components/ui/icons";
 import type { Profile } from "@/types/auth";
 
 interface ProfileDropdownProps {
@@ -10,85 +15,96 @@ interface ProfileDropdownProps {
 }
 
 export function ProfileDropdown({ profile }: ProfileDropdownProps) {
+  const router = useRouter();
+  const t = useT();
+  const { isStaff } = useAuth();
   const [open, setOpen] = useState(false);
   const [isLogoutLoading, setIsLogoutLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   async function handleLogout() {
     setIsLogoutLoading(true);
-    await logoutUser();
+    await signOut();
+    setOpen(false);
+    setIsLogoutLoading(false);
+    router.push("/");
+    router.refresh();
   }
 
-  // Close dropdown when clicking outside
   useEffect(() => {
+    if (!open) return;
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setOpen(false);
       }
     }
-
-    if (open) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
+    function handleKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
     }
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKey);
+    };
   }, [open]);
+
+  const itemClass =
+    "group/item flex items-center gap-3 px-4 py-2.5 text-[11px] font-medium text-white/65 transition-all duration-300 hover:bg-white/[0.05] hover:pl-5 hover:text-white";
 
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Avatar Button */}
       <button
+        type="button"
         onClick={() => setOpen(!open)}
         aria-expanded={open}
-        className="h-9 w-9 flex items-center justify-center rounded-full border border-white/[0.15] bg-white/[0.025] text-[11px] font-semibold text-white/60 transition-all duration-300 hover:border-white/40 hover:bg-white/[0.06] hover:text-white hover:shadow-[0_0_20px_rgba(255,255,255,0.08)]"
+        aria-label={t("nav.profile")}
+        data-sound={open ? "close" : "open"}
+        className={`flex h-9 w-9 items-center justify-center rounded-full border p-[2px] transition-all duration-300 ${
+          open
+            ? "border-white/50 shadow-[0_0_20px_rgba(255,255,255,0.18)]"
+            : "border-white/[0.15] hover:border-white/40 hover:shadow-[0_0_20px_rgba(255,255,255,0.08)]"
+        }`}
       >
-        {profile.display_name.charAt(0).toUpperCase()}
+        <Avatar name={profile.display_name} src={profile.avatar_url} size={30} />
       </button>
 
-      {/* Dropdown Menu */}
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-52 rounded-[16px] border border-white/[0.1] bg-[#0a0a0a] shadow-[0_15px_50px_rgba(0,0,0,0.6)] backdrop-blur-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-          {/* Header with user info */}
-          <div className="border-b border-white/[0.08] px-4 py-3">
-            <p className="text-[11px] font-semibold text-white truncate">{profile.display_name}</p>
-            <p className="text-[9px] text-white/40 mt-0.5 truncate">@{profile.username}</p>
+        <div className="zx-drop-in absolute right-0 top-full z-50 mt-3 w-60 overflow-hidden rounded-[18px] border border-white/[0.1] bg-[#0a0a0a]/95 shadow-[0_20px_60px_rgba(0,0,0,0.65)] backdrop-blur-xl">
+          <div className="flex items-center gap-3 border-b border-white/[0.08] px-4 py-4">
+            <Avatar name={profile.display_name} src={profile.avatar_url} size={38} ring />
+            <div className="min-w-0">
+              <p className="truncate text-[12px] font-semibold text-white">{profile.display_name}</p>
+              <p className="mt-0.5 truncate text-[10px] text-white/40">@{profile.username}</p>
+            </div>
           </div>
 
-          {/* Menu Items */}
-          <nav className="flex flex-col py-1">
-            {/* View Profile */}
-            <Link
-              href="/profile"
-              onClick={() => setOpen(false)}
-              className="px-4 py-2.5 text-[11px] font-medium text-white/70 transition-colors hover:text-white hover:bg-white/[0.05] flex items-center gap-2"
-            >
-              <span>👤</span>
-              <span>View Profile</span>
+          <nav className="flex flex-col py-1.5">
+            <Link href="/profile" onClick={() => setOpen(false)} className={itemClass}>
+              <UserIcon size={14} className="text-white/40 group-hover/item:text-white" />
+              {t("nav.viewProfile")}
             </Link>
+            <Link href="/forum?view=saved" onClick={() => setOpen(false)} className={itemClass}>
+              <BookmarkIcon size={14} className="text-white/40 group-hover/item:text-white" />
+              {t("nav.saved")}
+            </Link>
+            {isStaff && (
+              <Link href="/admin" onClick={() => setOpen(false)} className={itemClass}>
+                <ShieldIcon size={14} className="text-white/40 group-hover/item:text-white" />
+                {t("nav.admin")}
+              </Link>
+            )}
 
-            {/* Settings */}
+            <div className="my-1.5 h-px bg-white/[0.08]" />
+
             <button
               type="button"
-              disabled
-              className="w-full text-left px-4 py-2.5 text-[11px] font-medium text-white/40 flex items-center gap-2 opacity-60 cursor-not-allowed"
-            >
-              <span>⚙️</span>
-              <span>Settings</span>
-            </button>
-
-            {/* Divider */}
-            <div className="h-px bg-white/[0.08] my-1" />
-
-            {/* Logout */}
-            <button
-              onClick={() => {
-                handleLogout();
-                setOpen(false);
-              }}
+              onClick={handleLogout}
               disabled={isLogoutLoading}
-              className="w-full text-left px-4 py-2.5 text-[11px] font-medium text-white/70 transition-colors hover:text-white hover:bg-white/[0.05] flex items-center gap-2 disabled:opacity-50"
+              className={`${itemClass} w-full text-left disabled:opacity-50`}
             >
-              <span>🚪</span>
-              <span>{isLogoutLoading ? "Signing out..." : "Sign out"}</span>
+              <LogoutIcon size={14} className="text-white/40 group-hover/item:text-white" />
+              {isLogoutLoading ? t("auth.signingOut") : t("auth.signOut")}
             </button>
           </nav>
         </div>

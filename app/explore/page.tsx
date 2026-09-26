@@ -4,32 +4,29 @@ import { useState } from "react";
 import { StarField } from "@/components/home/star-field";
 import { ParallaxField } from "@/components/home/parallax-field";
 import { ScrollReveal } from "@/components/home/scroll-reveal";
+import { SplitText } from "@/components/fx/split-text";
+import { ExploreSearch } from "@/components/search/explore-search";
+import { useT } from "@/lib/i18n/provider";
+import type { TranslationKey } from "@/lib/i18n/translate";
 
-const categories = ["All", "Projects", "Worlds", "Stories", "Characters", "Communities"];
+const categories: TranslationKey[] = [
+  "explore.cat.all",
+  "explore.cat.projects",
+  "explore.cat.worlds",
+  "explore.cat.stories",
+  "explore.cat.characters",
+  "explore.cat.communities",
+];
 
-const featured = [
-  {
-    number: "01",
-    title: "FEATURED REALM",
-    description:
-      "Epic world building in progress, shaped by a growing circle of creators.",
-  },
-  {
-    number: "02",
-    title: "CHARACTER GALLERY",
-    description:
-      "Premium character design showcase spanning styles, genres and universes.",
-  },
-  {
-    number: "03",
-    title: "STORY ARCHIVE",
-    description:
-      "Narrative-driven creative works from across the ZETRAXUS network.",
-  },
+const featured: { number: string; title: TranslationKey; description: TranslationKey }[] = [
+  { number: "01", title: "explore.featured.realm", description: "explore.featured.realmDesc" },
+  { number: "02", title: "explore.featured.gallery", description: "explore.featured.galleryDesc" },
+  { number: "03", title: "explore.featured.archive", description: "explore.featured.archiveDesc" },
 ];
 
 export default function ExplorePage() {
-  const [activeCategory, setActiveCategory] = useState("All");
+  const t = useT();
+  const [activeCategory, setActiveCategory] = useState<TranslationKey>("explore.cat.all");
 
   return (
     <div className="min-h-screen overflow-hidden bg-black text-white">
@@ -62,12 +59,14 @@ export default function ExplorePage() {
               h-[420px] w-[800px]
               -translate-x-1/2 -translate-y-1/2
               rounded-full
-              bg-white/[0.03]
+              bg-white/[0.05]
+              opacity-60
               blur-[130px]
-              transition-all duration-[1800ms]
+              transition-[transform,opacity] duration-[1800ms]
               ease-out
+              will-change-transform
               group-hover:scale-[1.25]
-              group-hover:bg-white/[0.05]
+              group-hover:opacity-100
             "
           />
 
@@ -100,19 +99,17 @@ export default function ExplorePage() {
             <div className="flex items-center gap-4">
               <span className="h-px w-8 bg-white/15 transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-16 group-hover:bg-white/35" />
               <p className="text-[10px] font-medium tracking-[6px] text-white/35 transition-all duration-1000 group-hover:tracking-[8px] group-hover:text-white/55 md:text-[12px]">
-                DISCOVERY
+                {t("explore.eyebrow")}
               </p>
               <span className="h-px w-8 bg-white/15 transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-16 group-hover:bg-white/35" />
             </div>
 
             <h1 className="explore-title relative z-10 mt-5 text-[48px] font-black leading-none text-white sm:text-[60px] md:text-[76px] lg:text-[86px]">
-              EXPLORE
+              <SplitText text={t("nav.explore").toUpperCase()} />
             </h1>
 
             <p className="mt-6 max-w-xl text-sm leading-7 text-white/35 md:text-base">
-              Discover extraordinary projects, worlds and stories created by
-              the community. Find inspiration and connect with other
-              creators.
+              {t("explore.heroText")}
             </p>
           </div>
         </div>
@@ -126,26 +123,16 @@ export default function ExplorePage() {
         <ScrollReveal>
           <div className="mb-10">
             <p className="mb-5 text-[10px] font-medium uppercase tracking-[5px] text-white/30">
-              FIND SOMETHING
+              {t("explore.findEyebrow")}
             </p>
 
             <h2 className="text-3xl font-semibold leading-[1.05] tracking-[-0.04em] text-white md:text-5xl">
-              Search the network.
+              {t("explore.findTitle")}
             </h2>
           </div>
 
           <div className="space-y-6">
-            <input
-              type="text"
-              placeholder="Search projects, worlds, stories..."
-              className="
-                w-full rounded-full border border-white/[0.12]
-                bg-white/[0.025] px-6 py-4 text-sm text-white
-                placeholder-white/25 outline-none
-                transition-all duration-300
-                focus:border-white/30 focus:bg-white/[0.04]
-              "
-            />
+            <ExploreSearch />
 
             <div className="flex flex-wrap gap-3">
               {categories.map((cat) => {
@@ -155,6 +142,7 @@ export default function ExplorePage() {
                   <button
                     key={cat}
                     type="button"
+                    data-sound="toggle"
                     onClick={() => setActiveCategory(cat)}
                     className={`
                       rounded-full border px-5 py-2.5
@@ -167,7 +155,7 @@ export default function ExplorePage() {
                       }
                     `}
                   >
-                    {cat}
+                    {t(cat)}
                   </button>
                 );
               })}
@@ -184,16 +172,16 @@ export default function ExplorePage() {
         <div className="mb-12 flex items-end justify-between border-b border-white/[0.08] pb-5">
           <div>
             <p className="text-[10px] uppercase tracking-[5px] text-white/25">
-              FEATURED
+              {t("explore.featuredEyebrow")}
             </p>
 
             <h3 className="mt-3 text-2xl font-medium tracking-[-0.02em] md:text-3xl">
-              Community Highlights
+              {t("explore.featuredTitle")}
             </h3>
           </div>
 
           <span className="hidden text-[10px] tracking-[3px] text-white/20 md:block">
-            {String(featured.length).padStart(2, "0")} PICKS
+            {String(featured.length).padStart(2, "0")} {t("explore.picks")}
           </span>
         </div>
 
@@ -202,6 +190,7 @@ export default function ExplorePage() {
             <ScrollReveal key={item.number} delay={index * 90}>
               <article className="group/media">
                 <div
+                  data-spotlight
                   className="
                     relative aspect-[4/3]
                     overflow-hidden rounded-[24px]
@@ -219,7 +208,7 @@ export default function ExplorePage() {
 
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-[9px] uppercase tracking-[4px] text-white/15 transition-all duration-500 group-hover/media:tracking-[6px] group-hover/media:text-white/35">
-                      ITEM {item.number}
+                      {t("explore.item")} {item.number}
                     </span>
                   </div>
 
@@ -234,11 +223,11 @@ export default function ExplorePage() {
 
                 <div className="mt-5">
                   <h4 className="text-[12px] font-semibold tracking-[3px] text-white/75 transition-all duration-500 group-hover/media:tracking-[3.5px] group-hover/media:text-white">
-                    {item.title}
+                    {t(item.title)}
                   </h4>
 
                   <p className="mt-2 text-sm leading-6 text-white/30 transition-colors duration-500 group-hover/media:text-white/50">
-                    {item.description}
+                    {t(item.description)}
                   </p>
                 </div>
               </article>

@@ -4,15 +4,28 @@ import { useState } from "react";
 import { StarField } from "@/components/home/star-field";
 import { ParallaxField } from "@/components/home/parallax-field";
 import { ScrollReveal } from "@/components/home/scroll-reveal";
+import { SplitText } from "@/components/fx/split-text";
+import { CountUp } from "@/components/fx/count-up";
+import { useT } from "@/lib/i18n/provider";
+import type { TranslationKey } from "@/lib/i18n/translate";
 
-const stats = [
-  { label: "Total Projects", value: "312" },
-  { label: "Active Now", value: "184" },
-  { label: "Creators", value: "97" },
-  { label: "Completed", value: "58" },
+const stats: { label: TranslationKey; value: number }[] = [
+  { label: "projects.stat.total", value: 312 },
+  { label: "projects.stat.active", value: 184 },
+  { label: "projects.stat.creators", value: 97 },
+  { label: "projects.stat.completed", value: 58 },
 ];
 
 const filters = ["All", "Active", "In Progress", "Worlds", "Stories", "Characters"];
+
+const LABELS: Record<string, TranslationKey> = {
+  All: "explore.cat.all",
+  Active: "projects.status.active",
+  "In Progress": "projects.status.inProgress",
+  Worlds: "explore.cat.worlds",
+  Stories: "explore.cat.stories",
+  Characters: "explore.cat.characters",
+};
 
 const projects = [
   { number: "01", title: "Ethereal Worlds", creator: "Cosmic Creator", status: "Active", category: "Worlds", progress: 82 },
@@ -33,6 +46,7 @@ const avatarPalette = [
 ];
 
 export default function ProjectsPage() {
+  const t = useT();
   const [activeFilter, setActiveFilter] = useState("All");
 
   const visibleProjects = projects.filter((project) => {
@@ -67,7 +81,7 @@ export default function ProjectsPage() {
           <ParallaxField />
           <StarField />
 
-          <div className="pointer-events-none absolute left-1/2 top-1/2 h-[440px] w-[820px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/[0.03] blur-[130px] transition-all duration-[1800ms] ease-out group-hover:scale-[1.25] group-hover:bg-white/[0.05]" />
+          <div className="pointer-events-none absolute left-1/2 top-1/2 h-[440px] w-[820px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/[0.05] opacity-60 blur-[130px] transition-[transform,opacity] duration-[1800ms] ease-out will-change-transform group-hover:scale-[1.25] group-hover:opacity-100" />
 
           <div className="pointer-events-none absolute left-[7%] right-[7%] top-1/2 h-px bg-white/[0.035] transition-all duration-[1200ms] group-hover:left-[4%] group-hover:right-[4%] group-hover:bg-white/[0.07]" />
 
@@ -87,19 +101,17 @@ export default function ProjectsPage() {
             <div className="flex items-center gap-4">
               <span className="h-px w-8 bg-white/15 transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-16 group-hover:bg-white/35" />
               <p className="text-[10px] font-medium tracking-[6px] text-white/35 transition-all duration-1000 group-hover:tracking-[8px] group-hover:text-white/55 md:text-[12px]">
-                CREATOR HUB
+                {t("projects.eyebrow")}
               </p>
               <span className="h-px w-8 bg-white/15 transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-16 group-hover:bg-white/35" />
             </div>
 
             <h1 className="projects-title relative z-10 mt-5 text-[48px] font-black leading-none text-white sm:text-[60px] md:text-[76px] lg:text-[86px]">
-              PROJECTS
+              <SplitText text={t("nav.projects").toUpperCase()} />
             </h1>
 
             <p className="mt-6 max-w-xl text-sm leading-7 text-white/35 md:text-base">
-              Explore creative workspaces where artists, writers and
-              builders showcase their projects. From worlds to
-              characters — see what&apos;s being created.
+              {t("projects.heroText")}
             </p>
 
             {/* Live stats strip */}
@@ -107,10 +119,10 @@ export default function ProjectsPage() {
               {stats.map((stat) => (
                 <div key={stat.label} className="flex flex-col items-center">
                   <span className="stat-glow text-2xl font-black tracking-[-0.02em] text-white md:text-3xl">
-                    {stat.value}
+                    <CountUp value={stat.value} />
                   </span>
                   <span className="mt-1 text-[9px] uppercase tracking-[3px] text-white/30">
-                    {stat.label}
+                    {t(stat.label)}
                   </span>
                 </div>
               ))}
@@ -127,10 +139,10 @@ export default function ProjectsPage() {
         <ScrollReveal>
           <div className="mb-10">
             <p className="mb-5 text-[10px] font-medium uppercase tracking-[5px] text-white/30">
-              BROWSE
+              {t("projects.browseEyebrow")}
             </p>
             <h2 className="text-3xl font-semibold leading-[1.05] tracking-[-0.04em] text-white md:text-5xl">
-              Find the right project.
+              {t("projects.browseTitle")}
             </h2>
           </div>
 
@@ -141,6 +153,7 @@ export default function ProjectsPage() {
                 <button
                   key={filter}
                   type="button"
+                  data-sound="toggle"
                   onClick={() => setActiveFilter(filter)}
                   className={`
                     rounded-full border px-5 py-2.5
@@ -153,7 +166,7 @@ export default function ProjectsPage() {
                     }
                   `}
                 >
-                  {filter}
+                  {t(LABELS[filter])}
                 </button>
               );
             })}
@@ -169,15 +182,15 @@ export default function ProjectsPage() {
         <div className="mb-12 flex items-end justify-between border-b border-white/[0.08] pb-5">
           <div>
             <p className="text-[10px] uppercase tracking-[5px] text-white/25">
-              WORKSPACES
+              {t("projects.workspacesEyebrow")}
             </p>
             <h3 className="mt-3 text-2xl font-medium tracking-[-0.02em] md:text-3xl">
-              Active Projects
+              {t("projects.activeTitle")}
             </h3>
           </div>
 
           <span className="hidden text-[10px] tracking-[3px] text-white/20 md:block">
-            {String(visibleProjects.length).padStart(2, "0")} SHOWN
+            {String(visibleProjects.length).padStart(2, "0")} {t("projects.shown")}
           </span>
         </div>
 
@@ -186,6 +199,7 @@ export default function ProjectsPage() {
             <ScrollReveal key={project.number} delay={index * 90}>
               <article className="group/media">
                 <div
+                  data-spotlight
                   className="
                     relative aspect-[4/3]
                     overflow-hidden rounded-[24px]
@@ -203,7 +217,7 @@ export default function ProjectsPage() {
 
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-[9px] uppercase tracking-[4px] text-white/15 transition-all duration-500 group-hover/media:tracking-[6px] group-hover/media:text-white/35">
-                      {project.category}
+                      {t(LABELS[project.category])}
                     </span>
                   </div>
 
@@ -218,7 +232,7 @@ export default function ProjectsPage() {
                         : "border-white/[0.12] bg-white/[0.02] text-white/40"
                     }`}
                   >
-                    {project.status}
+                    {t(LABELS[project.status])}
                   </span>
 
                   <span className="absolute bottom-5 right-5 h-4 w-4 border-b border-r border-white/10 transition-all duration-500 group-hover/media:h-6 group-hover/media:w-6 group-hover/media:border-white/30" />
@@ -241,7 +255,7 @@ export default function ProjectsPage() {
                         {project.title.toUpperCase()}
                       </h4>
                       <p className="text-[11px] text-white/25">
-                        by {project.creator}
+                        {t("common.by")} {project.creator}
                       </p>
                     </div>
                   </div>
@@ -249,7 +263,7 @@ export default function ProjectsPage() {
                   {/* Progress bar */}
                   <div className="mt-4">
                     <div className="flex items-center justify-between text-[9px] uppercase tracking-[2px] text-white/25">
-                      <span>Progress</span>
+                      <span>{t("projects.progress")}</span>
                       <span className="text-white/40">{project.progress}%</span>
                     </div>
                     <div className="mt-1.5 h-[3px] w-full overflow-hidden rounded-full bg-white/[0.06]">
@@ -267,7 +281,7 @@ export default function ProjectsPage() {
 
         {visibleProjects.length === 0 && (
           <p className="py-16 text-center text-sm text-white/25">
-            No projects match this filter yet.
+            {t("projects.empty")}
           </p>
         )}
       </section>
@@ -283,16 +297,15 @@ export default function ProjectsPage() {
 
             <div className="relative z-10 px-6">
               <p className="text-[10px] font-medium uppercase tracking-[5px] text-white/30">
-                BUILD SOMETHING
+                {t("projects.ctaEyebrow")}
               </p>
 
               <h3 className="mt-5 text-3xl font-semibold tracking-[-0.03em] md:text-5xl">
-                Start your project.
+                {t("projects.ctaTitle")}
               </h3>
 
               <p className="mx-auto mt-5 max-w-lg text-sm leading-6 text-white/30">
-                Create your own creative workspace and share your vision
-                with the community.
+                {t("projects.ctaText")}
               </p>
 
               <button
@@ -308,7 +321,7 @@ export default function ProjectsPage() {
                   opacity-60
                 "
               >
-                CREATE PROJECT — COMING SOON
+                {t("projects.ctaButton")}
               </button>
             </div>
           </div>
