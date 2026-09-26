@@ -251,7 +251,7 @@ export async function fetchCreations(options: CreationQuery): Promise<{ items: C
 export async function fetchCreation(id: string): Promise<CreationDetail | null> {
   const { data } = await db()
     .from("creations")
-    .select(`${CREATION_FIELDS}, fields, edited_at, world:creations!creations_world_id_fkey(id, title, planet_url)`)
+    .select(`${CREATION_FIELDS}, fields, edited_at, world:world_id(id, title, planet_url)`)
     .eq("id", id)
     .maybeSingle();
   return (data as unknown as CreationDetail | null) ?? null;
