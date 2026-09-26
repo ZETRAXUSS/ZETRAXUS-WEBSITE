@@ -622,7 +622,7 @@ function UsersPanel({ isAdmin, selfId, onChange }: { isAdmin: boolean; selfId: s
                 </span>
               )}
 
-              <Link href={`/forum?author=${row.username}`} className={smallButton}>
+              <Link href={`/u/${row.username}`} className={smallButton}>
                 {t("admin.posts")}
               </Link>
 

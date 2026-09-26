@@ -620,7 +620,7 @@ export function ThreadView({ id }: { id: string }) {
                 </p>
                 <div className="mt-5 flex flex-wrap gap-2">
                   {participants.slice(0, 18).map((person) => (
-                    <Link key={person.id} href={`/forum?author=${person.username}`} title={person.display_name} className="transition-transform duration-300 hover:-translate-y-0.5">
+                    <Link key={person.id} href={`/u/${person.username}`} title={person.display_name} className="transition-transform duration-300 hover:-translate-y-0.5">
                       <Avatar name={person.display_name} src={person.avatar_url} size={34} ring />
                     </Link>
                   ))}
@@ -709,7 +709,7 @@ function AuthorLine({
   const { t, lang } = useI18n();
   return (
     <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-3">
-      <Link href={author ? `/forum?author=${author.username}` : "/forum"} className="group flex items-center gap-3">
+      <Link href={author ? `/u/${author.username}` : "/forum"} className="group flex items-center gap-3">
         <Avatar name={author?.display_name ?? "?"} src={author?.avatar_url} size={40} ring />
         <span>
           <span className="flex items-center gap-2 text-[13px] font-semibold text-white/85 group-hover:text-white">

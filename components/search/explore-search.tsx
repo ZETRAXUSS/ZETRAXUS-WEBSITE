@@ -114,7 +114,7 @@ export function ExploreSearch() {
                   {results.users.map((user, index) => (
                     <Link
                       key={user.id}
-                      href={`/forum?author=${encodeURIComponent(user.username)}`}
+                      href={`/u/${encodeURIComponent(user.username)}`}
                       className="zx-rise-in group flex items-center gap-3 rounded-[16px] border border-white/[0.08] bg-[#070707] px-4 py-3 transition-all hover:border-white/20"
                       style={{ animationDelay: `${index * 40}ms` }}
                     >

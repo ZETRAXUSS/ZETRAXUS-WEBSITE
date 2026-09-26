@@ -191,7 +191,7 @@ function SearchPalette({
     results.users.forEach((user) =>
       list.push({
         kind: "user",
-        href: `/forum?author=${encodeURIComponent(user.username)}`,
+        href: `/u/${encodeURIComponent(user.username)}`,
         title: user.display_name,
         subtitle: `@${user.username}`,
         avatar: user.avatar_url,

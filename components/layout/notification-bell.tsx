@@ -111,7 +111,9 @@ export function NotificationBell() {
     }
     if (item.thread_id) {
       router.push(`/forum/${item.thread_id}${item.reply_id ? `#reply-${item.reply_id}` : ""}`);
-    } else if (item.type === "moderation" || item.type === "follow") {
+    } else if (item.type === "follow" && item.actor) {
+      router.push(`/u/${item.actor.username}`);
+    } else if (item.type === "moderation") {
       router.push("/profile");
     }
   };

@@ -57,7 +57,8 @@ export default function ProfilePage() {
 
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({ display_name: "", bio: "" });
+  const [editForm, setEditForm] = useState({ display_name: "", bio: "", username: "" });
+  const [usernameState, setUsernameState] = useState<"idle" | "checking" | "ok" | "taken" | "invalid">("idle");
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [counts, setCounts] = useState<Counts | null>(null);
@@ -75,7 +76,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!profile) return;
-    setEditForm({ display_name: profile.display_name, bio: profile.bio || "" });
+    setEditForm({ display_name: profile.display_name, bio: profile.bio || "", username: profile.username });
 
     let active = true;
     (async () => {
@@ -116,9 +117,34 @@ export default function ProfilePage() {
     }
   }, [activeTab, profile, posts, saved]);
 
+  // Live username availability
+  useEffect(() => {
+    if (!profile || !isEditing) return;
+    const candidate = editForm.username.trim().toLowerCase();
+    if (candidate === profile.username) {
+      setUsernameState("idle");
+      return;
+    }
+    if (!/^[a-z0-9_]{3,20}$/.test(candidate)) {
+      setUsernameState("invalid");
+      return;
+    }
+    setUsernameState("checking");
+    const timer = window.setTimeout(async () => {
+      const { data } = await db().from("profiles").select("id").eq("username", candidate).maybeSingle();
+      setUsernameState(data ? "taken" : "ok");
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [editForm.username, profile, isEditing]);
+
   async function handleSaveProfile() {
     if (!editForm.display_name.trim()) {
       setSaveError(t("profile.nameRequired"));
+      return;
+    }
+    const username = editForm.username.trim().toLowerCase();
+    if (usernameState === "invalid" || usernameState === "taken" || usernameState === "checking") {
+      setSaveError(t(usernameState === "taken" ? "profile.usernameTaken" : "profile.usernameRules"));
       return;
     }
     setIsSaving(true);
@@ -126,6 +152,7 @@ export default function ProfilePage() {
     const result = await updateProfile({
       display_name: editForm.display_name.trim().slice(0, 40),
       bio: editForm.bio.slice(0, 500),
+      ...(profile && username !== profile.username ? { username } : {}),
     });
     setIsSaving(false);
 
@@ -134,7 +161,11 @@ export default function ProfilePage() {
       setIsEditing(false);
       playSound("success");
     } else {
-      setSaveError(result.error ?? t("error.generic"));
+      setSaveError(
+        result.error?.includes("profiles_username")
+          ? t(result.error.includes("format") ? "profile.usernameRules" : "profile.usernameTaken")
+          : result.error ?? t("error.generic"),
+      );
       playSound("error");
     }
   }
@@ -318,6 +349,39 @@ export default function ProfilePage() {
                 </div>
 
                 <div>
+                  <label className="text-[10px] font-medium uppercase tracking-[2px] text-white/60">{t("profile.username")}</label>
+                  <div className="relative mt-1">
+                    <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-white/30">@</span>
+                    <input
+                      type="text"
+                      value={editForm.username}
+                      maxLength={20}
+                      autoCapitalize="none"
+                      spellCheck={false}
+                      onChange={(e) => setEditForm({ ...editForm, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "") })}
+                      className={`w-full rounded-lg border bg-white/[0.03] py-2 pl-8 pr-4 text-sm text-white outline-none transition-all ${
+                        usernameState === "taken" || usernameState === "invalid"
+                          ? "border-red-400/50"
+                          : usernameState === "ok"
+                            ? "border-white/40"
+                            : "border-white/[0.12] focus:border-white/30"
+                      }`}
+                    />
+                  </div>
+                  <p className={`mt-1 text-[10px] ${usernameState === "taken" || usernameState === "invalid" ? "text-red-300" : "text-white/35"}`}>
+                    {usernameState === "checking"
+                      ? t("profile.usernameChecking")
+                      : usernameState === "taken"
+                        ? t("profile.usernameTaken")
+                        : usernameState === "invalid"
+                          ? t("profile.usernameRules")
+                          : usernameState === "ok"
+                            ? t("profile.usernameAvailable")
+                            : t("profile.usernameHint")}
+                  </p>
+                </div>
+
+                <div>
                   <label className="text-[10px] font-medium uppercase tracking-[2px] text-white/60">{t("profile.bio")}</label>
                   <textarea
                     value={editForm.bio}
@@ -361,7 +425,15 @@ export default function ProfilePage() {
                     {t(roleLabel[profile.role] ?? "role.user")}
                   </span>
                 </div>
-                <p className="mt-1.5 text-sm text-white/30">@{profile.username}</p>
+                <p className="mt-1.5 flex flex-wrap items-center gap-3 text-sm text-white/30">
+                  @{profile.username}
+                  <Link
+                    href={`/u/${profile.username}`}
+                    className="rounded-full border border-white/[0.14] px-3 py-1 text-[9px] font-semibold uppercase tracking-[1.5px] text-white/50 transition-all hover:border-white/40 hover:text-white"
+                  >
+                    {t("profile.viewPublic")}
+                  </Link>
+                </p>
                 <p className="mt-4 max-w-2xl text-sm leading-6 text-white/45">{profile.bio || t("profile.noBio")}</p>
               </div>
             )}
