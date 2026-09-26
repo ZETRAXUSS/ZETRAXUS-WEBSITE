@@ -8,6 +8,7 @@ import { getServerT } from "@/lib/i18n/server";
 import { FxProvider } from "@/components/fx/fx-provider";
 import { Intro } from "@/components/fx/intro";
 import { RouteProgress } from "@/components/fx/route-progress";
+import { PageTransition } from "@/components/fx/page-transition";
 import { SearchPaletteProvider } from "@/components/search/search-palette";
 
 // Self-hosted (no runtime call to Google Fonts) — weights/styles actually used.
@@ -62,6 +63,7 @@ export default async function RootLayout({
               <Suspense fallback={null}>
                 <RouteProgress />
               </Suspense>
+              <PageTransition />
               <FxProvider />
               <SiteHeader />
               <main className="flex-1">{children}</main>

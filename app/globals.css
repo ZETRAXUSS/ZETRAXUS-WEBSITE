@@ -292,16 +292,16 @@ select,
 }
 
 /* ZETRAXUS Page Transition */
+/* Opacity + translate only: a full-page blur() filter while the new route
+   mounts was the main cause of stutter on page changes. */
 @keyframes pageEnter {
   from {
     opacity: 0;
-    transform: translateY(14px) scale(0.99);
-    filter: blur(6px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
+    transform: translateY(0);
   }
 }
 
@@ -309,7 +309,7 @@ select,
   /* `backwards` (not `both`): once finished, no transform/filter is left on
      the wrapper. A lingering transform turns it into the containing block
      for position:fixed children, which broke modals and overlays. */
-  animation: pageEnter 700ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation: pageEnter 600ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 
 /* =======================================================================
@@ -852,4 +852,140 @@ html {
   .zx-eq > span {
     animation: none !important;
   }
+}
+
+/* ---------- Page transition (logo curtain) ---------------------------- */
+
+.zx-pt {
+  position: fixed;
+  inset: 0;
+  z-index: 115;
+  pointer-events: none;
+  visibility: hidden;
+}
+.zx-pt--active {
+  visibility: visible;
+  pointer-events: auto;
+  cursor: progress;
+}
+.zx-pt__curtain {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50.5%;
+  background: #030303;
+  will-change: transform;
+  transition: transform 620ms cubic-bezier(0.76, 0, 0.24, 1);
+}
+.zx-pt__curtain--top {
+  top: 0;
+  transform: translateY(-101%);
+  background: linear-gradient(to bottom, #000 0%, #050505 100%);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+.zx-pt__curtain--bottom {
+  bottom: 0;
+  transform: translateY(101%);
+  background: linear-gradient(to top, #000 0%, #050505 100%);
+  box-shadow: 0 -1px 0 rgba(255, 255, 255, 0.07);
+}
+.zx-pt--covering .zx-pt__curtain,
+.zx-pt--holding .zx-pt__curtain {
+  transform: translateY(0);
+  transition-duration: 420ms;
+}
+.zx-pt--revealing .zx-pt__curtain--top { transform: translateY(-101%); }
+.zx-pt--revealing .zx-pt__curtain--bottom { transform: translateY(101%); }
+
+.zx-pt__center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translate(-50%, -50%) scale(0.86);
+  opacity: 0;
+  transition: opacity 260ms ease, transform 520ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.zx-pt--covering .zx-pt__center {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  transition-delay: 160ms;
+}
+.zx-pt--holding .zx-pt__center {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+.zx-pt--revealing .zx-pt__center {
+  opacity: 0;
+  transform: translate(-50%, -60%) scale(1.06);
+  transition-duration: 240ms, 420ms;
+}
+.zx-pt__mark {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 18px rgba(255, 255, 255, 0.55));
+}
+.zx-pt--holding .zx-pt__mark { animation: zxPtBreathe 1.6s ease-in-out infinite; }
+.zx-pt__ring {
+  position: absolute;
+  top: 29px;
+  left: 50%;
+  width: 58px;
+  height: 58px;
+  margin: -29px 0 0 -29px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  opacity: 0;
+}
+.zx-pt--holding .zx-pt__ring { animation: zxPtRing 1.4s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+.zx-pt--holding .zx-pt__ring--late { animation-delay: 0.7s; }
+.zx-pt__word {
+  margin-top: 22px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.7em;
+  padding-left: 0.7em;
+  color: rgba(255, 255, 255, 0.8);
+}
+.zx-pt__bar {
+  position: relative;
+  margin-top: 16px;
+  width: 120px;
+  height: 1px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.1);
+}
+.zx-pt__bar span {
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, #fff, transparent);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+  transform: translateX(-100%);
+}
+.zx-pt--holding .zx-pt__bar span { animation: zxPtScan 0.9s ease-in-out infinite; }
+
+@keyframes zxPtBreathe {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.45)); }
+  50% { transform: scale(1.06); filter: drop-shadow(0 0 26px rgba(255, 255, 255, 0.8)); }
+}
+@keyframes zxPtRing {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+@keyframes zxPtScan {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(250%); }
+}
+
+/* While covered, pause expensive decorative animations of the old page. */
+.zx-transitioning main * { animation-play-state: paused !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .zx-pt__curtain, .zx-pt__center { transition-duration: 120ms !important; }
+  .zx-pt__mark, .zx-pt__ring, .zx-pt__bar span { animation: none !important; }
 }
