@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useT } from "@/lib/i18n/provider";
+import { useAuth } from "@/lib/auth/use-auth";
 import { ArrowRightIcon, PlusIcon } from "@/components/ui/icons";
 
 /**
@@ -10,6 +11,7 @@ import { ArrowRightIcon, PlusIcon } from "@/components/ui/icons";
  */
 export function CreateMenu() {
   const t = useT();
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -71,23 +73,29 @@ export function CreateMenu() {
           </Link>
 
           {[
-            { title: t("create.project"), desc: t("create.projectDesc") },
-            { title: t("create.world"), desc: t("create.worldDesc") },
-          ].map((item, index) => (
-            <div
-              key={item.title}
+            { href: "/create/project", title: t("create.project"), desc: t("create.projectDesc") },
+            { href: "/create/world", title: t("create.world"), desc: t("create.worldDesc") },
+            { href: "/create/lore", title: t("create.lore"), desc: t("create.loreDesc") },
+            { href: "/create/character", title: t("create.character"), desc: t("create.characterDesc") },
+          ].map((item, index, list) => (
+            <Link
+              key={item.href}
+              href={user ? item.href : `/auth/login?next=${encodeURIComponent(item.href)}`}
+              onClick={() => setOpen(false)}
               role="menuitem"
-              aria-disabled="true"
-              className={`flex cursor-not-allowed items-center justify-between gap-3 px-4 py-3.5 opacity-50 ${
-                index === 0 ? "border-b border-white/[0.08]" : ""
+              className={`group/item flex items-center justify-between gap-3 px-4 py-3.5 transition-colors hover:bg-white/[0.05] ${
+                index < list.length - 1 ? "border-b border-white/[0.08]" : ""
               }`}
             >
               <div>
-                <p className="text-[11px] font-semibold text-white/60">{item.title}</p>
-                <p className="mt-0.5 text-[10px] text-white/30">{item.desc}</p>
+                <p className="text-[11px] font-semibold text-white">{item.title}</p>
+                <p className="mt-0.5 text-[10px] text-white/40">{item.desc}</p>
               </div>
-              <span className="shrink-0 text-[8px] uppercase tracking-[1px] text-white/25">{t("common.soon")}</span>
-            </div>
+              <ArrowRightIcon
+                size={13}
+                className="shrink-0 text-white/30 transition-all duration-300 group-hover/item:translate-x-1 group-hover/item:text-white"
+              />
+            </Link>
           ))}
         </div>
       )}

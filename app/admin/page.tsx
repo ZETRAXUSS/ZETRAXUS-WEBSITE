@@ -28,7 +28,7 @@ interface MiniProfile {
 
 interface ReportRow {
   id: string;
-  target_type: "thread" | "reply" | "user" | "media";
+  target_type: "thread" | "reply" | "user" | "media" | "project" | "creation" | "comment";
   target_id: string;
   reason: string;
   details: string | null;
@@ -50,7 +50,7 @@ interface TargetPreview {
 interface MediaRow {
   id: string;
   url: string;
-  kind: "forum" | "avatar";
+  kind: "forum" | "avatar" | "project" | "world_map" | "world_planet" | "lore" | "character";
   status: string;
   created_at: string;
   thread_id: string | null;
@@ -242,6 +242,83 @@ function ReportsPanel({ onChange }: { onChange: () => void }) {
       });
     }
 
+    const projectIds = ids("project");
+    if (projectIds.length) {
+      const { data: projects } = await supabase
+        .from("projects")
+        .select(`id, title, tagline, description, cover_url, author:profiles!projects_owner_id_fkey(${PROFILE_FIELDS})`)
+        .in("id", projectIds);
+      (
+        (projects as unknown as { id: string; title: string; tagline: string | null; description: string; cover_url: string | null; author: MiniProfile }[] | null) ?? []
+      ).forEach((row) => {
+        map[row.id] = {
+          title: row.title,
+          body: `${row.tagline ? `${row.tagline}\n\n` : ""}${row.description}`,
+          url: row.cover_url ?? undefined,
+          author: row.author,
+          href: `/projects/${row.id}`,
+        };
+      });
+    }
+
+    const creationIds = ids("creation");
+    if (creationIds.length) {
+      const { data: creations } = await supabase
+        .from("creations")
+        .select(`id, kind, title, subtitle, fields, cover_url, map_url, planet_url, author:profiles!creations_author_id_fkey(${PROFILE_FIELDS})`)
+        .in("id", creationIds);
+      (
+        (creations as unknown as {
+          id: string;
+          kind: string;
+          title: string;
+          subtitle: string | null;
+          fields: Record<string, unknown>;
+          cover_url: string | null;
+          map_url: string | null;
+          planet_url: string | null;
+          author: MiniProfile;
+        }[] | null) ?? []
+      ).forEach((row) => {
+        const text = Object.values(row.fields ?? {})
+          .map((value) => (typeof value === "string" ? value : Array.isArray(value) ? value.map((item) => Object.values(item as object).join(" ")).join(" ") : ""))
+          .join(" ");
+        const base = row.kind === "world" ? "worlds" : row.kind === "lore" ? "lore" : "characters";
+        map[row.id] = {
+          title: row.title,
+          body: `${row.subtitle ? `${row.subtitle} — ` : ""}${text}`,
+          url: row.cover_url ?? row.planet_url ?? row.map_url ?? undefined,
+          author: row.author,
+          href: `/${base}/${row.id}`,
+        };
+      });
+    }
+
+    const commentIds = ids("comment");
+    if (commentIds.length) {
+      const { data: comments } = await supabase
+        .from("comments")
+        .select(`id, body, project_id, creation_id, creation:creations(kind), author:profiles!comments_author_id_fkey(${PROFILE_FIELDS})`)
+        .in("id", commentIds);
+      (
+        (comments as unknown as {
+          id: string;
+          body: string;
+          project_id: string | null;
+          creation_id: string | null;
+          creation: { kind: string } | null;
+          author: MiniProfile;
+        }[] | null) ?? []
+      ).forEach((row) => {
+        const base = row.creation?.kind === "world" ? "worlds" : row.creation?.kind === "lore" ? "lore" : "characters";
+        map[row.id] = {
+          body: row.body,
+          author: row.author,
+          href: row.project_id ? `/projects/${row.project_id}#comment-${row.id}` : `/${base}/${row.creation_id}#comment-${row.id}`,
+        };
+      });
+    }
+
     list.forEach((row) => {
       if (!map[row.target_id]) map[row.target_id] = { missing: true };
     });
@@ -268,6 +345,9 @@ function ReportsPanel({ onChange }: { onChange: () => void }) {
     if (row.target_type === "thread") await supabase.from("forum_threads").delete().eq("id", row.target_id);
     if (row.target_type === "reply") await supabase.from("forum_replies").delete().eq("id", row.target_id);
     if (row.target_type === "media") await supabase.from("media_uploads").delete().eq("id", row.target_id);
+    if (row.target_type === "project") await supabase.from("projects").delete().eq("id", row.target_id);
+    if (row.target_type === "creation") await supabase.from("creations").delete().eq("id", row.target_id);
+    if (row.target_type === "comment") await supabase.from("comments").delete().eq("id", row.target_id);
     await setReportStatus(row, "resolved");
   };
 
@@ -484,7 +564,7 @@ function MediaPanel({ onChange }: { onChange: () => void }) {
                 <span className="ml-auto shrink-0 text-white/25">{timeAgo(lang, row.created_at)}</span>
               </div>
               <p className="text-[9px] uppercase tracking-[2px] text-white/30">
-                {t(row.kind === "avatar" ? "admin.media.avatar" : "admin.media.forum")}
+                {t(`admin.media.${row.kind}` as TranslationKey)}
               </p>
               <div className="flex gap-2">
                 {filter === "pending" && (

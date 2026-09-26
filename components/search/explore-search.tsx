@@ -37,7 +37,28 @@ export function ExploreSearch() {
   }, [query]);
 
   const q = query.trim();
-  const total = results.threads.length + results.users.length + results.categories.length;
+  const total =
+    results.threads.length + results.users.length + results.categories.length + results.projects.length + results.creations.length;
+  const works = [
+    ...results.projects.map((project) => ({
+      id: project.id,
+      href: `/projects/${project.id}`,
+      title: project.title,
+      subtitle: project.tagline ?? "",
+      image: project.cover_url,
+      label: t("projects.kind.project"),
+      author: project.author_name,
+    })),
+    ...results.creations.map((creation) => ({
+      id: creation.id,
+      href: `/${creation.kind === "world" ? "worlds" : creation.kind === "lore" ? "lore" : "characters"}/${creation.id}`,
+      title: creation.title,
+      subtitle: creation.subtitle ?? "",
+      image: creation.cover_url,
+      label: t(creation.kind === "world" ? "projects.kind.world" : creation.kind === "lore" ? "projects.kind.lore" : "projects.kind.character"),
+      author: creation.author_name,
+    })),
+  ];
 
   return (
     <div>
@@ -82,6 +103,37 @@ export function ExploreSearch() {
           ) : (
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
               <div className="space-y-3">
+                {works.length > 0 && (
+                  <div className="mb-6 space-y-3">
+                    <p className="text-[9px] uppercase tracking-[3px] text-white/25">{t("search.projects")}</p>
+                    {works.map((work, index) => (
+                      <Link
+                        key={work.id}
+                        href={work.href}
+                        data-spotlight
+                        className="zx-rise-in group relative flex items-center gap-4 overflow-hidden rounded-[18px] border border-white/[0.08] bg-[#070707] px-5 py-4 transition-all duration-500 hover:-translate-y-0.5 hover:border-white/20"
+                        style={{ animationDelay: `${index * 40}ms` }}
+                      >
+                        {work.image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={work.image} alt="" className="relative z-[3] h-11 w-11 shrink-0 rounded-[12px] border border-white/[0.1] object-cover" />
+                        ) : (
+                          <span className="relative z-[3] flex h-11 w-11 shrink-0 items-center justify-center rounded-[12px] border border-white/[0.1] text-[15px] font-black text-white/30">
+                            {work.title.charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                        <span className="relative z-[3] min-w-0 flex-1">
+                          <span className="block truncate text-[13px] font-semibold text-white/85 group-hover:text-white">{work.title}</span>
+                          {work.subtitle && <span className="mt-0.5 block truncate text-[12px] text-white/35">{work.subtitle}</span>}
+                          <span className="mt-1 block text-[10px] uppercase tracking-[1.5px] text-white/20">
+                            {work.label} · {work.author}
+                          </span>
+                        </span>
+                        <ArrowRightIcon size={14} className="relative z-[3] shrink-0 text-white/20 transition-all duration-300 group-hover:translate-x-1 group-hover:text-white" />
+                      </Link>
+                    ))}
+                  </div>
+                )}
                 <p className="text-[9px] uppercase tracking-[3px] text-white/25">{t("search.discussions")}</p>
                 {results.threads.length === 0 && <p className="text-[12px] text-white/25">—</p>}
                 {results.threads.map((thread, index) => (

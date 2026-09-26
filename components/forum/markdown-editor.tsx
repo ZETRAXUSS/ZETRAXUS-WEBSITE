@@ -39,6 +39,10 @@ interface MarkdownEditorProps {
   autoFocus?: boolean;
   onSubmitShortcut?: () => void;
   disabled?: boolean;
+  /** Projects area: no link button, links are rejected by the server. */
+  noLinks?: boolean;
+  /** Upload images straight into the text (`![](url)`), e.g. lore entries. */
+  inlineImages?: "lore";
 }
 
 type Action = {
@@ -71,6 +75,8 @@ export function MarkdownEditor({
   autoFocus,
   onSubmitShortcut,
   disabled,
+  noLinks = false,
+  inlineImages,
 }: MarkdownEditorProps) {
   const { t } = useI18n();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -82,8 +88,27 @@ export function MarkdownEditor({
   const attachmentsRef = useRef(attachments);
   attachmentsRef.current = attachments;
 
-  const canAttach = !!onAttachmentsChange;
-  const slotsLeft = maxAttachments - attachments.length - uploading.filter((u) => u.status === "uploading").length;
+  const actions = noLinks ? ACTIONS.filter((action) => action.label !== "editor.link") : ACTIONS;
+  const canAttach = !!onAttachmentsChange || !!inlineImages;
+  const inlineCount = inlineImages ? (value.match(/!\[[^\]]*\]\(/g) ?? []).length : 0;
+  const slotsLeft = inlineImages
+    ? maxAttachments - inlineCount - uploading.filter((u) => u.status === "uploading").length
+    : maxAttachments - attachments.length - uploading.filter((u) => u.status === "uploading").length;
+  const valueRef = useRef(value);
+  valueRef.current = value;
+
+  const insertImage = (url: string) => {
+    const el = textareaRef.current;
+    const current = valueRef.current;
+    const at = el && tab === "write" ? el.selectionEnd : current.length;
+    const before = current.slice(0, at);
+    const after = current.slice(at);
+    const snippet = `${before && !before.endsWith("\n") ? "\n" : ""}\n![](${url})\n${after.startsWith("\n") ? "" : "\n"}`;
+    const next = before + snippet + after;
+    if (next.length > maxLength) return;
+    valueRef.current = next;
+    onChange(next);
+  };
 
   const applyAction = (action: Action) => {
     const el = textareaRef.current;
@@ -114,7 +139,7 @@ export function MarkdownEditor({
   };
 
   const handleFiles = async (files: FileList | File[]) => {
-    if (!onAttachmentsChange) return;
+    if (!canAttach) return;
     const list = Array.from(files).filter((file) => file.type.startsWith("image/"));
     const allowed = list.slice(0, Math.max(0, slotsLeft));
     if (!allowed.length) return;
@@ -125,12 +150,23 @@ export function MarkdownEditor({
         const preview = URL.createObjectURL(file);
         setUploading((current) => [...current, { key, preview, status: "uploading" }]);
 
-        const result = await uploadImage(file, "forum");
-        if (result.ok) {
+        const result = await uploadImage(file, inlineImages ?? "forum");
+        if (result.ok && inlineImages && result.data.status !== "approved") {
+          // Only reviewed images may appear inside the text.
+          void removeUpload(result.data.id);
+          setUploading((current) =>
+            current.map((item) => (item.key === key ? { ...item, status: "error", error: "editor.inlinePending" } : item)),
+          );
+          playSound("error");
+        } else if (result.ok) {
           URL.revokeObjectURL(preview);
           setUploading((current) => current.filter((item) => item.key !== key));
-          attachmentsRef.current = [...attachmentsRef.current, result.data];
-          onAttachmentsChange(attachmentsRef.current);
+          if (inlineImages) {
+            insertImage(result.data.url);
+          } else if (onAttachmentsChange) {
+            attachmentsRef.current = [...attachmentsRef.current, result.data];
+            onAttachmentsChange(attachmentsRef.current);
+          }
           playSound("success");
         } else {
           setUploading((current) =>
@@ -186,7 +222,7 @@ export function MarkdownEditor({
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-2 border-b border-white/[0.08] px-2 py-1.5">
         <div className="flex items-center gap-0.5 overflow-x-auto">
-          {ACTIONS.map((action) => (
+          {actions.map((action) => (
             <button
               key={action.label}
               type="button"
@@ -276,7 +312,7 @@ export function MarkdownEditor({
       ) : (
         <div className="min-h-[140px] px-5 py-4" style={{ minHeight: rows * 28 + 32 }}>
           {value.trim() ? (
-            <Markdown source={value} />
+            <Markdown source={value} noLinks={noLinks} images={!!inlineImages} />
           ) : (
             <p className="text-[13px] text-white/25">{t("editor.nothingToPreview")}</p>
           )}
@@ -340,7 +376,9 @@ export function MarkdownEditor({
 
       {/* Footer */}
       <div className="flex items-center justify-between gap-3 border-t border-white/[0.06] px-5 py-2.5 text-[10px] text-white/25">
-        <span className="truncate">{canAttach ? t("editor.hintWithImages") : t("editor.hint")}</span>
+        <span className="truncate">
+          {noLinks ? t("editor.hintNoLinks") : canAttach ? t("editor.hintWithImages") : t("editor.hint")}
+        </span>
         <span className={`shrink-0 tabular-nums ${nearLimit ? "text-white/70" : ""}`}>
           {value.length.toLocaleString()} / {maxLength.toLocaleString()}
         </span>

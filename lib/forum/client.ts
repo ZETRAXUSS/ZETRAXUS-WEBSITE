@@ -32,7 +32,21 @@ const ERROR_KEYS: [string, TranslationKey][] = [
   ["RATE_LIMIT_REPLIES", "error.rateReplies"],
   ["RATE_LIMIT_REPORTS", "error.rateReports"],
   ["RATE_LIMIT_UPLOADS", "error.rateUploads"],
+  ["RATE_LIMIT_PROJECTS", "error.rateProjects"],
+  ["RATE_LIMIT_CREATIONS", "error.rateCreations"],
   ["DUPLICATE_CONTENT", "error.duplicate"],
+  ["LINKS_NOT_ALLOWED", "error.linksNotAllowed"],
+  ["IRRELEVANT_IMAGE", "error.irrelevantImage"],
+  ["FOREIGN_IMAGE", "error.linksNotAllowed"],
+  ["TEAM_FULL", "error.teamFull"],
+  ["BAD_MBTI", "error.badMbti"],
+  ["MISSING_FIELDS", "error.missingFields"],
+  ["TITLE_TOO_SHORT", "error.titleLength"],
+  ["TOO_MANY_ITEMS", "error.tooManyItems"],
+  ["TOO_LONG", "error.tooLong"],
+  ["NOT_YOUR_PROJECT", "error.forbidden"],
+  ["NOT_YOUR_WORLD", "error.notYourWorld"],
+  ["NOT_FOUND", "error.notFound"],
   ["TEXT_REJECTED", "error.textRejected"],
   ["LOCKED", "error.forbidden"],
   ["FORBIDDEN", "error.forbidden"],
@@ -54,7 +68,7 @@ export function errorKey(message: string | null | undefined): TranslationKey {
   return match ? match[1] : "error.generic";
 }
 
-type Result<T = undefined> = { ok: true; data: T } | { ok: false; error: TranslationKey };
+export type Result<T = undefined> = { ok: true; data: T } | { ok: false; error: TranslationKey };
 
 function fail<T>(message?: string | null): Result<T> {
   return { ok: false, error: errorKey(message) };
@@ -243,8 +257,8 @@ async function attachMedia(mediaIds: string[], target: { thread_id?: string; rep
   await supabase.from("media_uploads").update(target).in("id", mediaIds);
 }
 
-/** All forum text goes through the `post-content` edge function (AI check). */
-async function postContent(payload: Record<string, unknown>): Promise<Result<{ id: string }>> {
+/** All user text goes through the `post-content` edge function (AI check). */
+export async function postContent(payload: Record<string, unknown>): Promise<Result<{ id: string }>> {
   const {
     data: { session },
   } = await createClient().auth.getSession();
@@ -373,12 +387,13 @@ export async function submitReport(input: {
 /* ------------------------------------------------------------------ */
 
 const MAX_EDGE = 2000;
+const MAP_EDGE = 3200;
 const MAX_INPUT_BYTES = 15 * 1024 * 1024;
 
 /** Downscale + convert to WebP in the browser before upload. */
-async function compressImage(file: File): Promise<{ blob: Blob; width: number; height: number }> {
+async function compressImage(file: File, maxEdge = MAX_EDGE): Promise<{ blob: Blob; width: number; height: number }> {
   const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
+  const scale = Math.min(1, maxEdge / Math.max(bitmap.width, bitmap.height));
   const width = Math.max(1, Math.round(bitmap.width * scale));
   const height = Math.max(1, Math.round(bitmap.height * scale));
 
@@ -399,16 +414,19 @@ async function compressImage(file: File): Promise<{ blob: Blob; width: number; h
   return { blob: jpeg, width, height };
 }
 
+export type UploadKind = "forum" | "avatar" | "project" | "world_map" | "world_planet" | "lore" | "character";
+
 export async function uploadImage(
   file: File,
-  kind: "forum" | "avatar",
+  kind: UploadKind,
+  target?: { projectId?: string; creationId?: string; slot?: "cover" },
 ): Promise<Result<MediaItem>> {
   if (!file.type.startsWith("image/")) return { ok: false, error: "error.imageType" };
   if (file.size > MAX_INPUT_BYTES) return { ok: false, error: "error.imageTooLarge" };
 
   let payload: { blob: Blob; width: number; height: number };
   try {
-    payload = await compressImage(file);
+    payload = await compressImage(file, kind === "world_map" ? MAP_EDGE : MAX_EDGE);
   } catch {
     return { ok: false, error: "error.imageType" };
   }
@@ -424,6 +442,9 @@ export async function uploadImage(
   form.append("kind", kind);
   form.append("width", String(payload.width));
   form.append("height", String(payload.height));
+  if (target?.projectId) form.append("project_id", target.projectId);
+  if (target?.creationId) form.append("creation_id", target.creationId);
+  if (target?.slot) form.append("slot", target.slot);
 
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://eicbvvrayoubpbkuttmi.supabase.co";
 

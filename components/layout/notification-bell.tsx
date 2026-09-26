@@ -12,14 +12,31 @@ import { BellIcon, CheckIcon } from "@/components/ui/icons";
 
 interface NotificationRow {
   id: string;
-  type: "reply" | "thread_like" | "reply_like" | "follow" | "moderation";
+  type:
+    | "reply"
+    | "thread_like"
+    | "reply_like"
+    | "follow"
+    | "moderation"
+    | "project_comment"
+    | "project_suggestion"
+    | "project_like"
+    | "project_invite"
+    | "suggestion_added"
+    | "creation_comment"
+    | "creation_like";
   thread_id: string | null;
   reply_id: string | null;
+  project_id: string | null;
+  creation_id: string | null;
+  comment_id: string | null;
   message: string | null;
   read_at: string | null;
   created_at: string;
   actor: { username: string; display_name: string; avatar_url: string | null } | null;
   thread: { id: string; title: string } | null;
+  project: { id: string; title: string } | null;
+  creation: { id: string; title: string; kind: "world" | "lore" | "character" } | null;
 }
 
 const MESSAGE_KEYS: Record<string, TranslationKey> = {
@@ -29,6 +46,13 @@ const MESSAGE_KEYS: Record<string, TranslationKey> = {
   follow: "notif.follow",
   media_approved: "notif.mediaApproved",
   media_rejected: "notif.mediaRejected",
+  project_comment: "notif.projectComment",
+  project_suggestion: "notif.projectSuggestion",
+  project_like: "notif.projectLike",
+  project_invite: "notif.projectInvite",
+  suggestion_added: "notif.suggestionAdded",
+  creation_comment: "notif.creationComment",
+  creation_like: "notif.creationLike",
 };
 
 export function NotificationBell() {
@@ -46,7 +70,7 @@ export function NotificationBell() {
     const { data } = await db()
       .from("notifications")
       .select(
-        "id, type, thread_id, reply_id, message, read_at, created_at, actor:profiles!notifications_actor_id_fkey(username, display_name, avatar_url), thread:forum_threads(id, title)",
+        "id, type, thread_id, reply_id, project_id, creation_id, comment_id, message, read_at, created_at, actor:profiles!notifications_actor_id_fkey(username, display_name, avatar_url), thread:forum_threads(id, title), project:projects(id, title), creation:creations(id, title, kind)",
       )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
@@ -109,8 +133,14 @@ export function NotificationBell() {
       setItems((list) => list.map((row) => (row.id === item.id ? { ...row, read_at: now } : row)));
       await db().from("notifications").update({ read_at: now }).eq("id", item.id);
     }
+    const hash = item.comment_id ? `#comment-${item.comment_id}` : "";
     if (item.thread_id) {
       router.push(`/forum/${item.thread_id}${item.reply_id ? `#reply-${item.reply_id}` : ""}`);
+    } else if (item.creation_id && item.creation) {
+      const base = item.creation.kind === "world" ? "worlds" : item.creation.kind === "lore" ? "lore" : "characters";
+      router.push(`/${base}/${item.creation_id}${hash}`);
+    } else if (item.project_id) {
+      router.push(`/projects/${item.project_id}${hash}`);
     } else if (item.type === "follow" && item.actor) {
       router.push(`/u/${item.actor.username}`);
     } else if (item.type === "moderation") {
@@ -123,7 +153,7 @@ export function NotificationBell() {
     if (!key) return item.message ?? "";
     return t(key, {
       name: item.actor?.display_name ?? t("common.someone"),
-      title: item.thread?.title ?? "",
+      title: item.thread?.title ?? item.creation?.title ?? item.project?.title ?? "",
     });
   };
 

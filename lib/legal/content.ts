@@ -57,6 +57,7 @@ export const TERMS: Record<Lang, LegalSection[]> = {
       heading: "5. Images and automated moderation",
       paragraphs: [
         "Images you upload are checked automatically by an AI moderation service before they are shown publicly, and may also be reviewed by our moderators. Images that are flagged are rejected and not stored; images that cannot be checked automatically are held for manual review. Automated systems can make mistakes — if you believe an image was rejected in error, contact us.",
+        "In Projects, world maps and planet images are additionally checked by AI to make sure they really show a map or a world; unrelated images are rejected. Text in Projects (projects, worlds, lore, characters, suggestions and comments) is checked automatically, and links of any kind — including web addresses, invite links and shortened links — are not allowed there, to prevent advertising and scams.",
       ],
     },
     {
@@ -146,6 +147,7 @@ export const TERMS: Record<Lang, LegalSection[]> = {
       heading: "5. Görseller ve otomatik denetim",
       paragraphs: [
         "Yüklediğin görseller herkese gösterilmeden önce bir yapay zekâ denetim hizmeti tarafından otomatik olarak kontrol edilir ve moderatörlerimiz tarafından da incelenebilir. Uygunsuz bulunan görseller reddedilir ve saklanmaz; otomatik kontrol edilemeyen görseller moderatör onayına kadar bekletilir. Otomatik sistemler hata yapabilir — bir görselin yanlışlıkla reddedildiğini düşünüyorsan bize ulaş.",
+        "Projeler bölümünde dünya haritası ve gezegen görselleri, gerçekten bir harita ya da dünya gösterdiklerinden emin olmak için ayrıca yapay zekâ ile kontrol edilir; alakasız görseller reddedilir. Projeler bölümündeki yazılar (projeler, dünyalar, lore, karakterler, öneriler ve yorumlar) otomatik olarak denetlenir ve reklam ile dolandırıcılığı önlemek için burada hiçbir türde bağlantıya — web adresleri, davet linkleri ve kısaltılmış linkler dahil — izin verilmez.",
       ],
     },
     {
@@ -251,7 +253,7 @@ export const PRIVACY: Record<Lang, LegalSection[]> = {
     {
       heading: "7. What is public",
       paragraphs: [
-        "Your display name, username, avatar, bio and the content you post in the forum are visible to everyone. Your email address is never shown publicly.",
+        "Your display name, username, avatar, bio and the content you post in the forum and in Projects (including team membership) are visible to everyone. Your email address is never shown publicly.",
       ],
     },
     {
@@ -348,7 +350,7 @@ export const PRIVACY: Record<Lang, LegalSection[]> = {
     {
       heading: "7. Herkese açık olanlar",
       paragraphs: [
-        "Görünen adın, kullanıcı adın, profil fotoğrafın, biyografin ve forumda paylaştığın içerikler herkes tarafından görülebilir. E-posta adresin hiçbir zaman herkese açık gösterilmez.",
+        "Görünen adın, kullanıcı adın, profil fotoğrafın, biyografin, forumda ve Projeler bölümünde paylaştığın içerikler (ekip üyeliklerin dahil) herkes tarafından görülebilir. E-posta adresin hiçbir zaman herkese açık gösterilmez.",
       ],
     },
     {

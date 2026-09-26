@@ -108,6 +108,8 @@ type Item =
   | { kind: "thread"; href: string; title: string; subtitle: string; meta: string }
   | { kind: "user"; href: string; title: string; subtitle: string; avatar: string | null }
   | { kind: "category"; href: string; title: string; subtitle: string }
+  | { kind: "project"; href: string; title: string; subtitle: string; image: string | null; meta: string }
+  | { kind: "creation"; href: string; title: string; subtitle: string; image: string | null; meta: string }
   | { kind: "recent"; query: string };
 
 function SearchPalette({
@@ -186,6 +188,26 @@ function SearchPalette({
         title: thread.title,
         subtitle: thread.excerpt.replace(/[#>*_`~\[\]]/g, "").slice(0, 110),
         meta: `${lang === "tr" && thread.category_name_tr ? thread.category_name_tr : thread.category_name} · ${thread.author_name} · ${timeAgo(lang, thread.created_at)}`,
+      }),
+    );
+    results.projects.forEach((project) =>
+      list.push({
+        kind: "project",
+        href: `/projects/${project.id}`,
+        title: project.title,
+        subtitle: project.tagline ?? "",
+        image: project.cover_url,
+        meta: `${t(project.status === "completed" ? "projects.status.completed" : "projects.status.inProgress")} · ${project.author_name}`,
+      }),
+    );
+    results.creations.forEach((creation) =>
+      list.push({
+        kind: "creation",
+        href: `/${creation.kind === "world" ? "worlds" : creation.kind === "lore" ? "lore" : "characters"}/${creation.id}`,
+        title: creation.title,
+        subtitle: creation.subtitle ?? "",
+        image: creation.cover_url,
+        meta: `${t(creation.kind === "world" ? "projects.kind.world" : creation.kind === "lore" ? "projects.kind.lore" : "projects.kind.character")} · ${creation.author_name}`,
       }),
     );
     results.users.forEach((user) =>
@@ -268,6 +290,7 @@ function SearchPalette({
       : [
           { label: t("search.pages"), kinds: ["page"] },
           { label: t("search.discussions"), kinds: ["thread"] },
+          { label: t("search.projects"), kinds: ["project", "creation"] },
           { label: t("search.creators"), kinds: ["user"] },
           { label: t("search.categories"), kinds: ["category"] },
         ];
@@ -384,7 +407,7 @@ function SearchPalette({
                               <Highlight text={item.subtitle} query={q} />
                             </span>
                           )}
-                          {item.kind === "thread" && (
+                          {(item.kind === "thread" || item.kind === "project" || item.kind === "creation") && (
                             <span className="mt-1 block truncate text-[10px] uppercase tracking-[1.5px] text-white/20">
                               {item.meta}
                             </span>
@@ -465,6 +488,16 @@ function ItemIcon({ item }: { item: Item }) {
       return (
         <span className={box}>
           <HashIcon size={15} />
+        </span>
+      );
+    case "project":
+    case "creation":
+      return item.image ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={item.image} alt="" className="h-9 w-9 shrink-0 rounded-[12px] border border-white/[0.08] object-cover" />
+      ) : (
+        <span className={box}>
+          <SparkIcon size={14} />
         </span>
       );
     case "recent":

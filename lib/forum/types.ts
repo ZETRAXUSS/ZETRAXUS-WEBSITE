@@ -70,4 +70,4 @@ export interface ForumStats {
 }
 
 export type ReportReason = "spam" | "harassment" | "nsfw" | "violence" | "misinformation" | "other";
-export type ReportTarget = "thread" | "reply" | "user" | "media";
+export type ReportTarget = "thread" | "reply" | "user" | "media" | "project" | "creation" | "comment";

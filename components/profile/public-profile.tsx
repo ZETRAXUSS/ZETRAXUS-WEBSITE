@@ -14,6 +14,7 @@ import { useI18n } from "@/lib/i18n/provider";
 import type { TranslationKey } from "@/lib/i18n/translate";
 import { db } from "@/lib/supabase/client";
 import { fetchThreads } from "@/lib/forum/client";
+import { ProfileWorks } from "@/components/projects/profile-works";
 import type { ThreadSummary } from "@/lib/forum/types";
 import { playSound } from "@/lib/sound/engine";
 
@@ -46,6 +47,7 @@ export function PublicProfile({ username }: { username: string }) {
   const [following, setFollowing] = useState(false);
   const [followBusy, setFollowBusy] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [works, setWorks] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -147,6 +149,7 @@ export function PublicProfile({ username }: { username: string }) {
   const isMe = user?.id === profile.id;
   const joined = new Intl.DateTimeFormat(lang, { month: "long", year: "numeric" }).format(new Date(profile.created_at));
   const statCards = [
+    { label: t("profile.stats.works"), value: works },
     { label: t("profile.stats.threads"), value: stats.threads },
     { label: t("profile.stats.replies"), value: stats.replies },
     { label: t("profile.stats.likes"), value: stats.likes },
@@ -245,6 +248,8 @@ export function PublicProfile({ username }: { username: string }) {
           </div>
         </div>
       </section>
+
+      <ProfileWorks userId={profile.id} onCount={setWorks} />
 
       {/* POSTS */}
       <section className="mx-auto w-full max-w-[1760px] px-6 pb-24 pt-14 md:px-10 md:pt-16">

@@ -1,6 +1,7 @@
 // ZETRAXUS — moderated image upload.
 //
-// Every image (forum attachment or avatar) goes through here. The browser
+// Every image (forum attachment, avatar, project cover, world map / planet,
+// lore image, character portrait) goes through here. The browser
 // can never write to the `media` bucket directly, so nothing reaches the
 // site without passing this check.
 //
@@ -26,6 +27,18 @@ const TYPES: Record<string, string> = {
 };
 
 const MAX_BYTES = 5 * 1024 * 1024;
+const MAP_MAX_BYTES = 8 * 1024 * 1024;
+
+const KINDS = ["forum", "avatar", "project", "world_map", "world_planet", "lore", "character"] as const;
+type Kind = (typeof KINDS)[number];
+
+// World images must actually be a map / a planet — checked by a vision model.
+const RELEVANCE: Partial<Record<Kind, string>> = {
+  world_map:
+    "Is this image a MAP of a place (a world map, continent, region, kingdom, city or fantasy/sci-fi map, drawn, painted or digital)? Sketches and stylised maps count.",
+  world_planet:
+    "Is this image a view of a PLANET, moon or world seen from space or from far above (realistic, painted or stylised)? A globe or a planet in a star field counts.",
+};
 const HOURLY_LIMIT = 20;
 
 function json(body: unknown, status = 200) {
@@ -95,6 +108,44 @@ async function moderate(bytes: Uint8Array, type: string, apiKey: string): Promis
   return { flagged, categories, scores };
 }
 
+async function checkRelevance(bytes: Uint8Array, type: string, question: string, apiKey: string) {
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "gpt-4o-mini",
+      max_tokens: 20,
+      temperature: 0,
+      response_format: { type: "json_object" },
+      messages: [
+        {
+          role: "system",
+          content:
+            'You verify uploads for a worldbuilding site. Answer only with JSON {"match": true|false}. Be lenient with artistic styles, strict with unrelated photos (selfies, memes, screenshots, ads, text-only images).',
+        },
+        {
+          role: "user",
+          content: [
+            { type: "text", text: question },
+            { type: "image_url", image_url: { url: `data:${type};base64,${encodeBase64(bytes)}`, detail: "low" } },
+          ],
+        },
+      ],
+    }),
+  });
+  if (!response.ok) {
+    console.error("relevance api error", response.status, await response.text());
+    return null;
+  }
+  const data = await response.json();
+  try {
+    const parsed = JSON.parse(data?.choices?.[0]?.message?.content ?? "{}");
+    return typeof parsed.match === "boolean" ? parsed.match : null;
+  } catch {
+    return null;
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return json({ error: "METHOD_NOT_ALLOWED" }, 405);
@@ -141,7 +192,29 @@ Deno.serve(async (req) => {
   }
 
   const file = form.get("file");
-  const kind = form.get("kind") === "avatar" ? "avatar" : "forum";
+  const rawKind = String(form.get("kind") ?? "forum");
+  const kind: Kind = (KINDS as readonly string[]).includes(rawKind) ? (rawKind as Kind) : "forum";
+  const projectId = kind === "project" ? String(form.get("project_id") ?? "") || null : null;
+  const creationId =
+    ["world_map", "world_planet", "lore", "character"].includes(kind) && form.get("slot") === "cover"
+      ? String(form.get("creation_id") ?? "") || null
+      : null;
+
+  if (kind === "project" && !projectId) return json({ error: "BAD_REQUEST" }, 400);
+  if ((kind === "world_map" || kind === "world_planet") && !creationId) return json({ error: "BAD_REQUEST" }, 400);
+
+  if (projectId) {
+    const { data: ok } = await admin.rpc("is_project_member", { p: projectId, uid: user.id });
+    if (ok !== true && !isStaff) return json({ error: "FORBIDDEN" }, 403);
+  }
+  if (creationId) {
+    const { data: creation } = await admin.from("creations").select("kind").eq("id", creationId).maybeSingle();
+    if (!creation) return json({ error: "NOT_FOUND" }, 404);
+    const expected = kind === "world_map" || kind === "world_planet" ? "world" : kind;
+    if (creation.kind !== expected) return json({ error: "BAD_REQUEST" }, 400);
+    const { data: ok } = await admin.rpc("can_edit_creation", { c: creationId, uid: user.id });
+    if (ok !== true && !isStaff) return json({ error: "FORBIDDEN" }, 403);
+  }
   const width = Number(form.get("width")) || null;
   const height = Number(form.get("height")) || null;
 
@@ -149,7 +222,7 @@ Deno.serve(async (req) => {
 
   const ext = TYPES[file.type];
   if (!ext) return json({ error: "BAD_TYPE" }, 415);
-  if (file.size > MAX_BYTES) return json({ error: "TOO_LARGE" }, 413);
+  if (file.size > (kind === "world_map" ? MAP_MAX_BYTES : MAX_BYTES)) return json({ error: "TOO_LARGE" }, 413);
 
   const bytes = new Uint8Array(await file.arrayBuffer());
   if (!hasValidSignature(bytes, file.type)) return json({ error: "BAD_TYPE" }, 415);
@@ -168,6 +241,22 @@ Deno.serve(async (req) => {
           return json({ error: "REJECTED", categories: result.categories }, 422);
         }
         status = "approved";
+
+        const question = RELEVANCE[kind];
+        if (question) {
+          const match = await checkRelevance(bytes, file.type, question, openaiKey).catch((error) => {
+            console.error("relevance failed", error);
+            return null;
+          });
+          if (match === false) return json({ error: "IRRELEVANT_IMAGE" }, 422);
+          if (match === null) {
+            // Could not verify → a moderator decides.
+            status = "pending";
+            moderation = { ...moderation, relevance: "unavailable" };
+          } else {
+            moderation = { ...moderation, relevance: "match" };
+          }
+        }
       } else {
         moderation = { provider: "openai", error: "unavailable" };
       }
@@ -205,6 +294,8 @@ Deno.serve(async (req) => {
     height,
     status,
     moderation,
+    project_id: projectId,
+    creation_id: creationId,
   });
 
   if (insertError) {
@@ -213,8 +304,18 @@ Deno.serve(async (req) => {
     return json({ error: "UPLOAD_FAILED" }, 500);
   }
 
-  if (kind === "avatar" && status === "approved") {
-    await admin.from("profiles").update({ avatar_url: url }).eq("id", user.id);
+  if (status === "approved") {
+    if (kind === "avatar") {
+      await admin.from("profiles").update({ avatar_url: url }).eq("id", user.id);
+    } else if (kind === "project" && projectId) {
+      await admin.from("projects").update({ cover_url: url }).eq("id", projectId);
+    } else if (kind === "world_map" && creationId) {
+      await admin.from("creations").update({ map_url: url }).eq("id", creationId);
+    } else if (kind === "world_planet" && creationId) {
+      await admin.from("creations").update({ planet_url: url }).eq("id", creationId);
+    } else if ((kind === "lore" || kind === "character") && creationId) {
+      await admin.from("creations").update({ cover_url: url }).eq("id", creationId);
+    }
   }
 
   return json({ id, url, status, width, height });
