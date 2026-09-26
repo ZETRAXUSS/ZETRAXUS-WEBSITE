@@ -52,17 +52,21 @@ export function PageTransition() {
     if (phaseRef.current === "idle" || phaseRef.current === "revealing") return;
     const wait = Math.max(0, MIN_HOLD_MS - (performance.now() - coveredAt.current));
     later(() => {
-      // Let the new page paint twice before opening the curtains.
-      requestAnimationFrame(() =>
-        requestAnimationFrame(() => {
-          set("revealing");
-          document.documentElement.classList.remove("zx-transitioning");
-          later(() => {
-            set("idle");
-            targetPath.current = null;
-          }, reduced.current ? 200 : REVEAL_MS);
-        }),
-      );
+      let opened = false;
+      const open = () => {
+        if (opened) return;
+        opened = true;
+        set("revealing");
+        document.documentElement.classList.remove("zx-transitioning");
+        later(() => {
+          set("idle");
+          targetPath.current = null;
+        }, reduced.current ? 200 : REVEAL_MS);
+      };
+      // Let the new page paint twice before opening the curtains
+      // (timer fallback: rAF is paused in background tabs).
+      requestAnimationFrame(() => requestAnimationFrame(open));
+      later(open, 180);
     }, wait);
   }, []);
 
