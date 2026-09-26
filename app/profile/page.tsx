@@ -23,7 +23,7 @@ import { useAuth } from "@/lib/auth/use-auth";
 import { useI18n } from "@/lib/i18n/provider";
 import type { TranslationKey } from "@/lib/i18n/translate";
 import { getFollowerCount, getFollowingCount, updateProfile } from "@/lib/actions/profiles";
-import { createClient } from "@/lib/supabase/client";
+import { db } from "@/lib/supabase/client";
 import { fetchThreads, setBookmark, uploadImage } from "@/lib/forum/client";
 import type { ThreadSummary } from "@/lib/forum/types";
 import { playSound } from "@/lib/sound/engine";
@@ -79,7 +79,7 @@ export default function ProfilePage() {
 
     let active = true;
     (async () => {
-      const supabase = createClient();
+      const supabase = db();
       const [followers, following, threads, replies, savedCount, images, likes] = await Promise.all([
         getFollowerCount(profile.id),
         getFollowingCount(profile.id),

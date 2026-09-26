@@ -1,6 +1,6 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
+import { createClient, db } from "@/lib/supabase/client";
 import type { TranslationKey } from "@/lib/i18n/translate";
 import type {
   ForumCategory,
@@ -62,7 +62,7 @@ function fail<T>(message?: string | null): Result<T> {
 /* ------------------------------------------------------------------ */
 
 export async function fetchCategories(): Promise<ForumCategory[]> {
-  const supabase = createClient();
+  const supabase = db();
   const { data } = await supabase
     .from("forum_categories")
     .select("id, name, slug, description, name_tr, description_tr, sort_order")
@@ -71,7 +71,7 @@ export async function fetchCategories(): Promise<ForumCategory[]> {
 }
 
 export async function fetchForumStats(): Promise<ForumStats | null> {
-  const supabase = createClient();
+  const supabase = db();
   const { data } = await supabase.rpc("forum_stats");
   return (data as ForumStats | null) ?? null;
 }
@@ -90,7 +90,7 @@ export interface ThreadQuery {
 }
 
 export async function fetchThreads(options: ThreadQuery): Promise<{ items: ThreadSummary[]; hasMore: boolean }> {
-  const supabase = createClient();
+  const supabase = db();
 
   let authorId: string | null = null;
   if (options.authorUsername) {
@@ -149,7 +149,7 @@ export async function fetchThreads(options: ThreadQuery): Promise<{ items: Threa
 }
 
 export async function fetchThread(id: string): Promise<ThreadDetail | null> {
-  const supabase = createClient();
+  const supabase = db();
   const { data } = await supabase
     .from("forum_threads")
     .select(
@@ -165,7 +165,7 @@ export async function fetchThread(id: string): Promise<ThreadDetail | null> {
 }
 
 export async function fetchReplies(threadId: string): Promise<ReplyItem[]> {
-  const supabase = createClient();
+  const supabase = db();
   const { data } = await supabase
     .from("forum_replies")
     .select(`id, thread_id, author_id, body, created_at, edited_at, like_count, ${REPLY_AUTHOR}, ${MEDIA}`)
@@ -179,7 +179,7 @@ export async function fetchReplies(threadId: string): Promise<ReplyItem[]> {
 }
 
 export async function fetchReply(replyId: string): Promise<ReplyItem | null> {
-  const supabase = createClient();
+  const supabase = db();
   const { data } = await supabase
     .from("forum_replies")
     .select(`id, thread_id, author_id, body, created_at, edited_at, like_count, ${REPLY_AUTHOR}, ${MEDIA}`)
@@ -189,7 +189,7 @@ export async function fetchReply(replyId: string): Promise<ReplyItem | null> {
 }
 
 export async function fetchViewerState(threadId: string, userId: string) {
-  const supabase = createClient();
+  const supabase = db();
   const [threadLike, bookmark, replyLikes] = await Promise.all([
     supabase.from("thread_likes").select("thread_id").eq("thread_id", threadId).eq("user_id", userId).maybeSingle(),
     supabase.from("thread_bookmarks").select("thread_id").eq("thread_id", threadId).eq("user_id", userId).maybeSingle(),
@@ -209,7 +209,7 @@ export async function fetchViewerState(threadId: string, userId: string) {
 
 export async function fetchBookmarkedIds(userId: string, threadIds: string[]): Promise<Set<string>> {
   if (!threadIds.length) return new Set();
-  const supabase = createClient();
+  const supabase = db();
   const { data } = await supabase
     .from("thread_bookmarks")
     .select("thread_id")
@@ -226,7 +226,7 @@ export async function incrementView(threadId: string) {
   } catch {
     /* ignore */
   }
-  const supabase = createClient();
+  const supabase = db();
   await supabase.rpc("increment_thread_view", { p_thread: threadId });
 }
 
@@ -236,7 +236,7 @@ export async function incrementView(threadId: string) {
 
 async function attachMedia(mediaIds: string[], target: { thread_id?: string; reply_id?: string }) {
   if (!mediaIds.length) return;
-  const supabase = createClient();
+  const supabase = db();
   await supabase.from("media_uploads").update(target).in("id", mediaIds);
 }
 
@@ -247,7 +247,7 @@ export async function createThread(input: {
   body: string;
   mediaIds: string[];
 }): Promise<Result<{ id: string }>> {
-  const supabase = createClient();
+  const supabase = db();
   const { data, error } = await supabase
     .from("forum_threads")
     .insert({
@@ -269,13 +269,13 @@ export async function updateThread(
   id: string,
   patch: { title?: string; body?: string; category_id?: string; is_pinned?: boolean; is_locked?: boolean },
 ): Promise<Result> {
-  const supabase = createClient();
+  const supabase = db();
   const { error } = await supabase.from("forum_threads").update(patch).eq("id", id);
   return error ? fail(error.message) : { ok: true, data: undefined };
 }
 
 export async function deleteThread(id: string): Promise<Result> {
-  const supabase = createClient();
+  const supabase = db();
   const { error } = await supabase.from("forum_threads").delete().eq("id", id);
   return error ? fail(error.message) : { ok: true, data: undefined };
 }
@@ -286,7 +286,7 @@ export async function createReply(input: {
   body: string;
   mediaIds: string[];
 }): Promise<Result<{ id: string }>> {
-  const supabase = createClient();
+  const supabase = db();
   const { data, error } = await supabase
     .from("forum_replies")
     .insert({ author_id: input.userId, thread_id: input.threadId, body: input.body.trim() })
@@ -300,19 +300,19 @@ export async function createReply(input: {
 }
 
 export async function updateReply(id: string, body: string): Promise<Result> {
-  const supabase = createClient();
+  const supabase = db();
   const { error } = await supabase.from("forum_replies").update({ body: body.trim() }).eq("id", id);
   return error ? fail(error.message) : { ok: true, data: undefined };
 }
 
 export async function deleteReply(id: string): Promise<Result> {
-  const supabase = createClient();
+  const supabase = db();
   const { error } = await supabase.from("forum_replies").delete().eq("id", id);
   return error ? fail(error.message) : { ok: true, data: undefined };
 }
 
 export async function setThreadLike(threadId: string, userId: string, liked: boolean): Promise<Result> {
-  const supabase = createClient();
+  const supabase = db();
   const { error } = liked
     ? await supabase.from("thread_likes").insert({ thread_id: threadId, user_id: userId })
     : await supabase.from("thread_likes").delete().eq("thread_id", threadId).eq("user_id", userId);
@@ -320,7 +320,7 @@ export async function setThreadLike(threadId: string, userId: string, liked: boo
 }
 
 export async function setReplyLike(replyId: string, userId: string, liked: boolean): Promise<Result> {
-  const supabase = createClient();
+  const supabase = db();
   const { error } = liked
     ? await supabase.from("reply_likes").insert({ reply_id: replyId, user_id: userId })
     : await supabase.from("reply_likes").delete().eq("reply_id", replyId).eq("user_id", userId);
@@ -328,7 +328,7 @@ export async function setReplyLike(replyId: string, userId: string, liked: boole
 }
 
 export async function setBookmark(threadId: string, userId: string, saved: boolean): Promise<Result> {
-  const supabase = createClient();
+  const supabase = db();
   const { error } = saved
     ? await supabase.from("thread_bookmarks").insert({ thread_id: threadId, user_id: userId })
     : await supabase.from("thread_bookmarks").delete().eq("thread_id", threadId).eq("user_id", userId);
@@ -342,7 +342,7 @@ export async function submitReport(input: {
   reason: ReportReason;
   details?: string;
 }): Promise<Result> {
-  const supabase = createClient();
+  const supabase = db();
   const { error } = await supabase.from("reports").insert({
     reporter_id: input.userId,
     target_type: input.targetType,
@@ -399,10 +399,9 @@ export async function uploadImage(
     return { ok: false, error: "error.imageType" };
   }
 
-  const supabase = createClient();
   const {
     data: { session },
-  } = await supabase.auth.getSession();
+  } = await createClient().auth.getSession();
   if (!session) return { ok: false, error: "error.signInRequired" };
 
   const form = new FormData();
@@ -445,6 +444,6 @@ export async function uploadImage(
 }
 
 export async function removeUpload(id: string) {
-  const supabase = createClient();
+  const supabase = db();
   await supabase.from("media_uploads").delete().eq("id", id);
 }

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { db } from "@/lib/supabase/client";
 import { useAuth } from "@/lib/auth/use-auth";
 import { useI18n } from "@/lib/i18n/provider";
 import { timeAgo, type TranslationKey } from "@/lib/i18n/translate";
@@ -71,7 +71,7 @@ export default function AdminPage() {
   }, [loading, user, isStaff, router]);
 
   const loadCounts = useCallback(async () => {
-    const supabase = createClient();
+    const supabase = db();
     const [reports, media, banned, members] = await Promise.all([
       supabase.from("reports").select("id", { count: "exact", head: true }).eq("status", "open"),
       supabase.from("media_uploads").select("id", { count: "exact", head: true }).eq("status", "pending"),
@@ -187,7 +187,7 @@ function ReportsPanel({ onChange }: { onChange: () => void }) {
 
   const load = useCallback(async () => {
     setRows(null);
-    const supabase = createClient();
+    const supabase = db();
     const { data } = await supabase
       .from("reports")
       .select(`id, target_type, target_id, reason, details, status, created_at, reporter:profiles!reports_reporter_id_fkey(${PROFILE_FIELDS})`)
@@ -252,7 +252,7 @@ function ReportsPanel({ onChange }: { onChange: () => void }) {
   }, [load]);
 
   const setReportStatus = async (row: ReportRow, next: ReportStatus) => {
-    const supabase = createClient();
+    const supabase = db();
     await supabase
       .from("reports")
       .update({ status: next, resolved_by: user?.id ?? null, resolved_at: new Date().toISOString() })
@@ -263,7 +263,7 @@ function ReportsPanel({ onChange }: { onChange: () => void }) {
   };
 
   const removeTarget = async (row: ReportRow) => {
-    const supabase = createClient();
+    const supabase = db();
     if (row.target_type === "thread") await supabase.from("forum_threads").delete().eq("id", row.target_id);
     if (row.target_type === "reply") await supabase.from("forum_replies").delete().eq("id", row.target_id);
     if (row.target_type === "media") await supabase.from("media_uploads").delete().eq("id", row.target_id);
@@ -273,7 +273,7 @@ function ReportsPanel({ onChange }: { onChange: () => void }) {
   const banAuthor = async (row: ReportRow) => {
     const author = targets[row.target_id]?.author;
     if (!author) return;
-    const supabase = createClient();
+    const supabase = db();
     const { error } = await supabase.rpc("set_user_ban", {
       p_user: author.id,
       p_banned: true,
@@ -417,7 +417,7 @@ function MediaPanel({ onChange }: { onChange: () => void }) {
 
   const load = useCallback(async () => {
     setRows(null);
-    const supabase = createClient();
+    const supabase = db();
     const { data } = await supabase
       .from("media_uploads")
       .select(`id, url, kind, status, created_at, thread_id, reply_id, owner:profiles!media_uploads_owner_id_fkey(${PROFILE_FIELDS})`)
@@ -432,7 +432,7 @@ function MediaPanel({ onChange }: { onChange: () => void }) {
   }, [load]);
 
   const decide = async (row: MediaRow, approve: boolean) => {
-    const supabase = createClient();
+    const supabase = db();
     const { error } = await supabase.rpc("moderate_media", { p_id: row.id, p_approve: approve });
     if (error) {
       playSound("error");
@@ -512,7 +512,7 @@ function UsersPanel({ isAdmin, selfId, onChange }: { isAdmin: boolean; selfId: s
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const supabase = createClient();
+    const supabase = db();
     let request = supabase.from("profiles").select(`${PROFILE_FIELDS}, created_at, banned_reason`);
     const q = query.replace(/[,()%*\\:"'.]/g, " ").trim();
     if (q) request = request.or(`username.ilike."%${q}%",display_name.ilike."%${q}%"`);
@@ -528,7 +528,7 @@ function UsersPanel({ isAdmin, selfId, onChange }: { isAdmin: boolean; selfId: s
 
   const ban = async (id: string, banned: boolean) => {
     setError(null);
-    const supabase = createClient();
+    const supabase = db();
     const { error: rpcError } = await supabase.rpc("set_user_ban", { p_user: id, p_banned: banned, p_reason: banned ? "manual" : null });
     if (rpcError) {
       setError(rpcError.message);
@@ -542,7 +542,7 @@ function UsersPanel({ isAdmin, selfId, onChange }: { isAdmin: boolean; selfId: s
 
   const setRole = async (id: string, role: string) => {
     setError(null);
-    const supabase = createClient();
+    const supabase = db();
     const { error: rpcError } = await supabase.rpc("set_user_role", { p_user: id, p_role: role });
     if (rpcError) {
       setError(rpcError.message);

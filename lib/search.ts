@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/client";
+import { db } from "@/lib/supabase/client";
 import type { TranslationKey } from "@/lib/i18n/translate";
 
 export interface SearchThread {
@@ -44,7 +44,7 @@ export async function searchSite(query: string, limit = 6): Promise<SearchResult
   const q = query.trim();
   if (q.length < 2) return EMPTY_RESULTS;
 
-  const supabase = createClient();
+  const supabase = db();
   const { data, error } = await supabase.rpc("search_site", { q, lim: limit });
   if (error || !data) return EMPTY_RESULTS;
 

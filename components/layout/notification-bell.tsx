@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { createClient, db } from "@/lib/supabase/client";
 import { useAuth } from "@/lib/auth/use-auth";
 import { useI18n } from "@/lib/i18n/provider";
 import { timeAgo, type TranslationKey } from "@/lib/i18n/translate";
@@ -43,8 +43,7 @@ export function NotificationBell() {
 
   const load = useCallback(async () => {
     if (!user) return;
-    const supabase = createClient();
-    const { data } = await supabase
+    const { data } = await db()
       .from("notifications")
       .select(
         "id, type, thread_id, reply_id, message, read_at, created_at, actor:profiles!notifications_actor_id_fkey(username, display_name, avatar_url), thread:forum_threads(id, title)",
@@ -100,8 +99,7 @@ export function NotificationBell() {
   const markAllRead = async () => {
     const now = new Date().toISOString();
     setItems((list) => list.map((item) => (item.read_at ? item : { ...item, read_at: now })));
-    const supabase = createClient();
-    await supabase.from("notifications").update({ read_at: now }).eq("user_id", user.id).is("read_at", null);
+    await db().from("notifications").update({ read_at: now }).eq("user_id", user.id).is("read_at", null);
   };
 
   const openItem = async (item: NotificationRow) => {
@@ -109,8 +107,7 @@ export function NotificationBell() {
     if (!item.read_at) {
       const now = new Date().toISOString();
       setItems((list) => list.map((row) => (row.id === item.id ? { ...row, read_at: now } : row)));
-      const supabase = createClient();
-      await supabase.from("notifications").update({ read_at: now }).eq("id", item.id);
+      await db().from("notifications").update({ read_at: now }).eq("id", item.id);
     }
     if (item.thread_id) {
       router.push(`/forum/${item.thread_id}${item.reply_id ? `#reply-${item.reply_id}` : ""}`);

@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { createClient, db } from "@/lib/supabase/client";
 import type { AuthUser, Profile } from "@/types/auth";
 
 export interface AuthContextValue {
@@ -31,8 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   const loadProfile = useCallback(async (userId: string) => {
-    const supabase = createClient();
-    const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
+    const { data } = await db().from("profiles").select("*").eq("id", userId).single();
     setProfile((data as Profile | null) ?? null);
   }, []);
 
