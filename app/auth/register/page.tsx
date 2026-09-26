@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { RegisterForm } from "@/components/auth/register-form";
-import { AuthDivider, GoogleButton } from "@/components/auth/google-button";
+import { GoogleButton } from "@/components/auth/google-button";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { useT } from "@/lib/i18n/provider";
 
@@ -37,11 +37,11 @@ function RegisterView() {
         </p>
       }
     >
-      <div title={!accepted ? t("auth.mustAccept") : undefined}>
-        <GoogleButton next={next} disabled={!accepted} />
-      </div>
-      {!accepted && <p className="mt-2 text-center text-[10px] text-white/25">{t("auth.acceptForGoogle")}</p>}
-      <AuthDivider />
+      <GoogleButton
+        next={next}
+        disabled={!accepted}
+        note={!accepted ? <p className="mt-2 text-center text-[10px] text-white/25">{t("auth.acceptForGoogle")}</p> : null}
+      />
       <RegisterForm accepted={accepted} onAcceptedChange={setAccepted} />
     </AuthShell>
   );

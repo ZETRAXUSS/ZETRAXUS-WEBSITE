@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { LoginForm } from "@/components/auth/login-form";
-import { AuthDivider, GoogleButton } from "@/components/auth/google-button";
+import { GoogleButton } from "@/components/auth/google-button";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { useT } from "@/lib/i18n/provider";
 
@@ -42,7 +42,6 @@ function LoginView() {
         </p>
       )}
       <GoogleButton next={next} />
-      <AuthDivider />
       <LoginForm next={next} />
     </AuthShell>
   );

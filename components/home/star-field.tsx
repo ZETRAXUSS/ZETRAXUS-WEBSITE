@@ -2,21 +2,6 @@
 
 import { useEffect, useRef } from "react";
 
-/*
- * ZETRAXUS star field — canvas edition.
- *
- * Same 210 stars, same positions, same float / twinkle / cursor-repel
- * behaviour as the original DOM version, but drawn on ONE canvas:
- *
- *  - before: 210 <span>s, each with two infinite CSS animations (one of
- *    them animating `margin-top`, which forces layout every frame), two
- *    stacked drop-shadow filters, and a getBoundingClientRect() per star on
- *    every mouse move → constant layout + paint work on the main thread.
- *  - now: one rAF loop, ~210 drawImage calls of a pre-rendered glow sprite,
- *    star positions computed from their percentages (no DOM reads), and the
- *    loop fully stops when the hero is off-screen or the tab is hidden.
- */
-
 const STARS: [number, number, number][] = [
   [6, 8, 1.5], [13, 17, 2], [21, 6, 1], [28, 15, 1.5], [36, 9, 2],
   [43, 20, 1], [51, 11, 1.5], [58, 5, 2], [65, 16, 1], [73, 9, 1.5],
@@ -42,273 +27,300 @@ const STARS: [number, number, number][] = [
   [71, 87, 1.5], [80, 72, 1], [89, 88, 1.5],
 ];
 
-// 140 extra deterministic stars (identical formula to the previous version).
-const EXTRA_STARS: [number, number, number][] = Array.from(
-  { length: STARS.length * 2 },
-  (_, index) => {
-    const x = (index * 37.173 + 2.7) % 100;
-    const y = (index * 61.937 + 11.4) % 100;
-    const sizes = [1, 1, 1, 1.5, 1.5, 2];
-    return [x, y, sizes[index % sizes.length]];
-  },
-);
-
-const ALL_STARS: [number, number, number][] = [...STARS, ...EXTRA_STARS];
-
-const RADIUS = 240;
-const PUSH = 48;
-const BASE_OPACITY = 0.3;
-// Time constant for easing toward cursor-driven targets (≈ the old 850ms
-// cubic-bezier(0.16, 1, 0.3, 1) transition, which is very front-loaded).
-const EASE_TAU = 0.16;
-
-interface Star {
-  px: number;
-  py: number;
-  size: number;
-  floatDur: number;
-  floatDelay: number;
-  twinkleDur: number;
-  twinkleDelay: number;
-  ex: number;
-  ey: number;
-  scale: number;
-  op: number;
+/*
+ * 140 extra stars spread evenly over the whole frame.
+ *
+ * The previous formula ((index * 37.173) % 100, (index * 61.937) % 100)
+ * is a linear lattice, which is why the stars lined up in diagonal
+ * stripes. Here every star gets its own cell in a 14 × 10 grid and a
+ * seeded random offset inside that cell: even coverage edge to edge, no
+ * visible pattern, and identical on every render (no hydration mismatch).
+ */
+function seeded(seed: number) {
+  let t = seed >>> 0;
+  return () => {
+    t = (t + 0x6d2b79f5) >>> 0;
+    let r = Math.imul(t ^ (t >>> 15), 1 | t);
+    r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
 }
 
-// Twinkle keyframes from the original CSS: 0 → 1, 22% → .35, 46% → .95,
-// 68% → .45, 85% → .85, 100% → 1 (ease-in-out between stops).
-const TWINKLE: [number, number][] = [
-  [0, 1], [0.22, 0.35], [0.46, 0.95], [0.68, 0.45], [0.85, 0.85], [1, 1],
-];
+const GRID_COLS = 14;
+const GRID_ROWS = 10;
 
-function smooth(t: number) {
-  return t * t * (3 - 2 * t);
-}
+const EXTRA_STARS: [number, number, number][] = (() => {
+  const random = seeded(20260926);
+  const sizes = [1, 1, 1, 1.5, 1.5, 2];
+  const stars: [number, number, number][] = [];
 
-function twinkleAt(phase: number) {
-  for (let i = 1; i < TWINKLE.length; i++) {
-    const [p1, v1] = TWINKLE[i];
-    if (phase <= p1) {
-      const [p0, v0] = TWINKLE[i - 1];
-      return v0 + (v1 - v0) * smooth((phase - p0) / (p1 - p0));
+  for (let row = 0; row < GRID_ROWS; row++) {
+    for (let col = 0; col < GRID_COLS; col++) {
+      const cellW = 100 / GRID_COLS;
+      const cellH = 100 / GRID_ROWS;
+      const x = (col + 0.12 + random() * 0.76) * cellW;
+      const y = (row + 0.12 + random() * 0.76) * cellH;
+      const size = sizes[Math.floor(random() * sizes.length)];
+      stars.push([Number(x.toFixed(2)), Number(y.toFixed(2)), size]);
     }
   }
-  return 1;
-}
 
-function positiveMod(value: number, mod: number) {
-  return ((value % mod) + mod) % mod;
-}
+  return stars;
+})();
 
-/** Pre-render a glowing dot: solid core + the two soft drop-shadows. */
-function makeSprite(size: number, dpr: number) {
-  const glow = 6;
-  const px = Math.ceil((size + glow * 2) * dpr);
-  const canvas = document.createElement("canvas");
-  canvas.width = px;
-  canvas.height = px;
-  const ctx = canvas.getContext("2d")!;
-  const c = px / 2;
-  const core = (size / 2) * dpr;
-
-  const halo = ctx.createRadialGradient(c, c, 0, c, c, c);
-  halo.addColorStop(0, "rgba(255,255,255,0.55)");
-  halo.addColorStop(Math.min(0.99, (core + 2 * dpr) / c), "rgba(255,255,255,0.18)");
-  halo.addColorStop(1, "rgba(255,255,255,0)");
-  ctx.fillStyle = halo;
-  ctx.fillRect(0, 0, px, px);
-
-  ctx.fillStyle = "#fff";
-  ctx.beginPath();
-  ctx.arc(c, c, Math.max(core, 0.5 * dpr), 0, Math.PI * 2);
-  ctx.fill();
-
-  return { canvas, cssSize: size + glow * 2 };
-}
+const ALL_STARS: [number, number, number][] = [
+  ...STARS,
+  ...EXTRA_STARS,
+];
 
 export function StarField() {
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const wrap = wrapRef.current;
-    const canvas = canvasRef.current;
-    if (!wrap || !canvas) return;
+    const container = containerRef.current;
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    if (!container) return;
 
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Pause every star animation while the hero isn't visible.
+    const visibility = new IntersectionObserver(
+      (entries) => {
+        const onScreen = entries.some((entry) => entry.isIntersecting);
+        container.classList.toggle("zx-stars-paused", !onScreen);
+      },
+      { rootMargin: "80px" },
+    );
+    visibility.observe(container);
 
-    let width = 0;
-    let height = 0;
-    let dpr = 1;
-    let sprites = new Map<number, { canvas: HTMLCanvasElement; cssSize: number }>();
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
 
-    const stars: Star[] = ALL_STARS.map(([x, y, size], index) => ({
-      px: x / 100,
-      py: y / 100,
-      size,
-      floatDur: 5.5 + (index % 6) * 0.65,
-      floatDelay: (index % 12) * 0.35,
-      twinkleDur: 2.2 + (index % 5) * 0.55,
-      twinkleDelay: (index % 9) * 0.3,
-      ex: 0,
-      ey: 0,
-      scale: 1,
-      op: BASE_OPACITY,
-    }));
+    if (reducedMotion) {
+      return () => visibility.disconnect();
+    }
 
-    let pointer: { x: number; y: number } | null = null;
-    let running = false;
-    let visible = true;
-    let frame = 0;
-    let last = performance.now();
-    const start = last;
+    const stars = Array.from(
+      container.querySelectorAll<HTMLElement>("[data-zx-star]"),
+    );
 
-    const resize = () => {
-      const rect = wrap.getBoundingClientRect();
-      width = rect.width;
-      height = rect.height;
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.max(1, Math.round(width * dpr));
-      canvas.height = Math.max(1, Math.round(height * dpr));
-      canvas.style.width = `${width}px`;
-      canvas.style.height = `${height}px`;
-      sprites = new Map([1, 1.5, 2].map((s) => [s, makeSprite(s, dpr)]));
-      if (!running) draw(performance.now(), 0);
+    // Which stars are currently pushed away (so we only reset those).
+    const active = new Set<number>();
+    let animationFrame = 0;
+
+    const resetStar = (star: HTMLElement) => {
+      star.style.setProperty("--escape-x", "0px");
+      star.style.setProperty("--escape-y", "0px");
+      star.style.setProperty("--star-scale", "1");
+      star.style.setProperty("--star-opacity", "0.3");
     };
 
-    const draw = (now: number, dt: number) => {
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, width, height);
+    const resetStars = () => {
+      active.forEach((index) => resetStar(stars[index]));
+      active.clear();
+    };
 
-      const t = (now - start) / 1000;
-      const k = dt > 0 ? 1 - Math.exp(-dt / EASE_TAU) : 1;
-
-      for (const star of stars) {
-        const x = star.px * width;
-        const y = star.py * height;
-
-        // Cursor repel targets
-        let tx = 0;
-        let ty = 0;
-        let ts = 1;
-        let to = BASE_OPACITY;
-
-        if (pointer) {
-          const dx = x - pointer.x;
-          const dy = y - pointer.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          if (distance < RADIUS && distance > 0) {
-            const proximity = 1 - distance / RADIUS;
-            const strength = Math.pow(proximity, 1.7) * PUSH;
-            tx = (dx / distance) * strength;
-            ty = (dy / distance) * strength;
-            ts = 1 + proximity * 1.4;
-            to = BASE_OPACITY + proximity * 0.55;
-          }
-        }
-
-        star.ex += (tx - star.ex) * k;
-        star.ey += (ty - star.ey) * k;
-        star.scale += (ts - star.scale) * k;
-        star.op += (to - star.op) * k;
-
-        let floatY = 0;
-        let twinkle = 1;
-        if (!reducedMotion) {
-          const fp = positiveMod(t - star.floatDelay, star.floatDur) / star.floatDur;
-          floatY = -7 * (0.5 - 0.5 * Math.cos(fp * Math.PI * 2));
-          const tp = positiveMod(t - star.twinkleDelay, star.twinkleDur) / star.twinkleDur;
-          twinkle = twinkleAt(tp);
-        }
-
-        const sprite = sprites.get(star.size) ?? sprites.get(1)!;
-        const drawSize = sprite.cssSize * star.scale;
-        const cx = x + star.ex;
-        const cy = y + star.ey + floatY;
-
-        ctx.globalAlpha = Math.min(1, star.op * twinkle);
-        ctx.drawImage(sprite.canvas, cx - drawSize / 2, cy - drawSize / 2, drawSize, drawSize);
+    const handlePointerMove = (event: PointerEvent) => {
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
       }
 
-      ctx.globalAlpha = 1;
+      animationFrame = requestAnimationFrame(() => {
+        const rect = container.getBoundingClientRect();
+        const mouseX = event.clientX - rect.left;
+        const mouseY = event.clientY - rect.top;
+        const radius = 240;
+
+        for (let index = 0; index < ALL_STARS.length; index++) {
+          const [px, py] = ALL_STARS[index];
+          const star = stars[index];
+          if (!star) continue;
+
+          const dx = (px / 100) * rect.width - mouseX;
+          const dy = (py / 100) * rect.height - mouseY;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < radius && distance > 0) {
+            const proximity = 1 - distance / radius;
+            const strength = Math.pow(proximity, 1.7) * 48;
+
+            star.style.setProperty("--escape-x", `${(dx / distance) * strength}px`);
+            star.style.setProperty("--escape-y", `${(dy / distance) * strength}px`);
+            star.style.setProperty("--star-scale", `${1 + proximity * 1.4}`);
+            star.style.setProperty("--star-opacity", `${0.3 + proximity * 0.55}`);
+            active.add(index);
+          } else if (active.has(index)) {
+            resetStar(star);
+            active.delete(index);
+          }
+        }
+      });
     };
 
-    const loop = (now: number) => {
-      const dt = Math.min(0.05, (now - last) / 1000);
-      last = now;
-      draw(now, dt);
-      frame = requestAnimationFrame(loop);
+    const handlePointerLeave = () => {
+      resetStars();
     };
 
-    const startLoop = () => {
-      if (running || reducedMotion) return;
-      running = true;
-      last = performance.now();
-      frame = requestAnimationFrame(loop);
-    };
-
-    const stopLoop = () => {
-      running = false;
-      if (frame) cancelAnimationFrame(frame);
-      frame = 0;
-    };
-
-    const sync = () => {
-      if (visible && !document.hidden) startLoop();
-      else stopLoop();
-    };
-
-    // Listen on the window so stars react even while the cursor is over
-    // the hero's text/buttons (which sit above the canvas).
-    const onPointerMove = (event: PointerEvent) => {
-      if (!visible || event.pointerType === "touch") return;
-      const rect = wrap.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-      const inside = x >= -RADIUS / 2 && y >= -RADIUS / 2 && x <= rect.width + RADIUS / 2 && y <= rect.height + RADIUS / 2;
-      pointer = inside ? { x, y } : null;
-    };
-
-    const onPointerLeave = () => {
-      pointer = null;
-    };
-
-    const resizeObserver = new ResizeObserver(resize);
-    resizeObserver.observe(wrap);
-
-    const intersectionObserver = new IntersectionObserver(
-      (entries) => {
-        visible = entries.some((entry) => entry.isIntersecting);
-        sync();
-      },
-      { rootMargin: "100px" },
-    );
-    intersectionObserver.observe(wrap);
-
-    document.addEventListener("visibilitychange", sync);
-    window.addEventListener("pointermove", onPointerMove, { passive: true });
-    document.documentElement.addEventListener("pointerleave", onPointerLeave);
-
-    resize();
-    sync();
+    container.addEventListener("pointermove", handlePointerMove);
+    container.addEventListener("pointerleave", handlePointerLeave);
 
     return () => {
-      stopLoop();
-      resizeObserver.disconnect();
-      intersectionObserver.disconnect();
-      document.removeEventListener("visibilitychange", sync);
-      window.removeEventListener("pointermove", onPointerMove);
-      document.documentElement.removeEventListener("pointerleave", onPointerLeave);
+      visibility.disconnect();
+
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+      }
+
+      container.removeEventListener("pointermove", handlePointerMove);
+      container.removeEventListener("pointerleave", handlePointerLeave);
     };
   }, []);
 
   return (
-    <div ref={wrapRef} className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-      <canvas ref={canvasRef} className="absolute inset-0 block" />
+    <div
+      ref={containerRef}
+      className="pointer-events-auto absolute inset-0 overflow-hidden"
+      aria-hidden="true"
+    >
+      {ALL_STARS.map(([x, y, size], index) => (
+        <span
+          key={index}
+          data-zx-star
+          className="zx-star absolute rounded-full bg-white"
+          style={
+            {
+              left: `${x}%`,
+              top: `${y}%`,
+              width: `${size}px`,
+              height: `${size}px`,
+
+              "--float-duration": `${
+                5.5 + (index % 6) * 0.65
+              }s`,
+
+              "--float-delay": `${
+                (index % 12) * 0.35
+              }s`,
+
+              "--twinkle-duration": `${
+                2.2 + (index % 5) * 0.55
+              }s`,
+
+              "--twinkle-delay": `${
+                (index % 9) * 0.3
+              }s`,
+            } as React.CSSProperties
+          }
+        />
+      ))}
+
+      <style>{`
+        @property --twinkle {
+          syntax: '<number>';
+          inherits: false;
+          initial-value: 1;
+        }
+
+        .zx-star {
+          --escape-x: 0px;
+          --escape-y: 0px;
+          --star-scale: 1;
+          --star-opacity: 0.3;
+          --twinkle: 1;
+
+          opacity:
+            calc(
+              var(--star-opacity) *
+              var(--twinkle)
+            );
+
+          transform:
+            translate3d(
+              var(--escape-x),
+              var(--escape-y),
+              0
+            )
+            scale(var(--star-scale));
+
+          filter:
+            drop-shadow(
+              0 0 2px
+              rgba(255, 255, 255, 0.8)
+            )
+            drop-shadow(
+              0 0 5px
+              rgba(255, 255, 255, 0.15)
+            );
+
+          transition:
+            transform
+            850ms
+            cubic-bezier(0.16, 1, 0.3, 1),
+            filter 500ms ease;
+
+          animation:
+            zx-star-float
+            var(--float-duration, 6s)
+            ease-in-out
+            infinite,
+
+            zx-star-twinkle
+            var(--twinkle-duration, 3s)
+            ease-in-out
+            infinite;
+
+          animation-delay:
+            var(--float-delay, 0s),
+            var(--twinkle-delay, 0s);
+
+          will-change:
+            transform,
+            opacity;
+        }
+
+        @keyframes zx-star-float {
+          0%, 100% {
+            translate: 0 0;
+          }
+
+          50% {
+            translate: 0 -7px;
+          }
+        }
+
+        .zx-stars-paused .zx-star {
+          animation-play-state: paused;
+        }
+
+        @keyframes zx-star-twinkle {
+          0%, 100% {
+            --twinkle: 1;
+          }
+
+          22% {
+            --twinkle: 0.35;
+          }
+
+          46% {
+            --twinkle: 0.95;
+          }
+
+          68% {
+            --twinkle: 0.45;
+          }
+
+          85% {
+            --twinkle: 0.85;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .zx-star {
+            animation: none;
+            opacity: 0.3;
+            transform: none;
+          }
+        }
+      `}</style>
     </div>
   );
 }
