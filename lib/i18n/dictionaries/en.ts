@@ -152,6 +152,7 @@ export const en = {
   "error.rateUploads": "Upload limit reached. Try again in an hour.",
   "error.retry": "Try again",
   "error.signInRequired": "Please sign in first.",
+  "error.textRejected": "This text was blocked by the AI safety check (insults, hate, harassment or explicit content). Please rephrase it.",
   "error.titleLength": "Title must be between 3 and 200 characters.",
   "explore.cat.all": "All",
   "explore.cat.characters": "Characters",

@@ -154,6 +154,7 @@ export const tr: Record<keyof typeof en, string> = {
   "error.rateUploads": "Yükleme sınırına ulaştın. Bir saat sonra tekrar dene.",
   "error.retry": "Tekrar dene",
   "error.signInRequired": "Önce giriş yapmalısın.",
+  "error.textRejected": "Bu yazı yapay zekâ güvenlik kontrolüne takıldı (hakaret, nefret söylemi, taciz veya müstehcen içerik). Lütfen farklı bir şekilde yaz.",
   "error.titleLength": "Başlık 3 ile 200 karakter arasında olmalı.",
   "explore.cat.all": "Tümü",
   "explore.cat.characters": "Karakterler",

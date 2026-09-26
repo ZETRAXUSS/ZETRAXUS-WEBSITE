@@ -33,6 +33,9 @@ const ERROR_KEYS: [string, TranslationKey][] = [
   ["RATE_LIMIT_REPORTS", "error.rateReports"],
   ["RATE_LIMIT_UPLOADS", "error.rateUploads"],
   ["DUPLICATE_CONTENT", "error.duplicate"],
+  ["TEXT_REJECTED", "error.textRejected"],
+  ["LOCKED", "error.forbidden"],
+  ["FORBIDDEN", "error.forbidden"],
   ["forum_threads_title_len", "error.titleLength"],
   ["forum_threads_body_len", "error.bodyLength"],
   ["forum_replies_body_len", "error.bodyLength"],
@@ -240,6 +243,28 @@ async function attachMedia(mediaIds: string[], target: { thread_id?: string; rep
   await supabase.from("media_uploads").update(target).in("id", mediaIds);
 }
 
+/** All forum text goes through the `post-content` edge function (AI check). */
+async function postContent(payload: Record<string, unknown>): Promise<Result<{ id: string }>> {
+  const {
+    data: { session },
+  } = await createClient().auth.getSession();
+  if (!session) return { ok: false, error: "error.signInRequired" };
+
+  const base = (process.env.NEXT_PUBLIC_SUPABASE_URL || "https://eicbvvrayoubpbkuttmi.supabase.co").trim();
+  try {
+    const response = await fetch(`${base}/functions/v1/post-content`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${session.access_token}`, "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const json = (await response.json().catch(() => ({}))) as { id?: string; error?: string };
+    if (!response.ok || !json.id) return fail(json.error ?? "WRITE_FAILED");
+    return { ok: true, data: { id: json.id } };
+  } catch {
+    return { ok: false, error: "error.network" };
+  }
+}
+
 export async function createThread(input: {
   userId: string;
   categoryId: string;
@@ -247,28 +272,25 @@ export async function createThread(input: {
   body: string;
   mediaIds: string[];
 }): Promise<Result<{ id: string }>> {
-  const supabase = db();
-  const { data, error } = await supabase
-    .from("forum_threads")
-    .insert({
-      author_id: input.userId,
-      category_id: input.categoryId,
-      title: input.title.trim(),
-      body: input.body.trim(),
-    })
-    .select("id")
-    .single();
-
-  if (error || !data) return fail(error?.message);
-  const id = (data as { id: string }).id;
-  await attachMedia(input.mediaIds, { thread_id: id });
-  return { ok: true, data: { id } };
+  const result = await postContent({
+    action: "create_thread",
+    category_id: input.categoryId,
+    title: input.title.trim(),
+    body: input.body.trim(),
+  });
+  if (!result.ok) return result;
+  await attachMedia(input.mediaIds, { thread_id: result.data.id });
+  return result;
 }
 
 export async function updateThread(
   id: string,
-  patch: { title?: string; body?: string; category_id?: string; is_pinned?: boolean; is_locked?: boolean },
+  patch: { title?: string; body?: string; is_pinned?: boolean; is_locked?: boolean },
 ): Promise<Result> {
+  if (patch.title !== undefined || patch.body !== undefined) {
+    const result = await postContent({ action: "edit_thread", id, title: patch.title ?? "", body: patch.body ?? "" });
+    return result.ok ? { ok: true, data: undefined } : result;
+  }
   const supabase = db();
   const { error } = await supabase.from("forum_threads").update(patch).eq("id", id);
   return error ? fail(error.message) : { ok: true, data: undefined };
@@ -286,23 +308,15 @@ export async function createReply(input: {
   body: string;
   mediaIds: string[];
 }): Promise<Result<{ id: string }>> {
-  const supabase = db();
-  const { data, error } = await supabase
-    .from("forum_replies")
-    .insert({ author_id: input.userId, thread_id: input.threadId, body: input.body.trim() })
-    .select("id")
-    .single();
-
-  if (error || !data) return fail(error?.message);
-  const id = (data as { id: string }).id;
-  await attachMedia(input.mediaIds, { reply_id: id });
-  return { ok: true, data: { id } };
+  const result = await postContent({ action: "create_reply", id: input.threadId, body: input.body.trim() });
+  if (!result.ok) return result;
+  await attachMedia(input.mediaIds, { reply_id: result.data.id });
+  return result;
 }
 
 export async function updateReply(id: string, body: string): Promise<Result> {
-  const supabase = db();
-  const { error } = await supabase.from("forum_replies").update({ body: body.trim() }).eq("id", id);
-  return error ? fail(error.message) : { ok: true, data: undefined };
+  const result = await postContent({ action: "edit_reply", id, body: body.trim() });
+  return result.ok ? { ok: true, data: undefined } : result;
 }
 
 export async function deleteReply(id: string): Promise<Result> {
