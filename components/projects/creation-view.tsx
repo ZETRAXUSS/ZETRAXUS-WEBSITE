@@ -346,7 +346,7 @@ export function CreationView({ id, kind }: { id: string; kind: CreationKind }) {
         {item.kind === "character" && (
           <>
             <section className="zx-rise-in mt-8 grid gap-8 lg:grid-cols-[380px_minmax(0,1fr)]" style={{ animationDelay: "60ms" }}>
-              <div className="relative">
+              <div className="relative mx-auto w-full max-w-[340px] lg:max-w-none">
                 <button
                   type="button"
                   onClick={() => item.cover_url && setLightbox(item.cover_url)}
