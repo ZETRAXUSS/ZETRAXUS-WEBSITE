@@ -66,6 +66,13 @@ export const TERMS: Record<Lang, LegalSection[]> = {
       ],
     },
     {
+      heading: "6a. Notice and takedown",
+      paragraphs: [
+        "ZETRAXUS acts as a hosting provider for content posted by members (Law No. 5651, Art. 5): we do not pre-screen every post and are not responsible for member content, but we remove unlawful content once we are notified of it. Anyone — member or not — can notify us with the Report button on any post, image or profile, or by email to " + LEGAL_CONTACT + ". Please include a link to the content and the reason. We review notices promptly and remove content that is unlawful or breaks these Terms.",
+        "The author of a post is solely responsible for it. We keep the account and technical records that the law requires and share them with authorities only when legally obliged to.",
+      ],
+    },
+    {
       heading: "7. Platform content",
       paragraphs: [
         "The ZETRAXUS name, logo, design and software are owned by ZETRAXUS and may not be copied or used without permission, except as allowed by law.",
@@ -145,6 +152,13 @@ export const TERMS: Record<Lang, LegalSection[]> = {
       heading: "6. Moderasyon ve yaptırımlar",
       paragraphs: [
         "Üyeler içerikleri şikâyet edebilir. Moderatörler, topluluğu korumak için gerektiğinde önceden bildirim yapmaksızın içerikleri düzenleyebilir, gizleyebilir, kilitleyebilir, sabitleyebilir veya kaldırabilir; bu şartları ihlal eden hesapları uyarabilir, kısıtlayabilir veya yasaklayabilir.",
+      ],
+    },
+    {
+      heading: "6a. İçerik bildirimi ve kaldırma",
+      paragraphs: [
+        "ZETRAXUS, üyelerin paylaştığı içerikler bakımından 5651 sayılı Kanun’un 5. maddesi kapsamında yer sağlayıcıdır: her paylaşımı önceden kontrol etmekle yükümlü değildir ve üye içeriklerinden sorumlu tutulamaz; ancak hukuka aykırı içerikten haberdar edildiğinde bu içeriği yayından kaldırır. Üye olsun olmasın herkes; her konu, görsel ve profildeki Şikâyet et butonuyla veya " + LEGAL_CONTACT + " adresine e-posta göndererek bildirimde bulunabilir. Bildirimde içeriğin bağlantısını ve gerekçeni belirt. Bildirimler hızla incelenir; hukuka aykırı veya bu şartları ihlal eden içerikler kaldırılır.",
+        "Bir paylaşımın hukuki sorumluluğu tamamen paylaşan üyeye aittir. Kanunen tutulması gereken hesap ve teknik kayıtları saklarız ve bunları yalnızca yasal zorunluluk halinde yetkili makamlarla paylaşırız.",
       ],
     },
     {

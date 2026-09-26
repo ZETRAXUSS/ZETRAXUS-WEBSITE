@@ -5,8 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { StarField } from "@/components/home/star-field";
 import { ParallaxField } from "@/components/home/parallax-field";
-import { ScrollReveal } from "@/components/home/scroll-reveal";
-import { CountUp } from "@/components/fx/count-up";
+import { StatStrip } from "@/components/profile/stat-strip";
 import { ThreadCard, ThreadCardSkeleton } from "@/components/forum/thread-card";
 import {
   BookmarkIcon,
@@ -434,7 +433,8 @@ export default function ProfilePage() {
                     {t("profile.viewPublic")}
                   </Link>
                 </p>
-                <p className="mt-4 max-w-2xl text-sm leading-6 text-white/45">{profile.bio || t("profile.noBio")}</p>
+                <p className="mt-4 max-w-2xl whitespace-pre-line text-sm leading-6 text-white/45">{profile.bio || t("profile.noBio")}</p>
+                <StatStrip items={stats} />
               </div>
             )}
           </div>
@@ -462,27 +462,8 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      {/* STATS */}
-      <section className="mx-auto w-full max-w-[1760px] px-6 py-16 md:px-10 md:py-20">
-        <div className="grid grid-cols-3 gap-4 md:grid-cols-6">
-          {stats.map((stat, index) => (
-            <ScrollReveal key={stat.label} delay={index * 50}>
-              <div
-                data-spotlight
-                className="relative overflow-hidden rounded-[18px] border border-white/[0.1] bg-[#080808] px-4 py-6 text-center transition-all duration-500 hover:-translate-y-0.5 hover:border-white/[0.2]"
-              >
-                <p className="stat-glow relative z-[3] text-xl font-black text-white md:text-2xl">
-                  <CountUp value={stat.value} />
-                </p>
-                <p className="relative z-[3] mt-1.5 text-[9px] uppercase tracking-[2px] text-white/30">{stat.label}</p>
-              </div>
-            </ScrollReveal>
-          ))}
-        </div>
-      </section>
-
       {/* TABS */}
-      <section className="mx-auto w-full max-w-[1760px] px-6 md:px-10">
+      <section className="mx-auto w-full max-w-[1760px] px-6 pt-14 md:px-10 md:pt-16">
         <div className="flex gap-8 border-b border-white/[0.08]">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
